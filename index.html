@@ -2,28 +2,30 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard – Controle de Sala (Jan → Jun / 2026)</title>
+    <title>📊 Dashboard – Controle de Sala (Camadas)</title>
 
     <!-- ==== Fonte ==== -->
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;800&display=swap" rel="stylesheet">
 
-    <!-- ==== Ícones (Font Awesome – substitua sua key se precisar) ==== -->
+    <!-- ==== Ícones (Font Awesome – substitua sua key) ==== -->
     <script src="https://kit.fontawesome.com/yourkit.js" crossorigin="anonymous"></script>
 
     <!-- ==== Bibliotecas ==== -->
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
 
-    <!-- ==== Bootstrap (layout responsivo) ==== -->
+    <!-- ==== Bootstrap (grid responsivo) ==== -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <style>
-        /* ---------- Cores e tipografia da identidade ---------- */
+        /* -------------------------------------------------
+           VARIÁVEIS DE COR & TIPOGRAFIA
+        ------------------------------------------------- */
         :root{
             --primary:#2e7d32;          /* verde‑escuro – títulos */
             --secondary:#66bb6a;        /* verde‑claro – cards */
-            --bg:#f5f5f5;               /* fundo neutro */
+            --bg:#f5f5f5;               /* fundo da página */
             --card-bg:#ffffff;          /* fundo dos cards */
             --accent:#ffdd55;           /* amarelo‑dourado – destaques */
         }
@@ -31,14 +33,64 @@
             font-family:'Nunito',sans-serif;
             background:var(--bg);
             color:var(--primary);
+            margin:0;
         }
-        .header{
-            background:var(--primary);
-            color:#fff;
-            padding:1.5rem 0;
+        a{color:var(--primary);text-decoration:none;}
+
+        /* -------------------------------------------------
+           ESTILO DAS CAMADAS (stages)
+        ------------------------------------------------- */
+        .stage{
+            position:fixed;
+            inset:0;
+            overflow-y:auto;
+            background:var(--bg);
+            padding:2rem 1rem;
+            transition:transform .4s ease-in-out,opacity .4s ease-in-out;
+            opacity:0;
+            transform:translateY(30px);
+            pointer-events:none;
+        }
+        .stage.active{
+            opacity:1;
+            transform:none;
+            pointer-events:auto;
+        }
+        .stage-header{
             text-align:center;
+            margin-bottom:2rem;
         }
-        .header h1{margin:0;font-size:2rem;}
+        .stage-header h2{
+            font-weight:800;
+            color:var(--primary);
+        }
+
+        /* -------------------------------------------------
+           BREADCRUMB (indicador de nível)
+        ------------------------------------------------- */
+        .breadcrumb-level{
+            display:flex;
+            justify-content:center;
+            margin-bottom:2rem;
+            gap:1rem;
+        }
+        .breadcrumb-level button{
+            background:var(--secondary);
+            border:none;
+            border-radius:8px;
+            padding:.5rem 1rem;
+            color:#fff;
+            font-weight:600;
+            cursor:pointer;
+            transition:background .2s;
+        }
+        .breadcrumb-level button.active{
+            background:var(--primary);
+        }
+
+        /* -------------------------------------------------
+           CARD DE KPI
+        ------------------------------------------------- */
         .card{
             background:var(--card-bg);
             border-radius:12px;
@@ -61,109 +113,228 @@
         .badge-encerrado{background:#e0e0e0;color:#424242;}
         .badge-notour{background:#ffcc80;color:#bf360c;}
         .badge-liner{background:#90caf9;color:#0d47a1;}
+
+        /* -------------------------------------------------
+           TABELA
+        ------------------------------------------------- */
         .table th{background:var(--secondary);color:#fff;}
         .table td,.table th{vertical-align:middle;}
         .grid-gap{gap:1.5rem;}
+        .btn-primary{background:var(--primary);border:none;}
+        .btn-primary:hover{background:#1b5e20;}
     </style>
 </head>
 
 <body>
-    <!-- ==================== HEADER ==================== -->
-    <header class="header">
-        <h1>📈 Controle de Sala – Jan → Jun / 2026</h1>
-    </header>
 
-    <main class="container-fluid my-4">
+    <!-- ======================================================
+         1️⃣ CAMADA – BOAS‑VINDAS
+    ====================================================== -->
+    <section id="stage-1" class="stage active">
+        <div class="stage-header">
+            <h2>👋 Bem‑vindo, Marcel!</h2>
+            <p>Este painel lhe permite consultar o controle de sala (Jan → Jun / 2026) em diferentes níveis.</p>
+        </div>
 
-        <!-- ==================== KPI ROW ==================== -->
-        <section class="row grid-gap">
-            <div class="col-md-3">
-                <div class="card text-center p-3">
-                    <div class="h4"><i class="fas fa-list"></i></div>
-                    <div id="kpi-total" class="display-5 fw-bold">0</div>
-                    <div class="text-muted">Atendimentos</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-center p-3">
-                    <div class="h4"><i class="fas fa-dollar-sign"></i></div>
-                    <div id="kpi-valor" class="display-5 fw-bold">R$ 0,00</div>
-                    <div class="text-muted">Valor vendido</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-center p-3">
-                    <div class="h4"><i class="fas fa-check-circle"></i></div>
-                    <div id="kpi-ativo" class="display-5 fw-bold">0 %</div>
-                    <div class="text-muted">Contratos ativos</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-center p-3">
-                    <div class="h4"><i class="fas fa-gift"></i></div>
-                    <div id="kpi-brindes" class="display-5 fw-bold">0</div>
-                    <div class="text-muted">Brindes entregues</div>
-                </div>
-            </div>
-        </section>
+        <div class="d-flex justify-content-center">
+            <button class="btn btn-primary btn-lg" onclick="showStage(2)">
+                <i class="fas fa-arrow-right me-2"></i>Iniciar análise
+            </button>
+        </div>
+    </section>
 
-        <!-- ==================== GRÁFICOS ==================== -->
-        <section class="row grid-gap mt-4">
-            <div class="col-lg-6">
-                <div class="card h-100">
-                    <div class="card-header">Valor vendido por mês</div>
-                    <div class="card-body"><div id="grafico-valor-mes" style="height:350px;"></div></div>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="card h-100">
-                    <div class="card-header">Distribuição de status</div>
-                    <div class="card-body"><div id="grafico-status" style="height:350px;"></div></div>
-                </div>
-            </div>
-        </section>
+    <!-- ======================================================
+         2️⃣ CAMADA – FILTROS
+    ====================================================== -->
+    <section id="stage-2" class="stage">
+        <div class="stage-header">
+            <h2>⚙️ Defina seus filtros</h2>
+        </div>
 
-        <!-- ==================== TABELA DETALHADA ==================== -->
-        <section class="row mt-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">Atendimentos – Detalhes</div>
-                    <div class="card-body">
-                        <table id="tabela-detalhes" class="table table-hover table-sm">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Data</th>
-                                    <th>Status</th>
-                                    <th>Nome 1</th>
-                                    <th>Nome 2</th>
-                                    <th>Promotor</th>
-                                    <th>Valor vendido</th>
-                                    <th>Local Captação</th>
-                                    <th>UF</th>
-                                    <th>Cidade</th>
-                                    <th>Brindes efetivos</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
+        <!-- Breadcrumb – indica o nível atual -->
+        <div class="breadcrumb-level">
+            <button class="active" onclick="showStage(2)">1 – Filtros</button>
+            <button onclick="showStage(3)">2 – Dashboard</button>
+        </div>
+
+        <div class="container">
+
+            <!-- ---- Filtros principais ---- -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <label class="form-label">Mês</label>
+                    <select id="filter-mes" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="1">Janeiro</option>
+                        <option value="2">Fevereiro</option>
+                        <option value="3">Março</option>
+                        <option value="4">Abril</option>
+                        <option value="5">Maio</option>
+                        <option value="6">Junho</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">UF</label>
+                    <select id="filter-uf" class="form-select">
+                        <option value="">Todas</option>
+                        <!-- opções serão preenchidas dinamicamente -->
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Status do Atendimento</label>
+                    <select id="filter-status" class="form-select">
+                        <option value="">Todos</option>
+                        <option>Encerrado</option>
+                        <option>NoTour</option>
+                        <option>Liner</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- ---- Botões de navegação ---- -->
+            <div class="d-flex justify-content-between">
+                <button class="btn btn-outline-secondary" onclick="showStage(1)">
+                    <i class="fas fa-arrow-left me-2"></i>Voltar
+                </button>
+                <button class="btn btn-primary" onclick="applyFilters()">
+                    Aplicar filtros <i class="fas fa-check ms-2"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======================================================
+         3️⃣ CAMADA – DASHBOARD
+    ====================================================== -->
+    <section id="stage-3" class="stage">
+        <div class="stage-header">
+            <h2>📊 Dashboard – Controle de Sala</h2>
+        </div>
+
+        <div class="breadcrumb-level">
+            <button onclick="showStage(2)">1 – Filtros</button>
+            <button class="active" onclick="showStage(3)">2 – Dashboard</button>
+        </div>
+
+        <div class="container">
+
+            <!-- ---- KPI Row ---- -->
+            <section class="row grid-gap">
+                <div class="col-md-3">
+                    <div class="card text-center p-3">
+                        <div class="h4"><i class="fas fa-list"></i></div>
+                        <div id="kpi-total" class="display-5 fw-bold">0</div>
+                        <div class="text-muted">Atendimentos</div>
                     </div>
                 </div>
+                <div class="col-md-3">
+                    <div class="card text-center p-3">
+                        <div class="h4"><i class="fas fa-dollar-sign"></i></div>
+                        <div id="kpi-valor" class="display-5 fw-bold">R$ 0,00</div>
+                        <div class="text-muted">Valor vendido</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center p-3">
+                        <div class="h4"><i class="fas fa-check-circle"></i></div>
+                        <div id="kpi-ativo" class="display-5 fw-bold">0 %</div>
+                        <div class="text-muted">Contratos ativos</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center p-3">
+                        <div class="h4"><i class="fas fa-gift"></i></div>
+                        <div id="kpi-brindes" class="display-5 fw-bold">0</div>
+                        <div class="text-muted">Brindes entregues</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ---- GRÁFICOS ---- -->
+            <section class="row grid-gap mt-4">
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-header">Valor vendido por mês</div>
+                        <div class="card-body"><div id="grafico-valor-mes" style="height:350px;"></div></div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-header">Distribuição de status</div>
+                        <div class="card-body"><div id="grafico-status" style="height:350px;"></div></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ---- TABELA DETALHADA ---- -->
+            <section class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">Atendimentos – Detalhes</div>
+                        <div class="card-body">
+                            <table id="tabela-detalhes" class="table table-hover table-sm">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Data</th>
+                                        <th>Status</th>
+                                        <th>Nome 1</th>
+                                        <th>Nome 2</th>
+                                        <th>Promotor</th>
+                                        <th>Valor vendido</th>
+                                        <th>Local Captação</th>
+                                        <th>UF</th>
+                                        <th>Cidade</th>
+                                        <th>Brindes efetivos</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ---- Botão de voltar ao topo / refazer filtros ---- -->
+            <div class="d-flex justify-content-between mt-4">
+                <button class="btn btn-outline-secondary" onclick="showStage(2)">
+                    <i class="fas fa-arrow-left me-2"></i>Alterar filtros
+                </button>
+                <button class="btn btn-primary" onclick="showStage(1)">
+                    <i class="fas fa-home me-2"></i>Início
+                </button>
             </div>
-        </section>
 
-    </main>
+        </div>
+    </section>
 
-    <!-- ==================== SCRIPT DE LEITURA & VISUALIZAÇÃO ==================== -->
+    <!-- ======================================================
+         4️⃣ SCRIPT – Lógica das camadas e do dashboard
+    ====================================================== -->
     <script>
-        /* -------------------------------------------------
-           CONFIGURAÇÕES
-        ------------------------------------------------- */
-        const CSV_PATH = 'controle_sala.csv';   // <- caminho relativo ao HTML
+        const CSV_PATH = 'controle_sala.csv';      // <-- mesmo diretório do HTML
+        let fullData = [];                         // guarda todo o CSV (sempre)
+        let filteredData = [];                     // guarda dados após filtro
 
         /* -------------------------------------------------
-           FUNÇÕES AUXILIARES
+           Navegação entre camadas (stages)
         ------------------------------------------------- */
-        const fmtBRL = n => n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+        function showStage(num){
+            document.querySelectorAll('.stage').forEach(s=>s.classList.remove('active'));
+            document.getElementById(`stage-${num}`).classList.add('active');
+
+            // atualiza breadcrumb visual
+            document.querySelectorAll('.breadcrumb-level button').forEach(btn=>{
+                btn.classList.toggle('active', btn.textContent.includes(num===2?'Filtros':'Dashboard'));
+            });
+        }
+
+        /* -------------------------------------------------
+           Formatação de valores monetários
+        ------------------------------------------------- */
+        const fmtBRL = n => Number(n).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+
         const badge = status => ({
             'Encerrado' : `<span class="badge badge-status badge-encerrado">Encerrado</span>`,
             'NoTour'   : `<span class="badge badge-status badge-notour">NoTour</span>`,
@@ -171,24 +342,59 @@
         })[status] || status;
 
         /* -------------------------------------------------
-           LEITURA DO CSV
+           Leitura do CSV (ou XLSX – opcional)
         ------------------------------------------------- */
         Papa.parse(CSV_PATH,{
             download:true,
             header:true,
             skipEmptyLines:true,
             complete: ({data}) => {
-                gerarKPIs(data);
-                gerarGraficos(data);
-                preencherTabela(data);
+                fullData = data;
+                populateUFOptions();          // preenche o combo UF na camada 2
+                filteredData = fullData;      // inicia sem filtro
+                renderDashboard();            // caso o usuário vá direto ao stage‑3
             },
             error: err => console.error('Erro ao ler CSV:',err)
         });
 
         /* -------------------------------------------------
+           Preenchimento do combo UF (camada 2)
+        ------------------------------------------------- */
+        function populateUFOptions(){
+            const ufSet = new Set(fullData.map(r=>r['UF']).filter(Boolean));
+            const sel = document.getElementById('filter-uf');
+            ufSet.forEach(uf=> {
+                const opt = document.createElement('option');
+                opt.value = uf;
+                opt.textContent = uf;
+                sel.appendChild(opt);
+            });
+        }
+
+        /* -------------------------------------------------
+           Aplicar filtros (camada 2 → 3)
+        ------------------------------------------------- */
+        function applyFilters(){
+            const mes   = document.getElementById('filter-mes').value;
+            const uf    = document.getElementById('filter-uf').value;
+            const stat  = document.getElementById('filter-status').value;
+
+            filteredData = fullData.filter(r=>{
+                const data = r['Data de atendimento'];
+                const mesOk = !mes || (data && data.split('/')[0]===mes);
+                const ufOk   = !uf  || (r['UF']===uf);
+                const statOk = !stat|| (r['Status atendimento']===stat);
+                return mesOk && ufOk && statOk;
+            });
+
+            renderDashboard();      // atualiza KPI, gráficos e tabela
+            showStage(3);
+        }
+
+        /* -------------------------------------------------
            KPI
         ------------------------------------------------- */
-        function gerarKPIs(rows){
+        function renderKPIs(rows){
             const totalAt = rows.length;
             const totalValor = rows.reduce((s,r)=>s+parseFloat(r['Valor vendido'].replace(/[^\d.-]/g,''))||0,0);
             const ativos = rows.filter(r=> (r['Status do contrato']||'').trim().toUpperCase()==='ATIVO').length;
@@ -198,35 +404,4 @@
                 return s + (m?parseInt(m[1]):0);
             },0);
 
-            document.getElementById('kpi-total').textContent   = totalAt;
-            document.getElementById('kpi-valor').textContent   = fmtBRL(totalValor);
-            document.getElementById('kpi-ativo').textContent   = ((ativos/totalAt)*100).toFixed(1)+'%';
-            document.getElementById('kpi-brindes').textContent = brinde;
-        }
-
-        /* -------------------------------------------------
-           GRÁFICOS
-        ------------------------------------------------- */
-        function gerarGraficos(rows){
-            /* ---- Valor vendido por mês ---- */
-            const porMes = {};
-            rows.forEach(r=>{
-                const d = r['Data de atendimento'];
-                if(!d) return;
-                const mes = d.split('/')[0];               // mês numérico (ex.: "1" para Janeiro)
-                const valor = parseFloat(r['Valor vendido'].replace(/[^\d.-]/g,''))||0;
-                porMes[mes] = (porMes[mes]||0)+valor;
-            });
-            const mesesOrd = Object.keys(porMes).sort((a,b)=>a-b);
-            const valores = mesesOrd.map(m=>porMes[m]);
-
-            Plotly.newPlot('grafico-valor-mes',[{
-                x: mesesOrd,
-                y: valores,
-                type:'bar',
-                marker:{color:'var(--secondary)'}
-            }],{
-                title:{text:'Valor vendido por mês',font:{color:'var(--primary)'}},
-                xaxis:{title:'Mês'},
-                yaxis:{title:'Valor (R$)',tickformat:',.0f'},
-                margin:{l:50,r:30,b:50,t:50},
+            document.getElementById('kpi-total').textContent  
