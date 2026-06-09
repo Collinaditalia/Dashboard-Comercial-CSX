@@ -2,13 +2,15 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard – Controle de Sala</title>
+    <title>Dashboard – Controle de Sala (Jan → Jun / 2026)</title>
 
-    <!-- ==== Fonte e ícones ==== -->
+    <!-- ==== Fonte ==== -->
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <!-- ==== Ícones (Font Awesome – substitua sua key se precisar) ==== -->
     <script src="https://kit.fontawesome.com/yourkit.js" crossorigin="anonymous"></script>
 
-    <!-- ==== Bibliotecas de visualização ==== -->
+    <!-- ==== Bibliotecas ==== -->
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
 
@@ -17,56 +19,51 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <style>
-        /* ---------- Fonte e cores da identidade ---------- */
-        :root {
-            --primary:#2e7d32;          /* verde‑escuro (títulos)   */
-            --secondary:#66bb6a;        /* verde‑claro (cards)      */
-            --bg:#f5f5f5;               /* fundo neutro              */
-            --card-bg:#ffffff;          /* fundo dos cards          */
-            --accent:#ffdd55;           /* amarelo‑dourado (destaques) */
+        /* ---------- Cores e tipografia da identidade ---------- */
+        :root{
+            --primary:#2e7d32;          /* verde‑escuro – títulos */
+            --secondary:#66bb6a;        /* verde‑claro – cards */
+            --bg:#f5f5f5;               /* fundo neutro */
+            --card-bg:#ffffff;          /* fundo dos cards */
+            --accent:#ffdd55;           /* amarelo‑dourado – destaques */
         }
-        body {
-            font-family: 'Nunito', sans-serif;
-            background: var(--bg);
-            color: var(--primary);
+        body{
+            font-family:'Nunito',sans-serif;
+            background:var(--bg);
+            color:var(--primary);
         }
-        h1, .section-title {
-            color: var(--primary);
-            font-weight: 800;
-        }
-        .header {
-            background: var(--primary);
+        .header{
+            background:var(--primary);
             color:#fff;
             padding:1.5rem 0;
             text-align:center;
         }
-        .header h1 {margin:0; font-size:2rem;}
-        .card {
-            background: var(--card-bg);
+        .header h1{margin:0;font-size:2rem;}
+        .card{
+            background:var(--card-bg);
             border-radius:12px;
             box-shadow:0 4px 12px rgba(0,0,0,.1);
-            transition:transform .2s, box-shadow .2s;
+            transition:transform .2s,box-shadow .2s;
         }
-        .card:hover{transform:translateY(-4px); box-shadow:0 8px 20px rgba(0,0,0,.15);}
-        .card-header {
-            background: var(--secondary);
+        .card:hover{transform:translateY(-4px);box-shadow:0 8px 20px rgba(0,0,0,.15);}
+        .card-header{
+            background:var(--secondary);
             color:#fff;
             padding:.75rem 1rem;
             border-radius:12px 12px 0 0;
             font-weight:600;
         }
-        .card-body {padding:1rem;}
-        .badge-status {
+        .badge-status{
             font-size:.75rem;
             padding:.25rem .5rem;
             border-radius:8px;
         }
-        .badge-encerrado {background:#e0e0e0; color:#424242;}
-        .badge-notour   {background:#ffcc80; color:#bf360c;}
-        .badge-liner    {background:#90caf9; color:#0d47a1;}
-        .table th {background:var(--secondary); color:#fff;}
-        .table td, .table th {vertical-align:middle;}
-        .grid-gap {gap:1.5rem;}
+        .badge-encerrado{background:#e0e0e0;color:#424242;}
+        .badge-notour{background:#ffcc80;color:#bf360c;}
+        .badge-liner{background:#90caf9;color:#0d47a1;}
+        .table th{background:var(--secondary);color:#fff;}
+        .table td,.table th{vertical-align:middle;}
+        .grid-gap{gap:1.5rem;}
     </style>
 </head>
 
@@ -80,7 +77,6 @@
 
         <!-- ==================== KPI ROW ==================== -->
         <section class="row grid-gap">
-            <!-- KPI 1 – Total de atendimentos -->
             <div class="col-md-3">
                 <div class="card text-center p-3">
                     <div class="h4"><i class="fas fa-list"></i></div>
@@ -88,8 +84,6 @@
                     <div class="text-muted">Atendimentos</div>
                 </div>
             </div>
-
-            <!-- KPI 2 – Valor total vendido -->
             <div class="col-md-3">
                 <div class="card text-center p-3">
                     <div class="h4"><i class="fas fa-dollar-sign"></i></div>
@@ -97,8 +91,6 @@
                     <div class="text-muted">Valor vendido</div>
                 </div>
             </div>
-
-            <!-- KPI 3 – % de contratos ativos -->
             <div class="col-md-3">
                 <div class="card text-center p-3">
                     <div class="h4"><i class="fas fa-check-circle"></i></div>
@@ -106,37 +98,27 @@
                     <div class="text-muted">Contratos ativos</div>
                 </div>
             </div>
-
-            <!-- KPI 4 – Brindes entregues -->
             <div class="col-md-3">
                 <div class="card text-center p-3">
                     <div class="h4"><i class="fas fa-gift"></i></div>
                     <div id="kpi-brindes" class="display-5 fw-bold">0</div>
-                    <div class="text-muted">Brindes efetivos</div>
+                    <div class="text-muted">Brindes entregues</div>
                 </div>
             </div>
         </section>
 
         <!-- ==================== GRÁFICOS ==================== -->
         <section class="row grid-gap mt-4">
-
-            <!-- Gráfico 1 – Valor vendido por mês -->
             <div class="col-lg-6">
                 <div class="card h-100">
                     <div class="card-header">Valor vendido por mês</div>
-                    <div class="card-body">
-                        <div id="grafico-valor-mes" style="height:350px;"></div>
-                    </div>
+                    <div class="card-body"><div id="grafico-valor-mes" style="height:350px;"></div></div>
                 </div>
             </div>
-
-            <!-- Gráfico 2 – Distribuição de status -->
             <div class="col-lg-6">
                 <div class="card h-100">
                     <div class="card-header">Distribuição de status</div>
-                    <div class="card-body">
-                        <div id="grafico-status" style="height:350px;"></div>
-                    </div>
+                    <div class="card-body"><div id="grafico-status" style="height:350px;"></div></div>
                 </div>
             </div>
         </section>
@@ -152,14 +134,14 @@
                                 <tr>
                                     <th>Data</th>
                                     <th>Status</th>
-                                    <th>Nome 1</th>
-                                    <th>Nome 2</th>
+                                    <th>Nome 1</th>
+                                    <th>Nome 2</th>
                                     <th>Promotor</th>
                                     <th>Valor vendido</th>
-                                    <th>Local Captação</th>
+                                    <th>Local Captação</th>
                                     <th>UF</th>
                                     <th>Cidade</th>
-                                    <th>Brindes efetivos</th>
+                                    <th>Brindes efetivos</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -171,136 +153,80 @@
 
     </main>
 
-    <!-- ==================== SCRIPT DE LEITURA E VIZUALIZAÇÃO ==================== -->
+    <!-- ==================== SCRIPT DE LEITURA & VISUALIZAÇÃO ==================== -->
     <script>
-        /* ---------- CONFIGURAÇÕES ---------- */
-        const CSV_PATH = 'controle_sala.csv';   // caminho relativo ao HTML
+        /* -------------------------------------------------
+           CONFIGURAÇÕES
+        ------------------------------------------------- */
+        const CSV_PATH = 'controle_sala.csv';   // <- caminho relativo ao HTML
 
-        /* ---------- FUNÇÕES AUXILIARES ---------- */
-        function formatBRL(num){
-            return num.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
-        }
-        function addBadge(status){
-            const map = {
-                'Encerrado': '<span class="badge badge-status badge-encerrado">Encerrado</span>',
-                'NoTour'   : '<span class="badge badge-status badge-notour">NoTour</span>',
-                'Liner'    : '<span class="badge badge-status badge-liner">Liner</span>'
-            };
-            return map[status] || status;
-        }
+        /* -------------------------------------------------
+           FUNÇÕES AUXILIARES
+        ------------------------------------------------- */
+        const fmtBRL = n => n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+        const badge = status => ({
+            'Encerrado' : `<span class="badge badge-status badge-encerrado">Encerrado</span>`,
+            'NoTour'   : `<span class="badge badge-status badge-notour">NoTour</span>`,
+            'Liner'    : `<span class="badge badge-status badge-liner">Liner</span>`
+        })[status] || status;
 
-        /* ---------- CARREGAMENTO DO CSV ---------- */
-        Papa.parse(CSV_PATH, {
+        /* -------------------------------------------------
+           LEITURA DO CSV
+        ------------------------------------------------- */
+        Papa.parse(CSV_PATH,{
             download:true,
             header:true,
             skipEmptyLines:true,
-            complete: (result) => {
-                const data = result.data;
-                gerarIndicadores(data);
+            complete: ({data}) => {
+                gerarKPIs(data);
                 gerarGraficos(data);
                 preencherTabela(data);
             },
-            error: (err) => console.error('Erro ao ler CSV:', err)
+            error: err => console.error('Erro ao ler CSV:',err)
         });
 
-        /* ---------- KPI ---------- */
-        function gerarIndicadores(rows){
+        /* -------------------------------------------------
+           KPI
+        ------------------------------------------------- */
+        function gerarKPIs(rows){
             const totalAt = rows.length;
-            const totalValor = rows.reduce((s,r)=> s + parseFloat(r['Valor vendido'].replace(/[^\d.-]/g,''))||0 ,0);
-            const ativos = rows.filter(r=> r['Status do contrato']?.trim().toUpperCase()==='ATIVO').length;
-            const brinde = rows.reduce((s,r)=> {
+            const totalValor = rows.reduce((s,r)=>s+parseFloat(r['Valor vendido'].replace(/[^\d.-]/g,''))||0,0);
+            const ativos = rows.filter(r=> (r['Status do contrato']||'').trim().toUpperCase()==='ATIVO').length;
+            const brinde = rows.reduce((s,r)=>{
                 const txt = r['Brindes efetivos']||'';
-                const match = txt.match(/TOTAL:\s*\d+/i);
-                return s + (match ? parseInt(match[0].split(':')[1]) : 0);
+                const m = txt.match(/TOTAL:\s*(\d+)/i);
+                return s + (m?parseInt(m[1]):0);
             },0);
 
             document.getElementById('kpi-total').textContent   = totalAt;
-            document.getElementById('kpi-valor').textContent   = formatBRL(totalValor);
+            document.getElementById('kpi-valor').textContent   = fmtBRL(totalValor);
             document.getElementById('kpi-ativo').textContent   = ((ativos/totalAt)*100).toFixed(1)+'%';
             document.getElementById('kpi-brindes').textContent = brinde;
         }
 
-        /* ---------- GRÁFICOS ---------- */
+        /* -------------------------------------------------
+           GRÁFICOS
+        ------------------------------------------------- */
         function gerarGraficos(rows){
-            // Valor por mês
-            const valorPorMes = {};
+            /* ---- Valor vendido por mês ---- */
+            const porMes = {};
             rows.forEach(r=>{
-                const data = r['Data de atendimento'];
-                const mes = data ? data.split('/')[1] : '??';
+                const d = r['Data de atendimento'];
+                if(!d) return;
+                const mes = d.split('/')[0];               // mês numérico (ex.: "1" para Janeiro)
                 const valor = parseFloat(r['Valor vendido'].replace(/[^\d.-]/g,''))||0;
-                valorPorMes[mes] = (valorPorMes[mes]||0)+valor;
+                porMes[mes] = (porMes[mes]||0)+valor;
             });
-            const meses = Object.keys(valorPorMes).sort((a,b)=>a-b);
-            const valores = meses.map(m=>valorPorMes[m]);
+            const mesesOrd = Object.keys(porMes).sort((a,b)=>a-b);
+            const valores = mesesOrd.map(m=>porMes[m]);
 
-            Plotly.newPlot('grafico-valor-mes', [{
-                x: meses,
+            Plotly.newPlot('grafico-valor-mes',[{
+                x: mesesOrd,
                 y: valores,
-                type: 'bar',
-                marker:{color: 'var(--secondary)'}
+                type:'bar',
+                marker:{color:'var(--secondary)'}
             }],{
-                title:{text:'Valor vendido por mês',font:{color: 'var(--primary)'}},
-                xaxis:{title:'Mês', tickmode:'linear'},
-                yaxis:{title:'Valor (R$)', tickformat: ',.0f'},
+                title:{text:'Valor vendido por mês',font:{color:'var(--primary)'}},
+                xaxis:{title:'Mês'},
+                yaxis:{title:'Valor (R$)',tickformat:',.0f'},
                 margin:{l:50,r:30,b:50,t:50},
-                plot_bgcolor:'rgba(255,255,255,0.8)',
-                paper_bgcolor:'rgba(255,255,255,0.8)'
-            });
-
-            // Distribuição de status
-            const contStatus = {};
-            rows.forEach(r=> {
-                const st = r['Status atendimento']||'Indef.';
-                contStatus[st] = (contStatus[st]||0)+1;
-            });
-            const labels = Object.keys(contStatus);
-            const values = labels.map(l=>contStatus[l]);
-
-            Plotly.newPlot('grafico-status', [{
-                values,
-                labels,
-                type:'pie',
-                marker:{colors:['#90caf9','#ffcc80','#e0e0e0']},
-                textinfo:'label+percent'
-            }],{
-                title:{text:'Distribuição de Status',font:{color:'var(--primary)'}},
-                margin:{l:30,r:30,b:30,t:50}
-            });
-        }
-
-        /* ---------- TABELA ---------- */
-        function preencherTabela(rows){
-            const tbody = document.querySelector('#tabela-detalhes tbody');
-            rows.forEach(r=>{
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${r['Data de atendimento']||''}</td>
-                    <td>${addBadge(r['Status atendimento']||'')}</td>
-                    <td>${r['Nome 1']||''}</td>
-                    <td>${r['Nome 2']||''}</td>
-                    <td>${r['Promotor de marketing']||''}</td>
-                    <td>${formatBRL(parseFloat(r['Valor vendido'].replace(/[^\d.-]/g,''))||0)}</td>
-                    <td>${r['Local Captação']||''}</td>
-                    <td>${r['UF']||''}</td>
-                    <td>${r['Cidade']||''}</td>
-                    <td>${r['Brindes efetivos']||''}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        /* ----- Caso queira ler o XLSX direto (opcional) -----
-        // Descomente a linha abaixo e inclua a lib SheetJS no <head>
-        // <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-        // function lerXLSX(path){
-        //   fetch(path).then(r=>r.arrayBuffer()).then(ab=>{
-        //      const wb = XLSX.read(ab,{type:'array'});
-        //      const ws = wb.Sheets[wb.SheetNames[0]];
-        //      const json = XLSX.utils.sheet_to_json(ws, {defval:''});
-        //      // ...o mesmo fluxo usado acima para CSV...
-        //   });
-        // }
-        */
-    </script>
-</body>
-</html>
