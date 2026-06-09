@@ -1,160 +1,227 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Dashboard – VGV por Promotor, Consultor e Closer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <title>Dashboard VGV – Universo de Planetas</title>
 
-  <!-- Plotly (gráficos) -->
-  <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist@2.29.1"></script>
-
-  <!-- PapaParse (CSV → JSON) -->
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-
-  <!-- DataTables (tabelas interativas) -->
-  <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/datatables@1.13.8/media/css/jquery.dataTables.min.css"/>
-  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/datatables@1.13.8/media/js/jquery.dataTables.min.js"></script>
-
+  <!-- CSS de estilo planetário -->
   <style>
-    body {font-family: Arial, Helvetica, sans-serif; margin:0; padding:0;}
-    header {background:#004e94; color:#fff; padding:1rem; text-align:center;}
-    .container {max-width:1200px; margin:auto; padding:1rem;}
-    h2 {margin-top:2rem; color:#004e94;}
-    .chart {margin-top:1rem;}
-    .table-wrapper {margin-top:1rem; overflow-x:auto;}
-    table.dataTable thead th {background:#004e94; color:#fff;}
+    /* Fundo do “universo” */
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: radial-gradient(circle at 50% 20%, #0b1d3a, #001020);
+      color: #e0eaff;
+      min-height: 100vh;
+    }
+
+    h1, h2 {
+      text-align: center;
+      color: #ffdd55;
+      margin: 0.5rem 0;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+
+    /* Cards “planeta” */
+    .planet-card {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 2rem;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      position: relative;
+    }
+
+    .planet-card::before {
+      content: "";
+      position: absolute;
+      inset: -5px;
+      border-radius: 12px;
+      background: linear-gradient(135deg,
+        rgba(255,221,85,0.2),
+        rgba(0,255,255,0.2),
+        rgba(255,0,200,0.2));
+      opacity: 0.4;
+      z-index: -1;
+      animation: rotate 30s linear infinite;
+    }
+
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.5rem;
+    }
+
+    th, td {
+      padding: 0.5rem;
+      border: 1px solid rgba(255,255,255,0.2);
+      text-align: left;
+    }
+
+    th {
+      background: rgba(255,255,255,0.1);
+    }
+
+    /* Área dos gráficos */
+    .chart-container {
+      position: relative;
+      height: 400px;
+      margin-top: 1rem;
+    }
   </style>
+
+  <!-- Bibliotecas externas -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 
 <body>
-<header>
-  <h1>🏠 Dashboard de Vendas – Controle de Sala (Jan‑2026 → 08‑06‑2026)</h1>
-</header>
+  <h1>📊 Dashboard VGV – Universo de Planetas</h1>
 
-<div class="container">
+  <div class="container">
 
-  <!-- ==================== GRÁFICO – VGV POR PROMOTOR ==================== -->
-  <section>
-    <h2>VGV por Promotor(a) de Marketing</h2>
-    <div id="promotorChart" class="chart"></div>
-  </section>
+    <!-- PROMOTOR -->
+    <section class="planet-card" id="promotor-section">
+      <h2>🔭 VGV – Promotor</h2>
+      <div id="promotor-table"></div>
+      <canvas id="promotor-chart" class="chart-container"></canvas>
+    </section>
 
-  <!-- ==================== TABELA – CONSULTOR ==================== -->
-  <section>
-    <h2>VGV por Consultor (coluna “Nome 1”)</h2>
-    <div class="table-wrapper">
-      <table id="consultorTable" class="display" style="width:100%"></table>
-    </div>
-  </section>
+    <!-- CONSULTOR -->
+    <section class="planet-card" id="consultor-section">
+      <h2>🪐 VGV – Consultor</h2>
+      <div id="consultor-table"></div>
+      <canvas id="consultor-chart" class="chart-container"></canvas>
+    </section>
 
-  <!-- ==================== TABELA – CLOSER ==================== -->
-  <section>
-    <h2>VGV por Closer</h2>
-    <div class="table-wrapper">
-      <table id="closerTable" class="display" style="width:100%"></table>
-    </div>
-  </section>
+    <!-- CLOSER -->
+    <section class="planet-card" id="closer-section">
+      <h2>🌑 VGV – Closer</h2>
+      <div id="closer-table"></div>
+      <canvas id="closer-chart" class="chart-container"></canvas>
+    </section>
 
-</div>
+  </div>
 
-<script>
-/* -------------------------------------------------------------
-   Função genérica para ler CSV via PapaParse (retorna Promise)
-   ------------------------------------------------------------- */
-function loadCSV(url) {
-  return new Promise((resolve, reject) => {
-    Papa.parse(url, {
-      download: true,
-      header: true,
-      skipEmptyLines: true,
-      complete: results => resolve(results.data),
-      error: err => reject(err)
-    });
-  });
-}
+  <!-- Script de carregamento e visualização -->
+  <script>
+    // Função genérica para criar tabela HTML a partir de dados CSV
+    function createTable(containerId, data) {
+      const container = document.getElementById(containerId);
+      if (!data || data.length === 0) {
+        container.innerHTML = '<p>Sem dados.</p>';
+        return;
+      }
 
-/* -------------------------------------------------------------
-   1️⃣  Carrega VGV por Promotor e cria o gráfico de barras
-   ------------------------------------------------------------- */
-async function drawPromotorChart() {
-  const data = await loadCSV('vgv_promotor.csv');
+      const table = document.createElement('table');
+      const thead = document.createElement('thead');
+      const tbody = document.createElement('tbody');
 
-  // Ordena decrescente pelo valor
-  data.sort((a, b) => +b["Valor vendido"] - +a["Valor vendido"]);
+      // Cabeçalho
+      const headerRow = document.createElement('tr');
+      data[0].forEach(col => {
+        const th = document.createElement('th');
+        th.textContent = col;
+        headerRow.appendChild(th);
+      });
+      thead.appendChild(headerRow);
 
-  const names = data.map(r => r["Promotor de marketing"]);
-  const values = data.map(r => +r["Valor vendido"]);
+      // Linhas
+      data.slice(1).forEach(row => {
+        const tr = document.createElement('tr');
+        row.forEach(cell => {
+          const td = document.createElement('td');
+          td.textContent = cell;
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
 
-  const trace = {
-    type: 'bar',
-    x: values,
-    y: names,
-    orientation: 'h',
-    marker: {color: 'rgba(0,78,148,0.7)'},
-    hovertemplate: '%{y}<br>R$ %{x:,.2f}<extra></extra>'
-  };
+      table.appendChild(thead);
+      table.appendChild(tbody);
+      container.innerHTML = '';
+      container.appendChild(table);
+    }
 
-  const layout = {
-    margin: {l: 180, r: 30, t: 30, b: 30},
-    xaxis: {title: 'Valor vendido (R$)', tickformat: ',.2f'},
-    yaxis: {automargin: true},
-    height: Math.max(400, names.length * 30 + 120)
-  };
+    // Função para gerar gráfico de barras (VGV por mês, por exemplo)
+    function createBarChart(canvasId, labels, values, title) {
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: title,
+            data: values,
+            backgroundColor: 'rgba(255,221,85,0.6)',
+            borderColor: 'rgba(255,221,85,1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            title: {
+              display: true,
+              text: title,
+              color: '#ffdd55',
+              font: { size: 16 }
+            }
+          },
+          scales: {
+            x: { ticks: { color: '#e0eaff' } },
+            y: { ticks: { color: '#e0eaff' }, beginAtZero: true }
+          }
+        }
+      });
+    }
 
-  Plotly.newPlot('promotorChart', [trace], layout, {responsive: true});
-}
+    // Carrega CSVs e gera tabelas + gráficos
+    function loadCSV(path, tableDivId, chartId, chartTitle) {
+      Papa.parse(path, {
+        download: true,
+        header: false,
+        skipEmptyLines: true,
+        complete: function(results) {
+          const data = results.data;
+          createTable(tableDivId, data);
 
-/* -------------------------------------------------------------
-   2️⃣  Cria as tabelas de Consultor e Closer (DataTables)
-   ------------------------------------------------------------- */
-async function buildTables() {
-  const [consultor, closer] = await Promise.all([
-    loadCSV('vgv_consultor.csv'),
-    loadCSV('vgv_closer.csv')
-  ]);
+          // Exemplo de agregação: somar VGV (coluna 2) por mês (coluna 1)
+          const map = new Map(); // mês → soma
+          for (let i = 1; i < data.length; i++) {
+            const row = data[i];
+            const month = row[0];
+            const vgv = parseFloat(row[1].replace(/[^\d.-]/g, '')) || 0;
+            map.set(month, (map.get(month) || 0) + vgv);
+          }
+          const labels = Array.from(map.keys());
+          const values = Array.from(map.values());
 
-  // ---- CONSULTOR ------------------------------------------------
-  $('#consultorTable').DataTable({
-    data: consultor,
-    columns: [
-      {title: 'Consultor (Nome 1)', data: 'Nome 1'},
-      {title: 'VGV (R$)', data: 'Valor vendido',
-       render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ')}
-    ],
-    order: [[1, 'desc']],
-    pageLength: 10,
-    lengthMenu: [10, 25, 50, 100]
-  });
+          createBarChart(chartId, labels, values, chartTitle);
+        },
+        error: function(err) {
+          console.error('Erro ao ler', path, err);
+          document.getElementById(tableDivId).innerHTML = '<p>Erro ao carregar dados.</p>';
+        }
+      });
+    }
 
-  // ---- CLOSER ---------------------------------------------------
-  $('#closerTable').DataTable({
-    data: closer,
-    columns: [
-      {title: 'Closer', data: 'Closer'},
-      {title: 'VGV (R$)', data: 'Valor vendido',
-       render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ')}
-    ],
-    order: [[1, 'desc']],
-    pageLength: 10,
-    lengthMenu: [10, 25, 50, 100]
-  });
-}
-
-/* -------------------------------------------------------------
-   3️⃣  Inicializa tudo
-   ------------------------------------------------------------- */
-(async function () {
-  try {
-    await Promise.all([drawPromotorChart(), buildTables()]);
-  } catch (e) {
-    console.error('Erro ao carregar os dados:', e);
-    document.body.insertAdjacentHTML('beforeend',
-      `<p style="color:red; text-align:center;">Falha ao carregar os arquivos CSV. Verifique se eles estão no mesmo diretório do index.html.</p>`);
-  }
-})();
-</script>
-
+    // ---- INICIALIZAÇÃO ----
+    loadCSV('vgv_promotor.csv', 'promotor-table', 'promotor-chart', 'VGV – Promotor (por mês)');
+    loadCSV('vgv_consultor.csv', 'consultor-table', 'consultor-chart', 'VGV – Consultor (por mês)');
+    loadCSV('vgv_closer.csv',   'closer-table',   'closer-chart',   'VGV – Closer (por mês)');
+  </script>
 </body>
 </html>
