@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard – VGV por Promotor, Consultor e Closer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Plotly (gráficos) -->
+  <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist@2.29.1"></script>
+
+  <!-- PapaParse (CSV → JSON) -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+  <!-- DataTables (tabelas interativas) -->
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/datatables@1.13.8/media/css/jquery.dataTables.min.css"/>
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/datatables@1.13.8/media/js/jquery.dataTables.min.js"></script>
+
+  <style>
+    body {font-family: Arial, Helvetica, sans-serif; margin:0; padding:0;}
+    header {background:#004e94; color:#fff; padding:1rem; text-align:center;}
+    .container {max-width:1200px; margin:auto; padding:1rem;}
+    h2 {margin-top:2rem; color:#004e94;}
+    .chart {margin-top:1rem;}
+    .table-wrapper {margin-top:1rem; overflow-x:auto;}
+    table.dataTable thead th {background:#004e94; color:#fff;}
+  </style>
+</head>
+
+<body>
+<header>
+  <h1>🏠 Dashboard de Vendas – Controle de Sala (Jan‑2026 → 08‑06‑2026)</h1>
+</header>
+
+<div class="container">
+
+  <!-- ==================== GRÁFICO – VGV POR PROMOTOR ==================== -->
+  <section>
+    <h2>VGV por Promotor(a) de Marketing</h2>
+    <div id="promotorChart" class="chart"></div>
+  </section>
+
+  <!-- ==================== TABELA – CONSULTOR ==================== -->
+  <section>
+    <h2>VGV por Consultor (coluna “Nome 1”)</h2>
+    <div class="table-wrapper">
+      <table id="consultorTable" class="display" style="width:100%"></table>
+    </div>
+  </section>
+
+  <!-- ==================== TABELA – CLOSER ==================== -->
+  <section>
+    <h2>VGV por Closer</h2>
+    <div class="table-wrapper">
+      <table id="closerTable" class="display" style="width:100%"></table>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* -------------------------------------------------------------
+   Função genérica para ler CSV via PapaParse (retorna Promise)
+   ------------------------------------------------------------- */
+function loadCSV(url) {
+  return new Promise((resolve, reject) => {
+    Papa.parse(url, {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: results => resolve(results.data),
+      error: err => reject(err)
+    });
+  });
+}
+
+/* -------------------------------------------------------------
+   1️⃣  Carrega VGV por Promotor e cria o gráfico de barras
+   ------------------------------------------------------------- */
+async function drawPromotorChart() {
+  const data = await loadCSV('vgv_promotor.csv');
+
+  // Ordena decrescente pelo valor
+  data.sort((a, b) => +b["Valor vendido"] - +a["Valor vendido"]);
+
+  const names = data.map(r => r["Promotor de marketing"]);
+  const values = data.map(r => +r["Valor vendido"]);
+
+  const trace = {
+    type: 'bar',
+    x: values,
+    y: names,
+    orientation: 'h',
+    marker: {color: 'rgba(0,78,148,0.7)'},
+    hovertemplate: '%{y}<br>R$ %{x:,.2f}<extra></extra>'
+  };
+
+  const layout = {
+    margin: {l: 180, r: 30, t: 30, b: 30},
+    xaxis: {title: 'Valor vendido (R$)', tickformat: ',.2f'},
+    yaxis: {automargin: true},
+    height: Math.max(400, names.length * 30 + 120)
+  };
+
+  Plotly.newPlot('promotorChart', [trace], layout, {responsive: true});
+}
+
+/* -------------------------------------------------------------
+   2️⃣  Cria as tabelas de Consultor e Closer (DataTables)
+   ------------------------------------------------------------- */
+async function buildTables() {
+  const [consultor, closer] = await Promise.all([
+    loadCSV('vgv_consultor.csv'),
+    loadCSV('vgv_closer.csv')
+  ]);
+
+  // ---- CONSULTOR ------------------------------------------------
+  $('#consultorTable').DataTable({
+    data: consultor,
+    columns: [
+      {title: 'Consultor (Nome 1)', data: 'Nome 1'},
+      {title: 'VGV (R$)', data: 'Valor vendido',
+       render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ')}
+    ],
+    order: [[1, 'desc']],
+    pageLength: 10,
+    lengthMenu: [10, 25, 50, 100]
+  });
+
+  // ---- CLOSER ---------------------------------------------------
+  $('#closerTable').DataTable({
+    data: closer,
+    columns: [
+      {title: 'Closer', data: 'Closer'},
+      {title: 'VGV (R$)', data: 'Valor vendido',
+       render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ')}
+    ],
+    order: [[1, 'desc']],
+    pageLength: 10,
+    lengthMenu: [10, 25, 50, 100]
+  });
+}
+
+/* -------------------------------------------------------------
+   3️⃣  Inicializa tudo
+   ------------------------------------------------------------- */
+(async function () {
+  try {
+    await Promise.all([drawPromotorChart(), buildTables()]);
+  } catch (e) {
+    console.error('Erro ao carregar os dados:', e);
+    document.body.insertAdjacentHTML('beforeend',
+      `<p style="color:red; text-align:center;">Falha ao carregar os arquivos CSV. Verifique se eles estão no mesmo diretório do index.html.</p>`);
+  }
+})();
+</script>
+
+</body>
+</html>
