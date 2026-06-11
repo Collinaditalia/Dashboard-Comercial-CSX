@@ -2,1229 +2,620 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Painel de Atendimentos</title>
-  <meta name="color-scheme" content="dark light" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Painel CSV - Atendimento, Vendas e Metas</title>
   <style>
     :root{
-      --bg0:#070A12;
-      --bg1:#0B1222;
-      --card: rgba(255,255,255,.06);
-      --stroke: rgba(255,255,255,.12);
-      --text:#EAF0FF;
-      --muted: rgba(234,240,255,.72);
-      --good:#5CFFB0;
-      --med:#FFDF6C;
-      --bad:#FF6B8B;
-      --accent:#7C5CFF;
-      --shadow: 0 20px 60px rgba(0,0,0,.55);
-      --radius: 18px;
-      --radius2: 12px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+      --bg:#0b1020;
+      --panel:#111a33;
+      --panel2:#0f1730;
+      --text:#e9edff;
+      --muted:#a9b3da;
+      --accent:#7c5cff;
+      --accent2:#22d3ee;
+      --good:#34d399;
+      --warn:#fbbf24;
+      --bad:#fb7185;
+      --line:rgba(255,255,255,.08);
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius:16px;
+      --radius2:12px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
     }
-    *{box-sizing:border-box}
-    html,body{height:100%}
+    *{ box-sizing:border-box; }
     body{
       margin:0;
       font-family:var(--sans);
+      background: radial-gradient(1200px 600px at 20% 10%, rgba(124,92,255,.25), transparent 60%),
+                  radial-gradient(900px 600px at 80% 20%, rgba(34,211,238,.18), transparent 55%),
+                  radial-gradient(900px 700px at 50% 100%, rgba(52,211,153,.12), transparent 60%),
+                  var(--bg);
       color:var(--text);
-      background:
-        radial-gradient(1200px 700px at 10% 10%, rgba(124,92,255,.25), transparent 55%),
-        radial-gradient(900px 600px at 90% 20%, rgba(124,92,255,.14), transparent 55%),
-        radial-gradient(800px 600px at 40% 90%, rgba(92,255,176,.10), transparent 55%),
-        linear-gradient(180deg, var(--bg0), var(--bg1));
-      overflow-x:hidden;
     }
-    .wrap{max-width:1400px; margin:0 auto; padding:28px 16px 60px}
     header{
-      display:flex; align-items:flex-end; justify-content:space-between; gap:16px;
-      padding:18px 18px;
-      background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
-      border:1px solid var(--stroke);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
+      padding:22px 18px 10px;
+      max-width: 1200px;
+      margin: 0 auto;
     }
-    h1{margin:0; font-size:20px; letter-spacing:.2px}
-    .sub{margin:6px 0 0; color:var(--muted); font-size:13px}
-    .pill{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:8px 10px;
-      border-radius: 999px;
-      border:1px solid var(--stroke);
-      background: rgba(0,0,0,.18);
-      font-family: var(--mono);
-      font-size:12px;
-      color:var(--muted);
-      white-space:nowrap;
-    }
-
-    .tabs{
-      margin-top:14px;
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-    }
-    .tabbtn{
-      padding:10px 12px;
-      border-radius: 999px;
-      border:1px solid var(--stroke);
-      background: rgba(0,0,0,.18);
-      color: var(--text);
-      cursor:pointer;
-      font-size:13px;
-    }
-    .tabbtn.active{
-      background: linear-gradient(180deg, rgba(124,92,255,.25), rgba(124,92,255,.10));
-      border-color: rgba(124,92,255,.35);
-    }
-
-    .grid{display:grid; grid-template-columns: repeat(12, 1fr); gap:14px; margin-top:14px;}
-    .card{
-      grid-column: span 12;
-      padding:16px;
-      background: var(--card);
-      border: 1px solid var(--stroke);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
-    }
-
-    /* KPIs */
-    .kpis{display:grid; grid-template-columns: repeat(2, 1fr); gap:12px;}
-    @media (min-width: 640px){ .kpis{grid-template-columns: repeat(3, 1fr);} }
-    @media (min-width: 900px){ .kpis{grid-template-columns: repeat(4, 1fr);} }
-    @media (min-width: 1200px){ .kpis{grid-template-columns: repeat(9, 1fr);} }
-
-    .kpi{
-      padding:14px;
-      border-radius: var(--radius2);
-      border:1px solid var(--stroke);
-      background: rgba(0,0,0,.15);
-      min-height:92px;
-      display:flex;
-      flex-direction:column;
+    .titleRow{
+      display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;
       justify-content:space-between;
     }
-    .kpi .label{font-size:11px;color:var(--muted);line-height:1.3;margin-bottom:8px}
-    .kpi .value{font-size:16px;font-weight:700;letter-spacing:.2px;flex-grow:1;display:flex;align-items:center;gap:8px}
-    @media (min-width: 640px){ .kpi .label{font-size:12px} .kpi .value{font-size:18px} }
-    @media (min-width: 1024px){ .kpi .value{font-size:20px} }
-    .kpi .hint{margin-top:6px;font-size:10px;color:var(--muted);opacity:.7}
-
-    /* Filters */
-    .filters .row{
+    h1{
+      margin:0;
+      font-size: 20px;
+      letter-spacing:.2px;
+    }
+    .sub{
+      color:var(--muted);
+      font-size:13px;
+      margin-top:6px;
+    }
+    .wrap{
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 12px 18px 26px;
       display:grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: 250px 1fr;
+      gap:14px;
+    }
+    @media (max-width: 980px){
+      .wrap{ grid-template-columns: 1fr; }
+      .sidebar{ position: sticky; top:0; z-index:3; }
+    }
+    .sidebar{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--line);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: 12px;
+    }
+    .brand{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      padding: 10px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.03);
+      border:1px solid var(--line);
+    }
+    .dot{
+      width:10px;height:10px;border-radius:999px;
+      background: linear-gradient(180deg, var(--accent), var(--accent2));
+      box-shadow: 0 0 0 6px rgba(124,92,255,.15);
+      margin-left:4px;
+    }
+    .brand strong{ font-size: 13px; }
+    .brand small{ display:block; color:var(--muted); margin-top:2px; font-size:12px; }
+    .tabs{
+      margin-top: 12px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .tabbtn{
+      width:100%;
+      text-align:left;
+      padding: 10px 10px;
+      border-radius: 12px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      color: var(--text);
+      cursor:pointer;
+      transition: .15s ease;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      font-size: 14px;
+    }
+    .tabbtn:hover{ transform: translateY(-1px); border-color: rgba(124,92,255,.35); }
+    .tabbtn.active{
+      background: linear-gradient(180deg, rgba(124,92,255,.25), rgba(255,255,255,.04));
+      border-color: rgba(124,92,255,.45);
+    }
+    .pill{
+      font-family: var(--mono);
+      font-size: 11px;
+      color: rgba(255,255,255,.75);
+      background: rgba(255,255,255,.06);
+      border:1px solid var(--line);
+      padding: 2px 8px;
+      border-radius: 999px;
+      white-space:nowrap;
+    }
+    .main{
+      min-height: 520px;
+    }
+    .panel{
+      display:none;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--line);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: 14px;
+    }
+    .panel.active{ display:block; }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 980px){ .grid{ grid-template-columns: 1fr; } }
+
+    .card{
+      background: rgba(0,0,0,.12);
+      border: 1px solid var(--line);
+      border-radius: var(--radius2);
+      padding: 12px;
+    }
+    .card h3{
+      margin: 0 0 8px 0;
+      font-size: 13px;
+      color: rgba(255,255,255,.9);
+      letter-spacing: .2px;
+    }
+    .smallNote{
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+    .row{
+      display:grid;
       gap:10px;
       align-items:end;
     }
-    @media (max-width: 700px){
-      .filters .row{grid-template-columns:1fr}
+    label{
+      display:block;
+      font-size: 12px;
+      color: rgba(255,255,255,.85);
+      margin-bottom:6px;
     }
-    label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
-    select, input{
+    input, select{
       width:100%;
-      padding:10px 10px;
+      padding: 10px 10px;
       border-radius: 12px;
-      border:1px solid var(--stroke);
-      background: rgba(10,12,20,.55);
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.04);
       color: var(--text);
-      outline:none;
+      outline: none;
     }
-    input::placeholder{color: rgba(234,240,255,.42)}
-    .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    input::placeholder{ color: rgba(233,237,255,.45); }
     button{
-      padding:10px 12px;
+      padding: 10px 12px;
       border-radius: 12px;
-      border:1px solid var(--stroke);
-      background: linear-gradient(180deg, rgba(124,92,255,.25), rgba(124,92,255,.10));
+      border: 1px solid rgba(124,92,255,.4);
+      background: rgba(124,92,255,.18);
       color: var(--text);
       cursor:pointer;
-    }
-    button.secondary{background: rgba(0,0,0,.18)}
-
-    .err{
-      margin-top:12px;
-      padding:12px 14px;
-      border-radius: 14px;
-      border:1px solid rgba(255,107,139,.35);
-      background: rgba(255,107,139,.10);
-      color: rgba(255,220,230,.95);
-      display:none;
-      white-space:pre-wrap;
-    }
-
-    /* Table */
-    .tableWrap{overflow:auto; border-radius:14px; border:1px solid var(--stroke);}
-    table{width:100%; border-collapse:collapse; min-width: 980px; background: rgba(0,0,0,.10);}
-    th,td{padding:10px 10px; border-bottom:1px solid rgba(255,255,255,.08); text-align:left; font-size:13px; white-space:nowrap;}
-    th{
-      position:sticky; top:0;
-      background: rgba(10,12,20,.85);
-      backdrop-filter: blur(8px);
-      z-index:2;
-      color: rgba(234,240,255,.85);
+      transition:.15s ease;
       font-weight:600;
-      cursor:pointer;
-      user-select:none;
     }
-    th .sort{
-      margin-left:6px;
-      font-size:11px;
-      opacity:.7;
+    button:hover{ transform: translateY(-1px); border-color: rgba(124,92,255,.7); }
+    button.secondary{
+      border-color: var(--line);
+      background: rgba(255,255,255,.04);
+      font-weight: 600;
     }
-    tr:hover td{background: rgba(255,255,255,.03);}
-    .right{text-align:right}
-    .center{text-align:center}
-    .muted{color:var(--muted)}
-    .badge{
-      display:inline-flex; align-items:center; justify-content:center;
-      padding:2px 8px; border-radius:999px; font-size:12px;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.18);
-    }
-    .b-good{border-color: rgba(92,255,176,.35); color: rgba(92,255,176,.95); background: rgba(92,255,176,.10);}
-    .b-med{border-color: rgba(255,223,108,.35); color: rgba(255,223,108,.95); background: rgba(255,223,108,.10);}
-    .b-bad{border-color: rgba(255,107,139,.35); color: rgba(255,107,139,.95); background: rgba(255,107,139,.10);}
+    .btns{ display:flex; gap:10px; flex-wrap:wrap; }
 
-    .tabPanel{display:none}
-    .tabPanel.active{display:block}
-    .twoCols{display:grid; grid-template-columns: 1fr 1fr; gap:14px;}
-    @media (max-width: 980px){ .twoCols{grid-template-columns:1fr} }
-    .smallNote{font-size:12px; color:var(--muted); margin-top:8px; line-height:1.4}
+    .kpis{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    @media (max-width: 980px){ .kpis{ grid-template-columns: repeat(2, 1fr); } }
+    .kpi{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.10));
+      border:1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+    }
+    .kpi .t{ color: var(--muted); font-size: 12px; }
+    .kpi .v{ font-size: 20px; margin-top:6px; font-family: var(--mono); letter-spacing: .2px; }
+    .kpi .s{ margin-top:6px; font-size: 12px; color: rgba(255,255,255,.75); }
+    .kpi.good{ border-color: rgba(52,211,153,.25); }
+    .kpi.warn{ border-color: rgba(251,191,36,.25); }
+    .kpi.bad{ border-color: rgba(251,113,133,.25); }
+
+    .tableWrap{
+      overflow:auto;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.12);
+    }
+    table{ width:100%; border-collapse: collapse; min-width: 760px; }
+    th, td{
+      padding: 10px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      font-size: 12px;
+    }
+    th{
+      text-align:left;
+      color: rgba(233,237,255,.85);
+      background: rgba(255,255,255,.04);
+      position: sticky;
+      top:0;
+      z-index:1;
+    }
+    td{ color: rgba(233,237,255,.9); }
+    .right{ text-align:right; }
+    .mono{ font-family: var(--mono); }
+    .muted{ color: var(--muted); }
+    .hr{
+      height:1px; background: var(--line); margin: 10px 0;
+    }
+    .ok{ color: var(--good); }
+    .no{ color: var(--bad); }
+    .chip{
+      display:inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color: rgba(255,255,255,.85);
+      font-size: 11px;
+      font-family: var(--mono);
+    }
   </style>
 </head>
+
 <body>
-  <div class="wrap">
-    <header>
+  <header>
+    <div class="titleRow">
       <div>
-        <h1>Painel de Atendimentos (CSV)</h1>
-        <div class="sub">Leitura de <span class="pill" id="csvPath">dados.csv</span> via GitHub Pages (sem backend).</div>
+        <h1>Painel CSV — Atendimento, Vendas (Coluna O) e Metas</h1>
+        <div class="sub">Upload do CSV • Filtros por período • NOTour na coluna B • Vendas/Cotas pela coluna O • Metas salvas no navegador</div>
       </div>
-      <div class="pill" id="statusPill">Carregando…</div>
-    </header>
+      <div class="pill" id="clock"></div>
+    </div>
+  </header>
 
-    <nav class="tabs" aria-label="Abas do painel">
-      <button class="tabbtn active" data-tab="tab-resumo">Resumo</button>
-      <button class="tabbtn" data-tab="tab-ranking">Ranking</button>
-      <button class="tabbtn" data-tab="tab-profissionais">Profissionais (ativo/inativo)</button>
-      <button class="tabbtn" data-tab="tab-renda">Resultado por renda</button>
-    </nav>
+  <div class="wrap">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="dot"></div>
+        <div>
+          <strong>Status do arquivo</strong>
+          <small id="fileStatus">Nenhum CSV carregado</small>
+        </div>
+      </div>
 
-    <!-- RESUMO -->
-    <section id="tab-resumo" class="tabPanel active">
-      <div class="grid">
+      <div class="tabs">
+        <button class="tabbtn active" data-tab="tab-resumo">Resumo <span class="pill" id="pillRows">0 linhas</span></button>
+        <button class="tabbtn" data-tab="tab-dados">Dados <span class="pill" id="pillCols">0 colunas</span></button>
+        <button class="tabbtn" data-tab="tab-prof">Profissionais <span class="pill">ativos</span></button>
+        <button class="tabbtn" data-tab="tab-metas">Metas <span class="pill">local</span></button>
+        <button class="tabbtn" data-tab="tab-config">Config <span class="pill">CSV</span></button>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="card">
+        <h3>Carregar CSV</h3>
+        <div class="smallNote">Aceita <span class="chip">;</span> ou <span class="chip">,</span>, com aspas. O painel roda 100% no navegador.</div>
+        <div style="margin-top:10px;">
+          <input id="fileInput" type="file" accept=".csv,text/csv" />
+        </div>
+        <div class="btns" style="margin-top:10px;">
+          <button id="btnDemo" class="secondary">Carregar demo</button>
+          <button id="btnClear" class="secondary">Limpar</button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <!-- RESUMO -->
+      <section id="tab-resumo" class="panel active">
+        <div class="grid">
+          <section class="card">
+            <h3>Filtros</h3>
+            <div class="row" style="grid-template-columns: repeat(4, 1fr);">
+              <div>
+                <label>Data inicial (dd/mm/aaaa)</label>
+                <input id="dtIni" placeholder="01/06/2026" />
+              </div>
+              <div>
+                <label>Data final (dd/mm/aaaa)</label>
+                <input id="dtFim" placeholder="30/06/2026" />
+              </div>
+              <div>
+                <label>Coluna de Data (A=1, B=2...)</label>
+                <input id="dateColIndex" placeholder="Ex.: 1 (coluna A)" />
+              </div>
+              <div>
+                <label>Aplicar</label>
+                <button id="btnApply">Aplicar filtros</button>
+              </div>
+            </div>
+            <div class="smallNote" style="margin-top:10px;">
+              Regras fixas: <b>NOTour</b> na <b>coluna B</b> (não atendido). Vendas/Cotas: pela <b>coluna O</b>.
+            </div>
+          </section>
+
+          <section class="card">
+            <h3>Leituras do CSV (regras)</h3>
+            <div class="smallNote">
+              <div>• <b>Coluna B</b>: se for <span class="chip">NOTour</span> (case-insensitive) ⇒ <b>não atendido</b>.</div>
+              <div>• Qualquer outro valor na B ⇒ <b>atendido</b>.</div>
+              <div>• <b>Coluna O</b>: se for "vendido" (regra configurável) ⇒ conta 1 venda/cota.</div>
+            </div>
+          </section>
+        </div>
+
+        <div style="margin-top:12px;" class="kpis">
+          <div class="kpi good">
+            <div class="t">Atendidos</div>
+            <div class="v" id="kpiAtendidos">0</div>
+            <div class="s">B != NOTour</div>
+          </div>
+          <div class="kpi bad">
+            <div class="t">NOTour</div>
+            <div class="v" id="kpiNotour">0</div>
+            <div class="s">B == NOTour</div>
+          </div>
+          <div class="kpi warn">
+            <div class="t">Vendas / Cotas vendidas</div>
+            <div class="v" id="kpiVendas">0</div>
+            <div class="s">Critério Coluna O</div>
+          </div>
+          <div class="kpi">
+            <div class="t">Conversão</div>
+            <div class="v" id="kpiConv">0%</div>
+            <div class="s">Vendas ÷ Atendidos</div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px;" class="grid">
+          <section class="card">
+            <h3>Metas no período (somatório mensal)</h3>
+            <div class="smallNote">Soma metas cadastradas para os meses entre as datas do filtro.</div>
+            <div style="margin-top:10px;" class="kpis" id="kpisMeta">
+              <div class="kpi">
+                <div class="t">Meta Cotas (período)</div>
+                <div class="v" id="metaCotasPeriodo">0</div>
+                <div class="s muted">Somatório de metas</div>
+              </div>
+              <div class="kpi">
+                <div class="t">% Batimento (Cotas)</div>
+                <div class="v" id="batCotas">0%</div>
+                <div class="s muted">Vendas ÷ Meta</div>
+              </div>
+              <div class="kpi">
+                <div class="t">Meta Casais (período)</div>
+                <div class="v" id="metaCasaisPeriodo">0</div>
+                <div class="s muted">Somatório de metas</div>
+              </div>
+              <div class="kpi">
+                <div class="t">% Atendimento (Casais)</div>
+                <div class="v" id="batCasais">0%</div>
+                <div class="s muted">Atendidos ÷ Meta</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="card">
+            <h3>Diagnóstico rápido</h3>
+            <div class="smallNote" id="diagTxt">Carregue um CSV e aplique filtros para ver o diagnóstico.</div>
+            <div class="hr"></div>
+            <div class="smallNote">
+              <div><span class="chip">Dica</span> Se a data não filtrar, ajuste "Coluna de Data".</div>
+              <div style="margin-top:6px;"><span class="chip">Dica</span> Se venda não contar certo, ajuste a regra em <b>Config</b>.</div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <!-- DADOS -->
+      <section id="tab-dados" class="panel">
         <section class="card">
-          <div class="kpis" id="kpis"></div>
-          <div class="smallNote" id="kpiNote"></div>
-        </section>
-
-        <section class="card">
-          <div class="smallNote"><b>Índice de TurnOver</b> (por área): total, ativos, inativos e % de inativos.</div>
-          <div class="tableWrap" style="margin-top:10px;">
-            <table style="min-width: 720px;">
-              <thead>
-                <tr>
-                  <th data-table="turnover" data-key="area">Área <span class="sort"></span></th>
-                  <th class="right" data-table="turnover" data-key="total">Total <span class="sort"></span></th>
-                  <th class="right" data-table="turnover" data-key="ativos">Ativos <span class="sort"></span></th>
-                  <th class="right" data-table="turnover" data-key="inativos">Inativos <span class="sort"></span></th>
-                  <th class="right" data-table="turnover" data-key="pctInativo">% Inativo <span class="sort"></span></th>
-                </tr>
-              </thead>
-              <tbody id="turnoverBody"></tbody>
+          <h3>Prévia (primeiras 200 linhas após filtros)</h3>
+          <div class="smallNote">Use para validar: coluna B (NOTour) e coluna O (venda/cota).</div>
+          <div style="margin-top:10px;" class="tableWrap">
+            <table>
+              <thead id="theadPreview"></thead>
+              <tbody id="tbodyPreview"></tbody>
             </table>
           </div>
         </section>
+      </section>
 
-        <section class="card filters">
-          <div class="row">
-            <div>
-              <label>Período (início)</label>
-              <input id="dtIni_resumo" placeholder="dd/mm/aaaa" />
+      <!-- PROFISSIONAIS -->
+      <section id="tab-prof" class="panel">
+        <div class="grid">
+          <section class="card">
+            <h3>KPIs — Ativos/Inativos</h3>
+            <div class="smallNote">
+              Ativo/inativo fica salvo no navegador (localStorage). A lista considera os nomes encontrados no CSV (após filtro de período).
             </div>
-            <div>
-              <label>Período (fim)</label>
-              <input id="dtFim_resumo" placeholder="dd/mm/aaaa" />
+
+            <div style="margin-top:10px;" class="kpis" id="kpisProf">
+              <!-- preenchido via JS -->
             </div>
-          </div>
+          </section>
 
-          <div class="btns">
-            <button data-action="aplicar" data-scope="resumo">Aplicar filtros</button>
-            <button class="secondary" data-action="limpar" data-scope="resumo">Limpar</button>
-          </div>
-
-          <div class="err" id="errBox"></div>
-        </section>
-      </div>
-    </section>
-
-    <!-- RANKING -->
-    <section id="tab-ranking" class="tabPanel">
-      <div class="grid">
-        <section class="card">
-          <div class="filters">
+          <section class="card">
+            <h3>Filtros</h3>
             <div class="row" style="grid-template-columns: repeat(3, 1fr);">
               <div>
-                <label>Dimensão</label>
-                <select id="rankDim">
-                  <option value="promotor de marketing">Promotor de marketing</option>
+                <label>Tipo</label>
+                <select id="profTipo">
+                  <option value="">(todos)</option>
+                  <option value="pm">Promotor</option>
                   <option value="linner">Linner</option>
-                  <option value="consultor">Consultor</option>
+                  <option value="closer">Closer</option>
                 </select>
               </div>
               <div>
-                <label>Busca (nome contém)</label>
-                <input id="rankSearch" placeholder="Ex.: JOÃO" />
-              </div>
-              <div>
                 <label>Somente ativos?</label>
-                <select id="rankOnlyActive">
+                <select id="profOnlyActive">
                   <option value="nao">Não</option>
                   <option value="sim">Sim</option>
                 </select>
               </div>
-            </div>
-
-            <div class="row" style="margin-top:10px;">
               <div>
-                <label>Período (início)</label>
-                <input id="dtIni_ranking" placeholder="dd/mm/aaaa" />
-              </div>
-              <div>
-                <label>Período (fim)</label>
-                <input id="dtFim_ranking" placeholder="dd/mm/aaaa" />
+                <label>Busca (nome contém)</label>
+                <input id="profBusca" placeholder="Ex.: JOÃO" />
               </div>
             </div>
-
-            <div class="btns">
-              <button data-action="aplicar" data-scope="ranking">Aplicar filtros</button>
-              <button class="secondary" data-action="limpar" data-scope="ranking">Limpar</button>
+            <div class="smallNote" style="margin-top:10px;">
+              Dica: se a lista ficar vazia, revise as colunas em <b>Config</b> (PM/Linner/Closer).
             </div>
-          </div>
-        </section>
+          </section>
+        </div>
 
-        <section class="card">
-          <div class="tableWrap">
-            <table>
-              <thead>
-                <tr>
-                  <th data-table="ranking" data-key="nome">Profissional <span class="sort"></span></th>
-                  <th class="center" data-table="ranking" data-key="active">Status <span class="sort"></span></th>
-                  <th class="right" data-table="ranking" data-key="casais">Casais <span class="sort"></span></th>
-                  <th class="right" data-table="ranking" data-key="vendas">Vendas <span class="sort"></span></th>
-                  <th class="right" data-table="ranking" data-key="vgv">VGV <span class="sort"></span></th>
-                  <th class="right" data-table="ranking" data-key="eficiencia">Eficiência <span class="sort"></span></th>
-                  <th class="right" data-table="ranking" data-key="cancelamentos">Cancelamentos <span class="sort"></span></th>
-                  <th class="right" data-table="ranking" data-key="pctCancel">% Cancel. <span class="sort"></span></th>
-                </tr>
-              </thead>
-              <tbody id="rankBody"></tbody>
-            </table>
-          </div>
-          <div class="smallNote">
-            Eficiência: <span class="badge b-good">&ge; 25%</span>,
-            <span class="badge b-med">20% a 24,9%</span>,
-            <span class="badge b-bad">&lt; 20%</span>.
-          </div>
-        </section>
-      </div>
-    </section>
-
-    <!-- PROFISSIONAIS -->
-    <section id="tab-profissionais" class="tabPanel">
-      <div class="grid">
-        <section class="card">
-          <div class="twoCols">
-            <div>
-              <div class="kpis" id="kpisProf"></div>
-              <div class="smallNote">
-                Marcação de ativo/inativo e equipe do promotor são salvas no navegador (localStorage).
-              </div>
-            </div>
-            <div>
-              <div class="filters">
-                <div class="row" style="grid-template-columns: repeat(3, 1fr);">
-                  <div>
-                    <label>Tipo</label>
-                    <select id="profTipo">
-                      <option value="">(todos)</option>
-                      <option value="promotor de marketing">Promotor de marketing</option>
-                      <option value="linner">Linner</option>
-                      <option value="consultor">Closer/Consultor</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label>Equipe (promotor)</label>
-                    <select id="profEquipe">
-                      <option value="">(todas)</option>
-                      <option value="EQUIPE PARQUE">EQUIPE PARQUE</option>
-                      <option value="EQUIPE EXTERNA">EQUIPE EXTERNA</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label>Busca</label>
-                    <input id="profBusca" placeholder="Nome contém..." />
-                  </div>
-                </div>
-
-                <div class="row" style="margin-top:10px;">
-                  <div>
-                    <label>Período (início)</label>
-                    <input id="dtIni_prof" placeholder="dd/mm/aaaa" />
-                  </div>
-                  <div>
-                    <label>Período (fim)</label>
-                    <input id="dtFim_prof" placeholder="dd/mm/aaaa" />
-                  </div>
-                </div>
-
-                <div class="btns">
-                  <button data-action="aplicar" data-scope="prof">Aplicar filtros</button>
-                  <button class="secondary" data-action="limpar" data-scope="prof">Limpar</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="card">
-          <div class="tableWrap">
-            <table style="min-width: 980px;">
-              <thead>
-                <tr>
-                  <th data-table="prof" data-key="nome">Profissional <span class="sort"></span></th>
-                  <th data-table="prof" data-key="tipo">Tipo <span class="sort"></span></th>
-                  <th data-table="prof" data-key="equipe">Equipe (PM) <span class="sort"></span></th>
-                  <th class="center" data-table="prof" data-key="active">Ativo? <span class="sort"></span></th>
-                </tr>
-              </thead>
-              <tbody id="profBody"></tbody>
-            </table>
-          </div>
-        </section>
-      </div>
-    </section>
-
-    <!-- RENDA -->
-    <section id="tab-renda" class="tabPanel">
-      <div class="grid">
-        <section class="card">
-          <div class="filters">
-            <div class="row">
-              <div>
-                <label>Período (início)</label>
-                <input id="dtIni_renda" placeholder="dd/mm/aaaa" />
-              </div>
-              <div>
-                <label>Período (fim)</label>
-                <input id="dtFim_renda" placeholder="dd/mm/aaaa" />
-              </div>
-            </div>
-            <div class="btns">
-              <button data-action="aplicar" data-scope="renda">Aplicar filtros</button>
-              <button class="secondary" data-action="limpar" data-scope="renda">Limpar</button>
-            </div>
-          </div>
-
-          <div class="smallNote" style="margin-top:10px;">
-            Tabela 1: faixas de <b>R$ 1.000</b>. Tabela 2: agrupamento (até 11,9; 12-14,9; 15-19,9; 20-39,9; 40+).
-            Precisa da coluna <span class="pill">renda</span> (ou equivalente). Se estiver vazia, as linhas ficam fora das tabelas.
-          </div>
-        </section>
-
-        <section class="card">
-          <div class="smallNote"><b>Renda por mil</b></div>
+        <section class="card" style="margin-top:12px;">
+          <h3>Lista de profissionais</h3>
           <div class="tableWrap" style="margin-top:10px;">
-            <table style="min-width: 980px;">
+            <table style="min-width: 760px;">
               <thead>
                 <tr>
-                  <th data-table="rendaMil" data-key="bucketNum">Faixa renda (R$ mil) <span class="sort"></span></th>
-                  <th class="right" data-table="rendaMil" data-key="casais">Casais <span class="sort"></span></th>
-                  <th class="right" data-table="rendaMil" data-key="vendas">Vendas <span class="sort"></span></th>
-                  <th class="right" data-table="rendaMil" data-key="vgv">VGV <span class="sort"></span></th>
-                  <th class="right" data-table="rendaMil" data-key="cancelamentos">Cancelamentos <span class="sort"></span></th>
-                  <th class="right" data-table="rendaMil" data-key="pctCancel">% Cancel. <span class="sort"></span></th>
+                  <th>Nome</th>
+                  <th>Tipo</th>
+                  <th class="right">Ativo?</th>
                 </tr>
               </thead>
-              <tbody id="rendaBody"></tbody>
+              <tbody id="tbodyProf"></tbody>
             </table>
           </div>
         </section>
-
-        <section class="card">
-          <div class="smallNote"><b>Renda (agrupada)</b></div>
-          <div class="tableWrap" style="margin-top:10px;">
-            <table style="min-width: 980px;">
-              <thead>
-                <tr>
-                  <th data-table="rendaGrupo" data-key="grupo">Grupo <span class="sort"></span></th>
-                  <th class="right" data-table="rendaGrupo" data-key="casais">Casais <span class="sort"></span></th>
-                  <th class="right" data-table="rendaGrupo" data-key="vendas">Vendas <span class="sort"></span></th>
-                  <th class="right" data-table="rendaGrupo" data-key="vgv">VGV <span class="sort"></span></th>
-                  <th class="right" data-table="rendaGrupo" data-key="cancelamentos">Cancelamentos <span class="sort"></span></th>
-                  <th class="right" data-table="rendaGrupo" data-key="pctCancel">% Cancel. <span class="sort"></span></th>
-                </tr>
-              </thead>
-              <tbody id="rendaGrupoBody"></tbody>
-            </table>
-          </div>
-        </section>
-      </div>
-    </section>
-  </div>
-
-<script>
-  const CSV_URL = "./dados.csv";
-
-  const el = (id) => document.getElementById(id);
-
-  const state = {
-    rows: [],
-    filters: {
-      resumo: { ini:null, fim:null },
-      ranking: { ini:null, fim:null },
-      prof: { ini:null, fim:null },
-      renda: { ini:null, fim:null },
-    },
-    sort: {
-      ranking: { key:"vendas", dir:"desc" },
-      prof: { key:"nome", dir:"asc" },
-      rendaMil: { key:"bucketNum", dir:"asc" },
-      rendaGrupo: { key:"grupo", dir:"asc" },
-      turnover: { key:"area", dir:"asc" },
-    },
-    dataViews: {
-      ranking: [],
-      prof: [],
-      rendaMil: [],
-      rendaGrupo: [],
-      turnover: [],
-    },
-    profActive: {},   // key -> bool
-    profEquipe: {},   // key -> "EQUIPE PARQUE" | "EQUIPE EXTERNA" | ""
-  };
-
-  // ========= Utils =========
-  function showError(msg){
-    const box = el("errBox");
-    box.style.display = "block";
-    box.textContent = msg;
-  }
-  function clearError(){
-    const box = el("errBox");
-    box.style.display = "none";
-    box.textContent = "";
-  }
-  function stripBOM(s){ return (s ? s.replace(/^\uFEFF/,"") : s); }
-  function normalizeHeader(h){ return stripBOM(String(h ?? "")).trim().toLowerCase(); }
-  function escapeHtml(s){
-    return String(s ?? "")
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;")
-      .replaceAll("'","&#039;");
-  }
-  function normName(s){
-    return String(s ?? "").trim().replace(/\s+/g," ").toUpperCase();
-  }
-
-  function parseBRDate(str){
-    if (!str) return null;
-    const s = String(str).trim();
-    const m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-    if (!m) return null;
-    const d = Number(m[1]), mo = Number(m[2])-1, y = Number(m[3]);
-    const dt = new Date(y, mo, d);
-    if (dt.getFullYear() !== y || dt.getMonth() !== mo || dt.getDate() !== d) return null;
-    return dt;
-  }
-
-  function parseMoneyBR(value){
-    if (value == null) return 0;
-    let s = String(value).trim();
-    if (!s) return 0;
-    s = s.replace(/\s/g,"").replace(/^R\$/i,"");
-    if (s.includes(",")){
-      s = s.replace(/\./g,"").replace(",",".");
-    } else {
-      s = s.replace(/\./g,"");
-    }
-    const n = Number(s);
-    return Number.isFinite(n) ? n : 0;
-  }
-  function formatMoneyBR(n){
-    return (n || 0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
-  }
-  function formatPercent(n){
-    return (n || 0).toLocaleString("pt-BR",{style:"percent",minimumFractionDigits:1,maximumFractionDigits:1});
-  }
-
-  function parseCSV(text, delimiter=";"){
-    const rows = [];
-    let i=0, field="", row=[], inQuotes=false;
-    while (i<text.length){
-      const c=text[i];
-      if (inQuotes){
-        if (c==='"'){
-          if (text[i+1]==='"'){ field+='"'; i+=2; continue; }
-          inQuotes=false; i++; continue;
-        }
-        field+=c; i++; continue;
-      } else {
-        if (c==='"'){ inQuotes=true; i++; continue; }
-        if (c===delimiter){ row.push(field); field=""; i++; continue; }
-        if (c==='\n'){ row.push(field); rows.push(row); row=[]; field=""; i++; continue; }
-        if (c==='\r'){ i++; continue; }
-        field+=c; i++; continue;
-      }
-    }
-    row.push(field);
-    if (row.length>1 || (row.length===1 && row[0].trim()!=='')) rows.push(row);
-    return rows;
-  }
-
-  function buildObjects(csvText){
-    const matrix = parseCSV(csvText, ";");
-    if (!matrix.length) return [];
-    const headersRaw = matrix[0];
-    const headers = headersRaw.map(normalizeHeader);
-
-    if (headers.indexOf("data") === -1){
-      throw new Error(`Cabeçalho "data" não encontrado. Cabeçalhos lidos: ${headersRaw.join(" | ")}`);
-    }
-
-    const rows = [];
-    for (let r=1; r<matrix.length; r++){
-      const line = matrix[r];
-      const obj = {};
-      for (let c=0; c<headers.length; c++){
-        const key = headers[c] || `col_${c}`;
-        obj[key] = (line[c] ?? "").trim();
-      }
-      obj._date = parseBRDate(obj["data"]);
-      obj._valor = parseMoneyBR(obj["valor vendido"]);
-      obj._renda = parseMoneyBR(obj["renda"] ?? obj["renda do casal"] ?? obj["renda familiar"]);
-      rows.push(obj);
-    }
-    return rows;
-  }
-
-  function splitStatusList(statusString){
-    if (!statusString || String(statusString).trim() === "") return [];
-    return String(statusString).split("#").map(s => s.trim().toUpperCase()).filter(Boolean);
-  }
-  function countInStatus(statusString, wanted){
-    const list = splitStatusList(statusString);
-    const w = String(wanted).trim().toUpperCase();
-    return list.filter(x => x === w).length;
-  }
-
-  function effBadge(eff){
-    if (eff >= 0.25) return `<span class="badge b-good">OK</span>`;
-    if (eff >= 0.20) return `<span class="badge b-med">MÉDIO</span>`;
-    return `<span class="badge b-bad">RUIM</span>`;
-  }
-
-  // ========= localStorage (ativos/equipe) =========
-  const LS_ACTIVE = "painel_prof_active_v2";
-  const LS_EQUIPE = "painel_prof_equipe_v2";
-
-  function loadProfMeta(){
-    try{ state.profActive = JSON.parse(localStorage.getItem(LS_ACTIVE) || "{}"); }catch{ state.profActive = {}; }
-    try{ state.profEquipe = JSON.parse(localStorage.getItem(LS_EQUIPE) || "{}"); }catch{ state.profEquipe = {}; }
-  }
-  function saveProfMeta(){
-    localStorage.setItem(LS_ACTIVE, JSON.stringify(state.profActive||{}));
-    localStorage.setItem(LS_EQUIPE, JSON.stringify(state.profEquipe||{}));
-  }
-  function makeProfKey(tipo, nome){
-    return `${normName(tipo)}|${normName(nome)}`;
-  }
-  function isProfActive(tipo, nome){
-    const k = makeProfKey(tipo, nome);
-    const v = state.profActive[k];
-    return (v === undefined) ? true : !!v;
-  }
-  function setProfActive(tipo, nome, active){
-    state.profActive[makeProfKey(tipo,nome)] = !!active;
-    saveProfMeta();
-  }
-  function getProfEquipe(nome){
-    const k = makeProfKey("promotor de marketing", nome);
-    return state.profEquipe[k] || "";
-  }
-  function setProfEquipe(nome, equipe){
-    const k = makeProfKey("promotor de marketing", nome);
-    state.profEquipe[k] = equipe || "";
-    saveProfMeta();
-  }
-
-  // ========= Filtros por escopo =========
-  function filterByScope(scope){
-    const f = state.filters[scope];
-    const ini = f?.ini || null;
-    const fim = f?.fim || null;
-    return state.rows.filter(r=>{
-      if (ini && (!r._date || r._date < ini)) return false;
-      if (fim && (!r._date || r._date > fim)) return false;
-      return true;
-    });
-  }
-
-  function readScopeDates(scope){
-    const ini = parseBRDate(el(`dtIni_${scope}`).value.trim());
-    const fim = parseBRDate(el(`dtFim_${scope}`).value.trim());
-    state.filters[scope] = { ini, fim };
-  }
-  function clearScopeDates(scope){
-    el(`dtIni_${scope}`).value = "";
-    el(`dtFim_${scope}`).value = "";
-    state.filters[scope] = { ini:null, fim:null };
-  }
-
-  // ========= Sorting infra (clicar no TH) =========
-  function getSort(tableName){ return state.sort[tableName] || {key:null, dir:"asc"}; }
-  function setSort(tableName, key){
-    const cur = getSort(tableName);
-    if (cur.key === key){
-      cur.dir = (cur.dir === "desc") ? "asc" : "desc";
-    } else {
-      cur.key = key;
-      cur.dir = "desc"; // padrão: maior -> menor
-      // algumas tabelas fazem mais sentido asc por padrão:
-      if (tableName === "rendaMil" && key === "bucketNum") cur.dir = "asc";
-      if (tableName === "rendaGrupo" && key === "grupo") cur.dir = "asc";
-      if (tableName === "prof" && (key === "nome" || key === "tipo" || key === "equipe")) cur.dir = "asc";
-      if (tableName === "turnover" && key === "area") cur.dir = "asc";
-    }
-    state.sort[tableName] = cur;
-  }
-
-  function sortList(list, tableName){
-    const {key, dir} = getSort(tableName);
-    if (!key) return list;
-
-    const mul = (dir === "desc") ? -1 : 1;
-    const val = (x)=> x[key];
-
-    // strings/booleans/numbers
-    return list.slice().sort((a,b)=>{
-      const av = val(a);
-      const bv = val(b);
-
-      const aNull = (av === null || av === undefined);
-      const bNull = (bv === null || bv === undefined);
-      if (aNull && bNull) return 0;
-      if (aNull) return 1;
-      if (bNull) return -1;
-
-      if (typeof av === "number" && typeof bv === "number"){
-        return (av - bv) * mul;
-      }
-      if (typeof av === "boolean" && typeof bv === "boolean"){
-        return ((av === bv) ? 0 : (av ? 1 : -1)) * mul;
-      }
-      return String(av).localeCompare(String(bv), "pt-BR") * mul;
-    });
-  }
-
-  function updateSortIndicators(){
-    document.querySelectorAll("th[data-table][data-key]").forEach(th=>{
-      const table = th.getAttribute("data-table");
-      const key = th.getAttribute("data-key");
-      const cur = getSort(table);
-      const s = th.querySelector(".sort");
-      if (!s) return;
-      if (cur.key !== key){ s.textContent = ""; return; }
-      s.textContent = (cur.dir === "desc") ? "▼" : "▲";
-    });
-  }
-
-  // ========= KPIs (Resumo) =========
-  function computeKPIs(rows){
-    const casais = rows.length;
-    const vgv = rows.reduce((acc, r)=>acc + (r._valor||0), 0);
-
-    let vendas = 0;
-    let cancelamentos = 0;
-
-    for (const r of rows){
-      const s = r["status do contrato"];
-      const ativos = countInStatus(s, "ATIVO");
-      const cancelados = countInStatus(s, "CANCELADO");
-      vendas += (ativos + cancelados);
-      cancelamentos += cancelados;
-    }
-
-    const eficiencia = casais > 0 ? (vendas / casais) : 0; // corrigida
-    const pctCancel = vendas > 0 ? (cancelamentos / vendas) : 0;
-    const rendaMedia = casais > 0 ? (vgv / casais) : 0;
-    const ticketMedioVendido = vendas > 0 ? (vgv / vendas) : 0;
-
-    return { casais, vgv, vendas, cancelamentos, pctCancel, eficiencia, rendaMedia, ticketMedioVendido };
-  }
-
-  function renderKPIs(){
-    const rows = filterByScope("resumo");
-    const k = computeKPIs(rows);
-
-    const cards = [
-      { label:"Casais", value: k.casais.toLocaleString("pt-BR"), hint:"Total de registros" },
-      { label:"Vendas (cotas)", value: k.vendas.toLocaleString("pt-BR"), hint:"ATIVO + CANCELADO" },
-      { label:"VGV", value: formatMoneyBR(k.vgv), hint:"Soma total" },
-      { label:"Eficiência", value: formatPercent(k.eficiencia), hint:"Vendas / casais" },
-      { label:"Cancelamentos", value: k.cancelamentos.toLocaleString("pt-BR"), hint:"Qtd. CANCELADO" },
-      { label:"% Cancelamento", value: formatPercent(k.pctCancel), hint:"Canceladas / vendidas" },
-      { label:"Renda média", value: formatMoneyBR(k.rendaMedia), hint:"VGV / casais" },
-      { label:"Ticket médio vendido", value: formatMoneyBR(k.ticketMedioVendido), hint:"VGV / vendas" },
-    ];
-
-    el("kpis").innerHTML = cards.map(c=>`
-      <div class="kpi">
-        <div class="label">${escapeHtml(c.label)}</div>
-        <div class="value">${escapeHtml(c.value)}</div>
-        <div class="hint">${escapeHtml(c.hint)}</div>
-      </div>
-    `).join("");
-
-    el("kpiNote").textContent = `Eficiência calculada como vendas/casais (ex.: ${k.vendas}/${k.casais} = ${formatPercent(k.eficiencia)}).`;
-    el("statusPill").textContent = `OK • ${rows.length.toLocaleString("pt-BR")} casais`;
-  }
-
-  // ========= Ranking =========
-  function groupRanking(rows, dim){
-    const map = new Map();
-    for (const r of rows){
-      const nome = normName(r[dim]);
-      if (!nome) continue;
-
-      const s = r["status do contrato"];
-      const ativos = countInStatus(s, "ATIVO");
-      const cancelados = countInStatus(s, "CANCELADO");
-      const vendas = ativos + cancelados;
-
-      const cur = map.get(nome) || { nome, active: isProfActive(dim, nome), casais:0, vendas:0, vgv:0, cancelamentos:0, eficiencia:0, pctCancel:0 };
-      cur.casais += 1;
-      cur.vendas += vendas;
-      cur.vgv += (r._valor||0);
-      cur.cancelamentos += cancelados;
-      map.set(nome, cur);
-    }
-    const out = [];
-    for (const x of map.values()){
-      x.active = isProfActive(dim, x.nome);
-      x.eficiencia = x.casais > 0 ? (x.vendas / x.casais) : 0;
-      x.pctCancel = x.vendas > 0 ? (x.cancelamentos / x.vendas) : 0;
-      out.push(x);
-    }
-    return out;
-  }
-
-  function renderRanking(){
-    const rows = filterByScope("ranking");
-    const dim = el("rankDim").value;
-    const q = normName(el("rankSearch").value);
-    const onlyActive = (el("rankOnlyActive").value === "sim");
-
-    let list = groupRanking(rows, dim);
-    if (q) list = list.filter(x=>x.nome.includes(q));
-    if (onlyActive) list = list.filter(x=>x.active);
-
-    // sort
-    list = sortList(list, "ranking");
-    state.dataViews.ranking = list;
-
-    el("rankBody").innerHTML = list.map(x=>`
-      <tr>
-        <td>${escapeHtml(x.nome)}</td>
-        <td class="center">${x.active ? `<span class="badge b-good">ATIVO</span>` : `<span class="badge b-bad">INATIVO</span>`}</td>
-        <td class="right">${x.casais.toLocaleString("pt-BR")}</td>
-        <td class="right">${x.vendas.toLocaleString("pt-BR")}</td>
-        <td class="right">${escapeHtml(formatMoneyBR(x.vgv))}</td>
-        <td class="right">${escapeHtml(formatPercent(x.eficiencia))} &nbsp; ${effBadge(x.eficiencia)}</td>
-        <td class="right">${x.cancelamentos.toLocaleString("pt-BR")}</td>
-        <td class="right">${escapeHtml(formatPercent(x.pctCancel))}</td>
-      </tr>
-    `).join("");
-
-    updateSortIndicators();
-  }
-
-  // ========= Profissionais =========
-  function collectProfessionals(allRows){
-    const set = new Map(); // key -> {nome,tipo,equipe,active}
-    for (const r of allRows){
-      const pm = normName(r["promotor de marketing"]);
-      if (pm){
-        const k = makeProfKey("promotor de marketing", pm);
-        if (!set.has(k)) set.set(k, { nome: pm, tipo:"promotor de marketing", equipe: getProfEquipe(pm), active: isProfActive("promotor de marketing", pm) });
-      }
-      const li = normName(r["linner"]);
-      if (li){
-        const k = makeProfKey("linner", li);
-        if (!set.has(k)) set.set(k, { nome: li, tipo:"linner", equipe: "", active: isProfActive("linner", li) });
-      }
-      const co = normName(r["consultor"]);
-      if (co){
-        const k = makeProfKey("consultor", co);
-        if (!set.has(k)) set.set(k, { nome: co, tipo:"consultor", equipe: "", active: isProfActive("consultor", co) });
-      }
-    }
-    return Array.from(set.values());
-  }
-
-  function renderProfKPIs(){
-    const profs = collectProfessionals(state.rows);
-
-    const counts = (tipo)=>{
-      const list = profs.filter(p=>p.tipo===tipo);
-      const ativos = list.filter(p=>isProfActive(tipo, p.nome)).length;
-      const total = list.length;
-      const inativos = total - ativos;
-      return { total, ativos, inativos, pctInativo: total>0 ? (inativos/total) : 0 };
-    };
-
-    const pm = counts("promotor de marketing");
-    const li = counts("linner");
-    const cl = counts("consultor");
-
-    const pmParque = profs.filter(p=>p.tipo==="promotor de marketing" && (getProfEquipe(p.nome)==="EQUIPE PARQUE") && isProfActive(p.tipo,p.nome)).length;
-    const pmExterna = profs.filter(p=>p.tipo==="promotor de marketing" && (getProfEquipe(p.nome)==="EQUIPE EXTERNA") && isProfActive(p.tipo,p.nome)).length;
-
-    const cards = [
-      { label:"PM ativos", value: pm.ativos.toLocaleString("pt-BR"), hint:`Total: ${pm.total}` },
-      { label:"PM • Parque", value: pmParque.toLocaleString("pt-BR"), hint:"Ativos" },
-      { label:"PM • Externa", value: pmExterna.toLocaleString("pt-BR"), hint:"Ativos" },
-      { label:"Linner ativos", value: li.ativos.toLocaleString("pt-BR"), hint:`Total: ${li.total}` },
-      { label:"Closer ativos", value: cl.ativos.toLocaleString("pt-BR"), hint:`Total: ${cl.total}` },
-    ];
-
-    el("kpisProf").innerHTML = cards.map(c=>`
-      <div class="kpi">
-        <div class="label">${escapeHtml(c.label)}</div>
-        <div class="value">${escapeHtml(c.value)}</div>
-        <div class="hint">${escapeHtml(c.hint)}</div>
-      </div>
-    `).join("");
-  }
-
-  function renderProfessionals(){
-    const rows = filterByScope("prof"); // (filtro de período aqui não muda lista de profissionais se nomes não aparecem no período; mas você pediu, então aplicamos no "universo" do período)
-    let profs = collectProfessionals(rows);
-
-    const tipo = el("profTipo").value;
-    const equipe = el("profEquipe").value;
-    const busca = normName(el("profBusca").value);
-
-    if (tipo) profs = profs.filter(p=>p.tipo===tipo);
-    if (equipe) profs = profs.filter(p=> p.tipo==="promotor de marketing" && getProfEquipe(p.nome)===equipe);
-    if (busca) profs = profs.filter(p=>p.nome.includes(busca));
-
-    // refresh computed fields from storage
-    profs = profs.map(p=>({
-      ...p,
-      equipe: (p.tipo==="promotor de marketing") ? (getProfEquipe(p.nome) || "") : "",
-      active: isProfActive(p.tipo, p.nome)
-    }));
-
-    // sort
-    profs = sortList(profs, "prof");
-    state.dataViews.prof = profs;
-
-    el("profBody").innerHTML = profs.map(p=>{
-      const key = makeProfKey(p.tipo, p.nome);
-      const idActive = `act_${btoa(unescape(encodeURIComponent(key))).replaceAll("=","")}`;
-      const idEq = `eq_${btoa(unescape(encodeURIComponent(key))).replaceAll("=","")}`;
-
-      const equipeSelect = (p.tipo === "promotor de marketing")
-        ? `
-          <select id="${idEq}">
-            <option value="" ${(!p.equipe ? "selected" : "")}>(não definido)</option>
-            <option value="EQUIPE PARQUE" ${(p.equipe==="EQUIPE PARQUE" ? "selected" : "")}>EQUIPE PARQUE</option>
-            <option value="EQUIPE EXTERNA" ${(p.equipe==="EQUIPE EXTERNA" ? "selected" : "")}>EQUIPE EXTERNA</option>
-          </select>
-        `
-        : `<span class="muted">-</span>`;
-
-      return `
-        <tr>
-          <td>${escapeHtml(p.nome)}</td>
-          <td>${escapeHtml(p.tipo)}</td>
-          <td>${equipeSelect}</td>
-          <td class="center"><input type="checkbox" id="${idActive}" ${p.active ? "checked" : ""} /></td>
-        </tr>
-      `;
-    }).join("");
-
-    // bind events
-    profs.forEach(p=>{
-      const key = makeProfKey(p.tipo, p.nome);
-      const idActive = `act_${btoa(unescape(encodeURIComponent(key))).replaceAll("=","")}`;
-      const chk = document.getElementById(idActive);
-      if (chk){
-        chk.addEventListener("change", ()=>{
-          setProfActive(p.tipo, p.nome, chk.checked);
-          renderProfKPIs();
-          renderTurnover();
-          renderRanking(); // status na tabela
-          renderProfessionals(); // para resort/atualizar coluna
-        });
-      }
-      if (p.tipo === "promotor de marketing"){
-        const idEq = `eq_${btoa(unescape(encodeURIComponent(key))).replaceAll("=","")}`;
-        const sel = document.getElementById(idEq);
-        if (sel){
-          sel.addEventListener("change", ()=>{
-            setProfEquipe(p.nome, sel.value);
-            renderProfKPIs();
-            renderProfessionals();
-          });
-        }
-      }
-    });
-
-    updateSortIndicators();
-  }
-
-  // ========= Turnover (Resumo) =========
-  function renderTurnover(){
-    const profs = collectProfessionals(state.rows);
-
-    const byTipo = (tipo, label)=>{
-      const list = profs.filter(p=>p.tipo===tipo);
-      const total = list.length;
-      const ativos = list.filter(p=>isProfActive(tipo, p.nome)).length;
-      const inativos = total - ativos;
-      const pctInativo = total>0 ? (inativos/total) : 0;
-      return { area: label, total, ativos, inativos, pctInativo };
-    };
-
-    let list = [
-      byTipo("promotor de marketing","Promotor"),
-      byTipo("linner","Linner"),
-      byTipo("consultor","Closer"),
-    ];
-
-    list = sortList(list, "turnover");
-    state.dataViews.turnover = list;
-
-    el("turnoverBody").innerHTML = list.map(x=>`
-      <tr>
-        <td>${escapeHtml(x.area)}</td>
-        <td class="right">${x.total.toLocaleString("pt-BR")}</td>
-        <td class="right">${x.ativos.toLocaleString("pt-BR")}</td>
-        <td class="right">${x.inativos.toLocaleString("pt-BR")}</td>
-        <td class="right">${escapeHtml(formatPercent(x.pctInativo))}</td>
-      </tr>
-    `).join("");
-
-    updateSortIndicators();
-  }
-
-  // ========= Renda =========
-  function rendaBucketMil(value){
-    if (!Number.isFinite(value) || value <= 0) return null;
-    return Math.floor(value / 1000); // 10 => 10 mil
-  }
-  function rendaGrupo(value){
-    if (!Number.isFinite(value) || value <= 0) return null;
-    if (value <= 11999.99) return "Até 11,9 mil";
-    if (value >= 12000 && value <= 14999.99) return "12,0 a 14,9 mil";
-    if (value >= 15000 && value <= 19999.99) return "15,0 a 19,9 mil";
-    if (value >= 20000 && value <= 39999.99) return "20,0 a 39,9 mil";
-    if (value >= 40000) return "40+ mil";
-    return null;
-  }
-
-  function renderRenda(){
-    const rows = filterByScope("renda");
-
-    // por mil
-    const mapMil = new Map();
-    // agrupada
-    const mapGrp = new Map();
-
-    for (const r of rows){
-      const renda = r._renda;
-      if (!Number.isFinite(renda) || renda <= 0) continue;
-
-      const s = r["status do contrato"];
-      const ativos = countInStatus(s, "ATIVO");
-      const cancelados = countInStatus(s, "CANCELADO");
-      const vendas = ativos + cancelados;
-
-      const b = rendaBucketMil(renda);
-      if (b != null){
-        const cur = mapMil.get(b) || { bucketNum:b, bucketLabel:`${b} mil`, casais:0, vendas:0, vgv:0, cancelamentos:0, pctCancel:0 };
-        cur.casais += 1;
-        cur.vendas += vendas;
-        cur.vgv += (r._valor||0);
-        cur.cancelamentos += cancelados;
-        mapMil.set(b, cur);
-      }
-
-      const g = rendaGrupo(renda);
-      if (g){
-        const cur = mapGrp.get(g) || { grupo:g, casais:0, vendas:0, vgv:0, cancelamentos:0, pctCancel:0 };
-        cur.casais += 1;
-        cur.vendas += vendas;
-        cur.vgv += (r._valor||0);
-        cur.cancelamentos += cancelados;
-        mapGrp.set(g, cur);
-      }
-    }
-
-    let listMil = Array.from(mapMil.values()).map(x=>({ ...x, pctCancel: x.vendas>0 ? x.cancelamentos/x.vendas : 0 }));
-    let listGrp = Array.from(mapGrp.values()).map(x=>({ ...x, pctCancel: x.vendas>0 ? x.cancelamentos/x.vendas : 0 }));
-
-    listMil = sortList(listMil, "rendaMil");
-    listGrp = sortList(listGrp, "rendaGrupo");
-
-    state.dataViews.rendaMil = listMil;
-    state.dataViews.rendaGrupo = listGrp;
-
-    el("rendaBody").innerHTML = listMil.map(x=>`
-      <tr>
-        <td>${escapeHtml(x.bucketLabel)}</td>
-        <td class="right">${x.casais.toLocaleString("pt-BR")}</td>
-        <td class="right">${x.vendas.toLocaleString("pt-BR")}</td>
-        <td class="right">${escapeHtml(formatMoneyBR(x.vgv))}</td>
-        <td class="right">${x.cancelamentos.toLocaleString("pt-BR")}</td>
-        <td class="right">${escapeHtml(formatPercent(x.pctCancel))}</td>
-      </tr>
-    `).join("");
-
-    el("rendaGrupoBody").innerHTML = listGrp.map(x=>`
-      <tr>
-        <td>${escapeHtml(x.grupo)}</td>
-        <td class="right">${x.casais.toLocaleString("pt-BR")}</td>
-        <td class="right">${x.vendas.toLocaleString("pt-BR")}</td>
-        <td class="right">${escapeHtml(formatMoneyBR(x.vgv))}</td>
-        <td class="right">${x.cancelamentos.toLocaleString("pt-BR")}</td>
-        <td class="right">${escapeHtml(formatPercent(x.pctCancel))}</td>
-      </tr>
-    `).join("");
-
-    updateSortIndicators();
-  }
-
-  // ========= Tabs =========
-  function setupTabs(){
-    document.querySelectorAll(".tabbtn").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
-        document.querySelectorAll(".tabbtn").forEach(b=>b.classList.remove("active"));
-        btn.classList.add("active");
-        const tab = btn.getAttribute("data-tab");
-        document.querySelectorAll(".tabPanel").forEach(p=>p.classList.remove("active"));
-        document.getElementById(tab).classList.add("active");
-      });
-    });
-  }
-
-  // ========= Bind sort clicks =========
-  function bindSortClicks(){
-    document.querySelectorAll("th[data-table][data-key]").forEach(th=>{
-      th.addEventListener("click", ()=>{
-        const table = th.getAttribute("data-table");
-        const key = th.getAttribute("data-key");
-        setSort(table, key);
-
-        // re-render only the affected area
-        if (table === "ranking") renderRanking();
-        else if (table === "prof") renderProfessionals();
-        else if (table === "rendaMil" || table === "rendaGrupo") renderRenda();
-        else if (table === "turnover") renderTurnover();
-      });
-    });
-  }
-
-  // ========= Init =========
-  async function init(){
-    setupTabs();
-    bindSortClicks();
-    loadProfMeta();
-
-    el("csvPath").textContent = CSV_URL;
-
-    try{
-      el("statusPill").textContent = "Baixando CSV…";
-      const res = await fetch(CSV_URL, { cache:"no-store" });
-      if (!res.ok) throw new Error(`Falha ao carregar ${CSV_URL} (HTTP ${res.status}).`);
-
-      el("statusPill").textContent = "Processando…";
-      const text = await res.text();
-      state.rows = buildObjects(text);
-
-      // set datas padrão em todos os escopos (mín e máx)
-      const dates = state.rows.map(r=>r._date).filter(Boolean).sort((a,b)=>a-b);
-      if (dates.length){
-        const pad = (n)=> String(n).padStart(2,"0");
-        const fmt = (d)=> `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`;
-        const minD = fmt(dates[0]);
-        const maxD = fmt(dates[dates.length-1]);
-
-        ["resumo","ranking","prof","renda"].forEach(scope=>{
-          el(`dtIni_${scope}`).value = minD;
-          el(`dtFim_${scope}`).value = maxD;
-          state.filters[scope] = { ini: parseBRDate(minD), fim: parseBRDate(maxD) };
-        });
-      }
-
-      // bind aplicar/limpar por escopo
-      document.querySelectorAll("button[data-action][data-scope]").forEach(btn=>{
-        btn.addEventListener("click", ()=>{
-          clearError();
-          const scope = btn.getAttribute("data-scope");
-          const action = btn.getAttribute("data-action");
-
-          if (action === "aplicar"){
-            readScopeDates(scope);
-          } else {
-            clearScopeDates(scope);
-          }
-
-          if (scope === "resumo"){
-            renderKPIs();
-          } else if (scope === "ranking"){
-            renderRanking();
-          } else if (scope === "prof"){
-            renderProfessionals();
-          } else if (scope === "renda"){
-            renderRenda();
-          }
-        });
-      });
-
-      // other bindings
-      el("rankDim").addEventListener("change", renderRanking);
-      el("rankOnlyActive").addEventListener("change", renderRanking);
-      el("rankSearch").addEventListener("input", ()=>{ window.clearTimeout(window.__rsT); window.__rsT=setTimeout(renderRanking, 200); });
-
-      el("profTipo").addEventListener("change", renderProfessionals);
-      el("profEquipe").addEventListener("change", renderProfessionals);
-      el("profBusca").addEventListener("input", ()=>{ window.clearTimeout(window.__psT); window.__psT=setTimeout(renderProfessionals, 200); });
-
-      // first render
-      renderKPIs();
-      renderTurnover();
-      renderRanking();
-      renderProfKPIs();
-      renderProfessionals();
-      renderRenda();
-      updateSortIndicators();
-      el("statusPill").textContent = `OK • ${filterByScope("resumo").length.toLocaleString("pt-BR")} casais`;
-    }catch(err){
-      el("statusPill").textContent = "Erro";
-      showError(String(err && err.message ? err.message : err));
-    }
-  }
-
-  init();
-</script>
-</body>
-</html>
+      </section>
+
+      <!-- METAS -->
+      <section id="tab-metas" class="panel">
+        <div class="grid">
+          <section class="card">
+            <h3>Cadastrar metas mensais</h3>
+            <div class="smallNote">
+              Valores ficam salvos no navegador (localStorage).
+              Use <b>AAAA-MM</b> (ex.: 2026-06).
+            </div>
+
+            <div class="row" style="margin-top:10px; grid-template-columns: repeat(4, 1fr);">
+              <div>
+                <label>Período (AAAA-MM)</label>
+                <input id="metaPeriodo" placeholder="2026-06" />
+              </div>
+              <div>
+                <label>Meta VGV (R$) (opcional)</label>
+                <input id="metaVGV" placeholder="Ex.: 3500000" />
+              </div>
+              <div>
+                <label>Meta Casais</label>
+                <input id="metaCasais" placeholder="Ex.: 200" />
+              </div>
+              <div>
+                <label>Meta Cotas</label>
+                <input id="metaCotas" placeholder="Ex.: 60" />
+              </div>
+            </div>
+
+            <div class="btns" style="margin-top:10px;">
+              <button id="btnSalvarMeta">Salvar meta</button>
+              <button class="secondary" id="btnLimparMeta">Apagar meta</button>
+              <button class="secondary" id="btnExportarMeta">Exportar JSON</button>
+              <button class="secondary" id="btnImportarMeta">Importar JSON</button>
+            </div>
+            <input id="fileMeta" type="file" accept="application/json" style="display:none;" />
+          </section>
+
+          <section class="card">
+            <h3>Metas cadastradas</h3>
+            <div class="smallNote">Tabela ordenada por mês.</div>
+            <div style="margin-top:10px;" class="tableWrap">
+              <table style="min-width: 700px;">
+                <thead>
+                  <tr>
+                    <th>Período</th>
+                    <th class="right">Meta VGV</th>
+                    <th class="right">Meta Casais</th>
+                    <th class="right">Meta Cotas</th>
+                  </tr>
+                </thead>
+                <tbody id="metasTabela"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <!-- CONFIG -->
+      <section id="tab-config" class="panel">
+        <div class="grid">
+          <section class="card">
+            <h3>Config — regra de venda (Coluna O)</h3>
+            <div class="smallNote">
+              Por padrão: conta como venda se a célula da coluna O <b>não estiver vazia</b> e <b>não</b> for um valor "negativo" comum.
+              Ajuste abaixo se necessário.
+            </div>
+            <div class="row" style="margin-top:10px; grid-template-columns: 1fr 1fr;">
+              <div>
+                <label>Modo (Coluna O)</label>
+                <select id="saleMode">
+                  <option value="nonEmpty" selected>Não vazio (com blacklist)</option>
+                  <option value="equals">Igual a um texto exato</option>
+                  <option value="contains">Contém um texto</option>
+                  <option value="numericPositive">Número &gt; 0</option>
+                </select>
+              </div>
+              <div>
+                <label>Texto-alvo (se modo "igual" ou "contém")</label>
+                <input id="saleNeedle" placeholder="Ex.: Encerrado, Vendido, SIM, 1..." />
+              </div>
+            </div>
+            <div class="row" style="margin-top:10px; grid-template-columns: 1fr;">
+              <div>
+                <label>Blacklist (valores que NÃO contam como venda) — separados por vírgula</label>
+                <input id="saleBlacklist" value="0, -, não, nao, n/a, vazio, sem, sem venda" />
+              </div>
+            </div>
+            <div class="btns" style="margin-top:10px;">
+              <button id="btnSaveConfig">Salvar config</button>
+              <button class="secondary" id="btnResetConfig">Resetar</button>
+            </div>
+          </section>
+
+          <section class="card">
+            <h3>Config — colunas de profissionais</h3>
+            <div class="smallNote">
+              Informe o índice da coluna (A=1, B=2...) onde estão os nomes.
+              Esses campos são usados na aba <b>Profissionais</b>.
+            </div>
+
+            <div class="row" style="margin-top:10px; grid-template-columns: repeat(3, 1fr);">
+              <div>
+                <label>Coluna PM</label>
+                <input id="colPM" placeholder="Ex.: 3 (C)" />
+              </div>
+              <div>
+                <label>Coluna Linner</label>
+                <input id="colLinner" placeholder="Ex.: 4 (D)" />
+              </div>
+              <div>
+                <label>Coluna Closer</label>
+                <input id="colCloser" placeholder="Ex.: 5 (E)" />
+              </div>
+            </div>
+
+            <div class="smallNote" style="margin-top:10px;">
+              Você pode digitar número (ex.: <span class="chip">4</span>) ou letra (ex.: <span class="chip">D</span>).
+            </div>
+          </section>
+
+          <section class="card">
+            <h3>Config — validações rápidas</h3>
+            <div class="smallNote" id="cfgInfo">
+              • Coluna B: NOTour é fixo (case-insensitive)<br/>
+              • Coluna O: venda/cota (config acima)<br/>
+              • Data: você define no Resumo (coluna numérica)
+            </div>
+            <div class="hr"></div>
+            <div class="smallNote">
+              Se você me disser qual coluna é a data e exemplos da coluna O, eu te devolvo a regra final "travada" para o seu CSV.
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
