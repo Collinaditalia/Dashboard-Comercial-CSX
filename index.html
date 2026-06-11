@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Painel CSV — Atendimento, Vendas (Col O) e Metas</title>
+  <title>Painel CSV - Atendimento, Vendas e Metas</title>
   <style>
     :root{
       --bg:#0b1020;
       --panel:#111a33;
+      --panel2:#0f1730;
       --text:#e9edff;
       --muted:#a9b3da;
       --accent:#7c5cff;
@@ -20,17 +21,16 @@
       --radius:16px;
       --radius2:12px;
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
     }
     *{ box-sizing:border-box; }
     body{
       margin:0;
       font-family:var(--sans);
-      background:
-        radial-gradient(1200px 600px at 20% 10%, rgba(124,92,255,.25), transparent 60%),
-        radial-gradient(900px 600px at 80% 20%, rgba(34,211,238,.18), transparent 55%),
-        radial-gradient(900px 700px at 50% 100%, rgba(52,211,153,.12), transparent 60%),
-        var(--bg);
+      background: radial-gradient(1200px 600px at 20% 10%, rgba(124,92,255,.25), transparent 60%),
+                  radial-gradient(900px 600px at 80% 20%, rgba(34,211,238,.18), transparent 55%),
+                  radial-gradient(900px 700px at 50% 100%, rgba(52,211,153,.12), transparent 60%),
+                  var(--bg);
       color:var(--text);
     }
     header{
@@ -42,14 +42,22 @@
       display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;
       justify-content:space-between;
     }
-    h1{ margin:0; font-size: 20px; letter-spacing:.2px; }
-    .sub{ color:var(--muted); font-size:13px; margin-top:6px; }
+    h1{
+      margin:0;
+      font-size: 20px;
+      letter-spacing:.2px;
+    }
+    .sub{
+      color:var(--muted);
+      font-size:13px;
+      margin-top:6px;
+    }
     .wrap{
       max-width: 1200px;
       margin: 0 auto;
       padding: 12px 18px 26px;
       display:grid;
-      grid-template-columns: 270px 1fr;
+      grid-template-columns: 250px 1fr;
       gap:14px;
     }
     @media (max-width: 980px){
@@ -117,7 +125,9 @@
       border-radius: 999px;
       white-space:nowrap;
     }
-    .main{ min-height: 520px; }
+    .main{
+      min-height: 520px;
+    }
     .panel{
       display:none;
       background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
@@ -147,10 +157,23 @@
       color: rgba(255,255,255,.9);
       letter-spacing: .2px;
     }
-    .smallNote{ color: var(--muted); font-size: 12px; line-height: 1.35; }
-    .row{ display:grid; gap:10px; align-items:end; }
-    label{ display:block; font-size: 12px; color: rgba(255,255,255,.85); margin-bottom:6px; }
-    input{
+    .smallNote{
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+    .row{
+      display:grid;
+      gap:10px;
+      align-items:end;
+    }
+    label{
+      display:block;
+      font-size: 12px;
+      color: rgba(255,255,255,.85);
+      margin-bottom:6px;
+    }
+    input, select{
       width:100%;
       padding: 10px 10px;
       border-radius: 12px;
@@ -180,7 +203,7 @@
 
     .kpis{
       display:grid;
-      grid-template-columns: repeat(6, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 10px;
     }
     @media (max-width: 980px){ .kpis{ grid-template-columns: repeat(2, 1fr); } }
@@ -191,7 +214,7 @@
       padding: 12px;
     }
     .kpi .t{ color: var(--muted); font-size: 12px; }
-    .kpi .v{ font-size: 18px; margin-top:6px; font-family: var(--mono); letter-spacing: .2px; }
+    .kpi .v{ font-size: 20px; margin-top:6px; font-family: var(--mono); letter-spacing: .2px; }
     .kpi .s{ margin-top:6px; font-size: 12px; color: rgba(255,255,255,.75); }
     .kpi.good{ border-color: rgba(52,211,153,.25); }
     .kpi.warn{ border-color: rgba(251,191,36,.25); }
@@ -203,7 +226,7 @@
       border: 1px solid var(--line);
       background: rgba(0,0,0,.12);
     }
-    table{ width:100%; border-collapse: collapse; min-width: 840px; }
+    table{ width:100%; border-collapse: collapse; min-width: 760px; }
     th, td{
       padding: 10px 10px;
       border-bottom: 1px solid rgba(255,255,255,.06);
@@ -221,7 +244,11 @@
     .right{ text-align:right; }
     .mono{ font-family: var(--mono); }
     .muted{ color: var(--muted); }
-    .hr{ height:1px; background: var(--line); margin: 10px 0; }
+    .hr{
+      height:1px; background: var(--line); margin: 10px 0;
+    }
+    .ok{ color: var(--good); }
+    .no{ color: var(--bad); }
     .chip{
       display:inline-block;
       padding: 2px 8px;
@@ -231,7 +258,6 @@
       color: rgba(255,255,255,.85);
       font-size: 11px;
       font-family: var(--mono);
-      white-space:nowrap;
     }
   </style>
 </head>
@@ -240,8 +266,8 @@
   <header>
     <div class="titleRow">
       <div>
-        <h1>Painel CSV — Atendidos (B) • NOTour (B) • Vendas/Cotas (O)</h1>
-        <div class="sub">Data na coluna <span class="chip">A</span> • Atendido = B != NOTour • Vendas/Cotas = contagem de itens na coluna <span class="chip">O</span> separados por <span class="chip">#</span></div>
+        <h1>Painel CSV — Atendimento, Vendas (Coluna O) e Metas</h1>
+        <div class="sub">Upload do CSV • Filtros por período • NOTour na coluna B • Vendas/Cotas pela coluna O • Metas salvas no navegador</div>
       </div>
       <div class="pill" id="clock"></div>
     </div>
@@ -261,13 +287,14 @@
         <button class="tabbtn active" data-tab="tab-resumo">Resumo <span class="pill" id="pillRows">0 linhas</span></button>
         <button class="tabbtn" data-tab="tab-dados">Dados <span class="pill" id="pillCols">0 colunas</span></button>
         <button class="tabbtn" data-tab="tab-metas">Metas <span class="pill">local</span></button>
+        <button class="tabbtn" data-tab="tab-config">Config <span class="pill">CSV</span></button>
       </div>
 
       <div class="hr"></div>
 
       <div class="card">
         <h3>Carregar CSV</h3>
-        <div class="smallNote">Aceita <span class="chip">;</span> ou <span class="chip">,</span>, com aspas. Tudo roda no navegador.</div>
+        <div class="smallNote">Aceita <span class="chip">;</span> ou <span class="chip">,</span>, com aspas. O painel roda 100% no navegador.</div>
         <div style="margin-top:10px;">
           <input id="fileInput" type="file" accept=".csv,text/csv" />
         </div>
@@ -276,34 +303,48 @@
           <button id="btnClear" class="secondary">Limpar</button>
         </div>
       </div>
-
-      <div class="card" style="margin-top:12px;">
-        <h3>Filtro (Resumo)</h3>
-        <div class="row" style="grid-template-columns: 1fr;">
-          <div>
-            <label>Data inicial (dd/mm/aaaa)</label>
-            <input id="dtIni" placeholder="01/06/2026" />
-          </div>
-          <div>
-            <label>Data final (dd/mm/aaaa)</label>
-            <input id="dtFim" placeholder="30/06/2026" />
-          </div>
-          <div>
-            <label>Aplicar</label>
-            <button id="btnApply">Aplicar filtros</button>
-          </div>
-        </div>
-        <div class="smallNote" style="margin-top:10px;">
-          Data fixa na coluna <b>A</b>.
-        </div>
-      </div>
     </aside>
 
     <main class="main">
-
       <!-- RESUMO -->
       <section id="tab-resumo" class="panel active">
-        <div class="kpis">
+        <div class="grid">
+          <section class="card">
+            <h3>Filtros</h3>
+            <div class="row" style="grid-template-columns: repeat(4, 1fr);">
+              <div>
+                <label>Data inicial (dd/mm/aaaa)</label>
+                <input id="dtIni" placeholder="01/06/2026" />
+              </div>
+              <div>
+                <label>Data final (dd/mm/aaaa)</label>
+                <input id="dtFim" placeholder="30/06/2026" />
+              </div>
+              <div>
+                <label>Coluna de Data (A=1, B=2...)</label>
+                <input id="dateColIndex" placeholder="Ex.: 1 (coluna A)" />
+              </div>
+              <div>
+                <label>Aplicar</label>
+                <button id="btnApply">Aplicar filtros</button>
+              </div>
+            </div>
+            <div class="smallNote" style="margin-top:10px;">
+              Regras fixas: <b>NOTour</b> na <b>coluna B</b> (não atendido). Vendas/Cotas: pela <b>coluna O</b>.
+            </div>
+          </section>
+
+          <section class="card">
+            <h3>Leituras do CSV (regras)</h3>
+            <div class="smallNote">
+              <div>• <b>Coluna B</b>: se for <span class="chip">NOTour</span> (case-insensitive) ⇒ <b>não atendido</b>.</div>
+              <div>• Qualquer outro valor na B ⇒ <b>atendido</b>.</div>
+              <div>• <b>Coluna O</b>: se for “vendido” (regra configurável) ⇒ conta 1 venda/cota.</div>
+            </div>
+          </section>
+        </div>
+
+        <div style="margin-top:12px;" class="kpis">
           <div class="kpi good">
             <div class="t">Atendidos</div>
             <div class="v" id="kpiAtendidos">0</div>
@@ -317,83 +358,60 @@
           <div class="kpi warn">
             <div class="t">Vendas / Cotas vendidas</div>
             <div class="v" id="kpiVendas">0</div>
-            <div class="s">Qtd de itens na O</div>
-          </div>
-          <div class="kpi bad">
-            <div class="t">Cancelamentos</div>
-            <div class="v" id="kpiCancel">0</div>
-            <div class="s">Qtd de CANCELADO na O</div>
+            <div class="s">Critério Coluna O</div>
           </div>
           <div class="kpi">
             <div class="t">Conversão</div>
             <div class="v" id="kpiConv">0%</div>
             <div class="s">Vendas ÷ Atendidos</div>
           </div>
-          <div class="kpi">
-            <div class="t">% Cancelamento</div>
-            <div class="v" id="kpiPctCancel">0%</div>
-            <div class="s">Cancel ÷ Vendas</div>
-          </div>
         </div>
 
         <div style="margin-top:12px;" class="grid">
           <section class="card">
-            <h3>Meta do período (somatório mensal) e batimento</h3>
+            <h3>Metas no período (somatório mensal)</h3>
             <div class="smallNote">Soma metas cadastradas para os meses entre as datas do filtro.</div>
-            <div style="margin-top:10px;" class="kpis">
-              <div class="kpi">
-                <div class="t">Meta Casais (período)</div>
-                <div class="v" id="metaCasaisPeriodo">0</div>
-                <div class="s muted">Somatório de metas</div>
-              </div>
-              <div class="kpi">
-                <div class="t">% Batido (Casais)</div>
-                <div class="v" id="batCasais">0%</div>
-                <div class="s muted">Atendidos ÷ Meta</div>
-              </div>
+            <div style="margin-top:10px;" class="kpis" id="kpisMeta">
               <div class="kpi">
                 <div class="t">Meta Cotas (período)</div>
                 <div class="v" id="metaCotasPeriodo">0</div>
                 <div class="s muted">Somatório de metas</div>
               </div>
               <div class="kpi">
-                <div class="t">% Batido (Cotas)</div>
+                <div class="t">% Batimento (Cotas)</div>
                 <div class="v" id="batCotas">0%</div>
                 <div class="s muted">Vendas ÷ Meta</div>
               </div>
               <div class="kpi">
-                <div class="t">Meta Cancelamentos (período)</div>
-                <div class="v" id="metaCancelPeriodo">0</div>
+                <div class="t">Meta Casais (período)</div>
+                <div class="v" id="metaCasaisPeriodo">0</div>
                 <div class="s muted">Somatório de metas</div>
               </div>
               <div class="kpi">
-                <div class="t">% vs Meta (Cancel)</div>
-                <div class="v" id="batCancel">0%</div>
-                <div class="s muted">Cancel ÷ Meta</div>
+                <div class="t">% Atendimento (Casais)</div>
+                <div class="v" id="batCasais">0%</div>
+                <div class="s muted">Atendidos ÷ Meta</div>
               </div>
             </div>
           </section>
 
           <section class="card">
-            <h3>Projeção (mês atual)</h3>
-            <div class="smallNote" id="projNote">A projeção aparece quando o período filtrado inclui o mês atual.</div>
-            <div style="margin-top:10px;" class="kpis" id="projKpis"></div>
+            <h3>Diagnóstico rápido</h3>
+            <div class="smallNote" id="diagTxt">Carregue um CSV e aplique filtros para ver o diagnóstico.</div>
+            <div class="hr"></div>
+            <div class="smallNote">
+              <div><span class="chip">Dica</span> Se a data não filtrar, ajuste “Coluna de Data”.</div>
+              <div style="margin-top:6px;"><span class="chip">Dica</span> Se venda não contar certo, ajuste a regra em <b>Config</b>.</div>
+            </div>
           </section>
         </div>
-
-        <section class="card" style="margin-top:12px;">
-          <h3>Diagnóstico rápido</h3>
-          <div class="smallNote" id="diagTxt">Carregue um CSV e aplique filtros para ver o diagnóstico.</div>
-        </section>
       </section>
 
       <!-- DADOS -->
       <section id="tab-dados" class="panel">
         <section class="card">
           <h3>Prévia (primeiras 200 linhas após filtros)</h3>
-          <div class="smallNote">
-            Valide: coluna <span class="chip">A</span> (data), <span class="chip">B</span> (NOTour) e <span class="chip">O</span> (ATIVO/CANCELADO com #).
-          </div>
+          <div class="smallNote">Use para validar: coluna B (NOTour) e coluna O (venda/cota).</div>
           <div style="margin-top:10px;" class="tableWrap">
             <table>
               <thead id="theadPreview"></thead>
@@ -409,10 +427,11 @@
           <section class="card">
             <h3>Cadastrar metas mensais</h3>
             <div class="smallNote">
-              Use <b>AAAA-MM</b> (ex.: 2026-06). Metas ficam salvas no navegador.
+              Valores ficam salvos no navegador (localStorage).
+              Use <b>AAAA-MM</b> (ex.: 2026-06).
             </div>
 
-            <div class="row" style="margin-top:10px; grid-template-columns: repeat(2, 1fr);">
+            <div class="row" style="margin-top:10px; grid-template-columns: repeat(4, 1fr);">
               <div>
                 <label>Período (AAAA-MM)</label>
                 <input id="metaPeriodo" placeholder="2026-06" />
@@ -421,9 +440,6 @@
                 <label>Meta VGV (R$) (opcional)</label>
                 <input id="metaVGV" placeholder="Ex.: 3500000" />
               </div>
-            </div>
-
-            <div class="row" style="margin-top:10px; grid-template-columns: repeat(3, 1fr);">
               <div>
                 <label>Meta Casais</label>
                 <input id="metaCasais" placeholder="Ex.: 200" />
@@ -431,10 +447,6 @@
               <div>
                 <label>Meta Cotas</label>
                 <input id="metaCotas" placeholder="Ex.: 60" />
-              </div>
-              <div>
-                <label>Meta Cancelamentos</label>
-                <input id="metaCancel" placeholder="Ex.: 10" />
               </div>
             </div>
 
@@ -449,15 +461,15 @@
 
           <section class="card">
             <h3>Metas cadastradas</h3>
-            <div class="tableWrap" style="margin-top:10px;">
-              <table style="min-width: 820px;">
+            <div class="smallNote">Tabela ordenada por mês.</div>
+            <div style="margin-top:10px;" class="tableWrap">
+              <table style="min-width: 700px;">
                 <thead>
                   <tr>
                     <th>Período</th>
                     <th class="right">Meta VGV</th>
                     <th class="right">Meta Casais</th>
                     <th class="right">Meta Cotas</th>
-                    <th class="right">Meta Cancel</th>
                   </tr>
                 </thead>
                 <tbody id="metasTabela"></tbody>
@@ -467,6 +479,56 @@
         </div>
       </section>
 
+      <!-- CONFIG -->
+      <section id="tab-config" class="panel">
+        <div class="grid">
+          <section class="card">
+            <h3>Config — regra de venda (Coluna O)</h3>
+            <div class="smallNote">
+              Por padrão: conta como venda se a célula da coluna O <b>não estiver vazia</b> e <b>não</b> for um valor “negativo” comum.
+              Ajuste abaixo se necessário.
+            </div>
+            <div class="row" style="margin-top:10px; grid-template-columns: 1fr 1fr;">
+              <div>
+                <label>Modo (Coluna O)</label>
+                <select id="saleMode">
+                  <option value="nonEmpty" selected>Não vazio (com blacklist)</option>
+                  <option value="equals">Igual a um texto exato</option>
+                  <option value="contains">Contém um texto</option>
+                  <option value="numericPositive">Número &gt; 0</option>
+                </select>
+              </div>
+              <div>
+                <label>Texto-alvo (se modo "igual" ou "contém")</label>
+                <input id="saleNeedle" placeholder="Ex.: Encerrado, Vendido, SIM, 1..." />
+              </div>
+            </div>
+            <div class="row" style="margin-top:10px; grid-template-columns: 1fr;">
+              <div>
+                <label>Blacklist (valores que NÃO contam como venda) — separados por vírgula</label>
+                <input id="saleBlacklist" value="0, -, não, nao, n/a, vazio, sem, sem venda" />
+              </div>
+            </div>
+            <div class="btns" style="margin-top:10px;">
+              <button id="btnSaveConfig">Salvar config</button>
+              <button class="secondary" id="btnResetConfig">Resetar</button>
+            </div>
+          </section>
+
+          <section class="card">
+            <h3>Config — validações rápidas</h3>
+            <div class="smallNote" id="cfgInfo">
+              • Coluna B: NOTour é fixo (case-insensitive)<br/>
+              • Coluna O: venda/cota (config acima)<br/>
+              • Data: você define no Resumo (coluna numérica)
+            </div>
+            <div class="hr"></div>
+            <div class="smallNote">
+              Se você me disser qual coluna é a data e exemplos da coluna O, eu te devolvo a regra final “travada” para o seu CSV.
+            </div>
+          </section>
+        </div>
+      </section>
     </main>
   </div>
 
@@ -476,7 +538,7 @@
     // ==========================
     const $ = (sel) => document.querySelector(sel);
     const $$
-= (sel) => Array.from(document.querySelectorAll(sel)); function pad2(n){ return String(n).padStart(2,'0'); } function nowBR(){ const d = new Date(); return `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}/${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`; } function normalizeText(s){ return String(s ?? "").trim().toUpperCase(); } function parseBRDate(s){ if(!s) return null; const m = String(s).trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/); if(!m) return null; const dd = +m[1], mm = +m[2], yy = +m[3]; const dt = new Date(yy, mm-1, dd); if(dt.getFullYear()!==yy || dt.getMonth()!==mm-1 || dt.getDate()!==dd) return null; dt.setHours(0,0,0,0); return dt; } function parseMoneyBR(s){ if(s==null) return 0; const t = String(s).trim(); if(!t) return 0; const norm = t.replace(/\./g,'').replace(',', '.').replace(/[^\d.\-]/g,''); const v = Number(norm); return Number.isFinite(v) ? v : 0; } function formatIntBR(n){ return (Number(n)||0).toLocaleString('pt-BR'); } function formatPercent(n){ return `${(Number(n)||0).toFixed(1).replace('.',',')}%`; } function escapeHtml(s){ return String(s ?? "").replace(/[&<>"']/g, (c)=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])); } // ========================== // CSV parser (robusto com aspas) // ========================== function detectDelimiter(text){ const sample = text.split(/\r?\n/).slice(0, 10).join("\n"); const semi = (sample.match(/;/g)||[]).length; const comma = (sample.match(/,/g)||[]).length; return semi >= comma ? ';' : ','; } function parseCSV(text, delimiter){ const rows = []; let row = []; let field = ''; let i = 0; let inQuotes = false; while(i < text.length){ const c = text[i]; if(inQuotes){ if(c === '"'){ const next = text[i+1]; if(next === '"'){ field += '"'; i += 2; continue; } inQuotes = false; i++; continue; } field += c; i++; continue; } else { if(c === '"'){ inQuotes = true; i++; continue; } if(c === delimiter){ row.push(field); field=''; i++; continue; } if(c === '\n'){ row.push(field); field=''; row = row.map(v => (typeof v === 'string' ? v.replace(/\r$/,'') : v)); rows.push(row); row=[]; i++; continue; } field += c; i++; continue; } } row.push(field); row = row.map(v => (typeof v === 'string' ? v.replace(/\r$/,'') : v)); if(row.length > 1 || (row[0] && row[0].trim() !== '')) rows.push(row); const maxLen = rows.reduce((m,r)=>Math.max(m,r.length), 0); rows.forEach(r => { while(r.length < maxLen) r.push(''); }); return rows; } function monthKeyFromDate(d){ return `${d.getFullYear()}-${pad2(d.getMonth()+1)}`; } function parseMes(s){ const m = /^(\d{4})-(\d{2})$/.exec(String(s||'').trim()); if(!m) return null; const yy = +m[1], mm = +m[2]; if(mm < 1 || mm > 12) return null; return { y: yy, m: mm }; } function mesesEntreDates(d1, d2){ const a = new Date(d1.getFullYear(), d1.getMonth(), 1); const b = new Date(d2.getFullYear(), d2.getMonth(), 1); const out = []; let y = a.getFullYear(), m = a.getMonth()+1; const endY = b.getFullYear(), endM = b.getMonth()+1; while(y < endY || (y === endY && m <= endM)){ out.push(`${y}-${pad2(m)}`); m++; if(m>12){ m=1; y++; } } return out; } // ========================== // Estado // ========================== let rawText = ""; let csv = [];        // array de arrays let header = [];     // primeira linha let dataRows = [];   // demais function setFileStatus(msg){ $("#fileStatus").textContent = msg; } function updatePills(){ $("#pillRows").textContent = `${Math.max(0, dataRows.length)} linhas`; $("#pillCols").textContent = `${Math.max(0, header.length)} colunas`; } // ========================== // Regras fixas do seu negócio // ========================== const COL_A_DATE = 1; // A const COL_B_ATEND = 2; // B (NOTour) const COL_O_SALES = 15; // O (ATIVO/CANCELADO com #) function isNotourFromColB(v){ return String(v ?? "").trim().toUpperCase() === "NOTOUR"; } function parseSalesFromColO(cell){ // Retorna { sales: nItens, cancels: nCancelado } const raw = String(cell ?? "").trim(); if(!raw) return { sales: 0, cancels: 0 }; const parts = raw.split("#").map(x => normalizeText(x)).filter(Boolean); const sales = parts.length; let cancels = 0; for(const p of parts){ if(p === "CANCELADO") cancels++; } return { sales, cancels }; } // ========================== // Metas (localStorage) // ========================== const LS_METAS = "painel_metas_mm_v2"; function loadMetas(){ try{ return JSON.parse(localStorage.getItem(LS_METAS) || "{}"); } catch{ return {}; } } function saveMetas(metas){ localStorage.setItem(LS_METAS, JSON.stringify(metas)); } function renderMetas(){ const metas = loadMetas(); const tbody = $("#metasTabela"); const rows = Object.entries(metas) .sort((a,b)=>a[0] > b[0] ? 1 : -1) .map(([k,m])=>{ const vgv = Number(m.vgv||0); const casais = Number(m.casais||0); const cotas = Number(m.cotas||0); const cancel = Number(m.cancel||0); return `<tr> <td class="mono">${escapeHtml(k)}</td> <td class="right mono">R$ ${vgv.toLocaleString("pt-BR",{minimumFractionDigits:0, maximumFractionDigits:0})}</td> <td class="right mono">${formatIntBR(casais)}</td> <td class="right mono">${formatIntBR(cotas)}</td> <td class="right mono">${formatIntBR(cancel)}</td> </tr>`; }).join(""); tbody.innerHTML = rows || `<tr><td colspan="5" class="muted">Nenhuma meta cadastrada.</td></tr>`; } function bindMetas(){ $("#btnSalvarMeta").onclick = ()=>{ const mes = $("#metaPeriodo").value.trim(); if(!parseMes(mes)){ alert("Período inválido. Use AAAA-MM."); return; } const vgv = parseMoneyBR($("#metaVGV").value); const casais = Number($("#metaCasais").value || 0); const cotas = Number($("#metaCotas").value || 0); const cancel = Number($("#metaCancel").value || 0); const metas = loadMetas(); metas[mes] = { vgv, casais, cotas, cancel }; saveMetas(metas); renderMetas(); alert("Meta salva."); renderResumo(); }; $("#btnLimparMeta").onclick = ()=>{ const mes = $("#metaPeriodo").value.trim(); const metas = loadMetas(); if(metas[mes] == null){ alert("Não existe meta para esse mês."); return; } delete metas[mes]; saveMetas(metas); renderMetas(); alert("Meta apagada."); renderResumo(); }; $("#btnExportarMeta").onclick = ()=>{ const metas = loadMetas(); const blob = new Blob([JSON.stringify(metas, null, 2)], {type:"application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "metas.json"; a.click(); URL.revokeObjectURL(url); }; $("#btnImportarMeta").onclick = ()=> $("#fileMeta").click(); $("#fileMeta").onchange = async (e)=>{ const file = e.target.files[0]; if(!file) return; const txt = await file.text(); try{ const obj = JSON.parse(txt); saveMetas(obj); renderMetas(); alert("Metas importadas."); renderResumo(); }catch{ alert("JSON inválido."); } finally { $("#fileMeta").value = ""; } }; } // ========================== // Filtro por data (coluna A) // ========================== function defaultDateRangeFromData(){ const idx = COL_A_DATE - 1; const dates = []; for(const r of dataRows){ const dt = parseBRDate(r[idx]); if(dt) dates.push(dt.getTime()); } if(!dates.length) return; const min = new Date(Math.min(...dates)); const max = new Date(Math.max(...dates)); $("#dtIni").value = `${pad2(min.getDate())}/${pad2(min.getMonth()+1)}/${min.getFullYear()}`; $("#dtFim").value = `${pad2(max.getDate())}/${pad2(max.getMonth()+1)}/${max.getFullYear()}`; } function filterRowsByDate(dtIni, dtFim){ const idx = COL_A_DATE - 1; const a = parseBRDate(dtIni); const b = parseBRDate(dtFim); if(!a || !b) return dataRows.slice(); const minT = a.getTime(); const maxT = b.getTime(); return dataRows.filter(r=>{ const d = parseBRDate(r[idx]); if(!d) return false; const t = d.getTime(); return t >= minT && t <= maxT; }); } // ========================== // KPIs (Atendidos / NOTour / Vendas / Cancel) // ========================== function computeKPIs(rows){ let atendidos = 0; let notour = 0; let vendas = 0; let cancel = 0; for(const r of rows){ const b = r[COL_B_ATEND-1]; if(isNotourFromColB(b)) notour++; else atendidos++; const o = r[COL_O_SALES-1]; const parsed = parseSalesFromColO(o); vendas += parsed.sales; cancel += parsed.cancels; } return { atendidos, notour, vendas, cancel }; } // ========================== // Preview // ========================== function indexToColLetter(n){ let s = ''; while(n > 0){ const mod = (n-1) % 26; s = String.fromCharCode(65 + mod) + s; n = Math.floor((n-1)/26); } return s || '?'; } function renderPreview(rows){ const max = Math.min(200, rows.length); const h = header.map((name, i)=>`<th>${escapeHtml(name || indexToColLetter(i+1))}</th>`).join(""); $("#theadPreview").innerHTML = `<tr>${h}</tr>`; const body = []; for(let i=0;i<max;i++){ const r = rows[i]; body.push("<tr>"+r.map((v)=>`<td>${escapeHtml(String(v ?? ""))}</td>`).join("")+"</tr>"); } $("#tbodyPreview").innerHTML = body.join("") || `<tr><td colspan="${header.length||1}" class="muted">Sem linhas no filtro.</td></tr>`; } // ========================== // Meta do período e projeção // ========================== function sumMetasForPeriod(dtIni, dtFim){ const a = parseBRDate(dtIni); const b = parseBRDate(dtFim); const metas = loadMetas(); let metaCasais = 0, metaCotas = 0, metaCancel = 0, metaVgv = 0; let months = []; if(a && b){ months = mesesEntreDates(a, b); for(const mk of months){ const item = metas[mk]; if(item){ metaVgv += Number(item.vgv||0); metaCasais += Number(item.casais||0); metaCotas += Number(item.cotas||0); metaCancel += Number(item.cancel||0); } } } return { metaVgv, metaCasais, metaCotas, metaCancel, months }; } function computeProjectionIfCurrentMonthIncluded(dtIni, dtFim){ const a = parseBRDate(dtIni); const b = parseBRDate(dtFim); if(!a || !b) return null; const today = new Date(); today.setHours(0,0,0,0); const monthStart = new Date(today.getFullYear(), today.getMonth(), 1); const monthEnd = new Date(today.getFullYear(), today.getMonth()+1, 0); monthEnd.setHours(0,0,0,0); // filtro inclui mês atual? const includes = (a.getFullYear() < today.getFullYear() || (a.getFullYear() === today.getFullYear() && a.getMonth() <= today.getMonth())) && (b.getFullYear() > today.getFullYear() || (b.getFullYear() === today.getFullYear() && b.getMonth() >= today.getMonth())); if(!includes) return { includes:false }; // mês atual até hoje (MTD) const idxDate = COL_A_DATE - 1; const rowsMTD = dataRows.filter(r=>{ const d = parseBRDate(r[idxDate]); if(!d) return false; return d >= monthStart && d <= today; }); const { atendidos, vendas } = computeKPIs(rowsMTD); const daysPassed = Math.max(1, today.getDate()); const daysInMonth = monthEnd.getDate(); const factor = daysInMonth / daysPassed; return { includes:true, monthKey: monthKeyFromDate(today), mtdAtendidos: atendidos, mtdVendas: vendas, projAtendidos: atendidos * factor, projVendas: vendas * factor }; } // ========================== // Render Resumo // ========================== function renderResumo(){ if(!dataRows.length){ $("#diagTxt").textContent = "Carregue um CSV e aplique filtros para ver o diagnóstico."; $("#projKpis").innerHTML = ""; return; } const dtIni = $("#dtIni").value.trim(); const dtFim = $("#dtFim").value.trim(); const filtered = filterRowsByDate(dtIni, dtFim); const { atendidos, notour, vendas, cancel } = computeKPIs(filtered); $("#kpiAtendidos").textContent = formatIntBR(atendidos); $("#kpiNotour").textContent = formatIntBR(notour); $("#kpiVendas").textContent = formatIntBR(vendas); $("#kpiCancel").textContent = formatIntBR(cancel); const conv = atendidos ? (vendas / atendidos) * 100 : 0; const pctCancel = vendas ? (cancel / vendas) * 100 : 0; $("#kpiConv").textContent = formatPercent(conv); $("#kpiPctCancel").textContent = formatPercent(pctCancel); // metas const msum = sumMetasForPeriod(dtIni, dtFim); $("#metaCasaisPeriodo").textContent = formatIntBR(msum.metaCasais); $("#metaCotasPeriodo").textContent = formatIntBR(msum.metaCotas); $("#metaCancelPeriodo").textContent = formatIntBR(msum.metaCancel); $("#batCasais").textContent = formatPercent(msum.metaCasais ? (atendidos / msum.metaCasais) * 100 : 0); $("#batCotas").textContent = formatPercent(msum.metaCotas ? (vendas / msum.metaCotas) * 100 : 0); $("#batCancel").textContent = formatPercent(msum.metaCancel ? (cancel / msum.metaCancel) * 100 : 0); // projeção (cotas/casais) — VGV está cadastrado mas você ainda não me confirmou a coluna do valor vendido aqui; // então por enquanto projetamos apenas casais e cotas, e deixamos VGV pronto via meta. const proj = computeProjectionIfCurrentMonthIncluded(dtIni, dtFim); if(!proj || !proj.includes){ $("#projKpis").innerHTML = `<div class="smallNote muted">Período não inclui o mês atual.</div>`; } else { const metas = loadMetas(); const metaCur = metas[proj.monthKey] || { vgv:0, casais:0, cotas:0 }; const cards = [ { t: `Projeção Casais (${proj.monthKey})`, v: formatIntBR(Math.round(proj.projAtendidos)), s: `Meta mês: ${formatIntBR(Number(metaCur.casais||0))} • Proj/Meta: ${formatPercent(metaCur.casais ? (proj.projAtendidos/metaCur.casais)*100 : 0)}` }, { t: `Projeção Cotas (${proj.monthKey})`, v: formatIntBR(Math.round(proj.projVendas)), s: `Meta mês: ${formatIntBR(Number(metaCur.cotas||0))} • Proj/Meta: ${formatPercent(metaCur.cotas ? (proj.projVendas/metaCur.cotas)*100 : 0)}` }, { t: `MTD Casais (até hoje)`, v: formatIntBR(proj.mtdAtendidos), s: `Dias corridos: ${new Date().getDate()}` }, { t: `MTD Cotas (até hoje)`, v: formatIntBR(proj.mtdVendas), s: `Ritmo para projeção` } ]; $("#projKpis").innerHTML = cards.map(c => ` <div class="kpi"> <div class="t">${escapeHtml(c.t)}</div> <div class="v">${escapeHtml(c.v)}</div> <div class="s">${escapeHtml(c.s)}</div> </div> `).join(""); } // diagnóstico let diag = `No período filtrado, você teve <b>${formatIntBR(atendidos)}</b> atendidos, <b>${formatIntBR(notour)}</b> NOTour, <b>${formatIntBR(vendas)}</b> cotas vendidas e <b>${formatIntBR(cancel)}</b> cancelamentos.`; diag += `<br/>Conversão: <b>${formatPercent(conv)}</b> • % Cancelamento: <b>${formatPercent(pctCancel)}</b>.`; if(msum.metaCotas > 0){ diag += `<br/>Batimento de meta de cotas: <b>${formatPercent((vendas/msum.metaCotas)*100)}</b>.`; } else { diag += `<br/><span class="muted">Cadastre metas em “Metas” para ver batimento.</span>`; } $("#diagTxt").innerHTML = diag; renderPreview(filtered); } // ========================== // Tabs // ========================== function bindTabs(){
+= (sel) => Array.from(document.querySelectorAll(sel)); function pad2(n){ return String(n).padStart(2,'0'); } function nowBR(){ const d = new Date(); return `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}/${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`; } function parseBRDate(s){ if(!s) return null; const m = String(s).trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/); if(!m) return null; const dd = +m[1], mm = +m[2], yy = +m[3]; const dt = new Date(yy, mm-1, dd); if(dt.getFullYear()!==yy || dt.getMonth()!==mm-1 || dt.getDate()!==dd) return null; dt.setHours(0,0,0,0); return dt; } function toYyyyMm(date){ const y = date.getFullYear(); const m = pad2(date.getMonth()+1); return `${y}-${m}`; } function parseMoneyBR(s){ if(s==null) return 0; const t = String(s).trim(); if(!t) return 0; // aceita "3.500.000,50" ou "3500000" etc. const norm = t.replace(/\./g,'').replace(',', '.').replace(/[^\d.\-]/g,''); const v = Number(norm); return Number.isFinite(v) ? v : 0; } function formatIntBR(n){ return (Number(n)||0).toLocaleString('pt-BR'); } function clamp01(x){ return Math.max(0, Math.min(1, x)); } function pct(a,b){ if(!b) return 0; return (a/b)*100; } // ========================== // CSV parser (robusto com aspas) // ========================== function detectDelimiter(text){ // olha as primeiras linhas const sample = text.split(/\r?\n/).slice(0, 10).join("\n"); const semi = (sample.match(/;/g)||[]).length; const comma = (sample.match(/,/g)||[]).length; return semi >= comma ? ';' : ','; } function parseCSV(text, delimiter){ const rows = []; let row = []; let field = ''; let i = 0; let inQuotes = false; while(i < text.length){ const c = text[i]; if(inQuotes){ if(c === '"'){ const next = text[i+1]; if(next === '"'){ field += '"'; i += 2; continue; } inQuotes = false; i++; continue; } field += c; i++; continue; } else { if(c === '"'){ inQuotes = true; i++; continue; } if(c === delimiter){ row.push(field); field=''; i++; continue; } if(c === '\n'){ row.push(field); field=''; // remove \r no final de campo row = row.map(v => (typeof v === 'string' ? v.replace(/\r$/,'') : v)); rows.push(row); row=[]; i++; continue; } field += c; i++; continue; } } // last field row.push(field); row = row.map(v => (typeof v === 'string' ? v.replace(/\r$/,'') : v)); // evita linha final vazia if(row.length > 1 || (row[0] && row[0].trim() !== '')) rows.push(row); // normaliza tamanhos const maxLen = rows.reduce((m,r)=>Math.max(m,r.length), 0); rows.forEach(r => { while(r.length < maxLen) r.push(''); }); return rows; } function colLetterToIndex(letter){ // A->1, B->2... const s = String(letter||'').trim().toUpperCase(); if(!s) return null; let n = 0; for(let i=0;i<s.length;i++){ const code = s.charCodeAt(i); if(code < 65 || code > 90) return null; n = n*26 + (code-64); } return n; } function indexToColLetter(n){ // 1->A let s = ''; while(n > 0){ const mod = (n-1) % 26; s = String.fromCharCode(65 + mod) + s; n = Math.floor((n-1)/26); } return s || '?'; } // ========================== // Config storage // ========================== const LS_CFG = "painel_cfg_v1"; function loadCfg(){ try{ const obj = JSON.parse(localStorage.getItem(LS_CFG) || "{}"); return { saleMode: obj.saleMode || "nonEmpty", saleNeedle: obj.saleNeedle || "", saleBlacklist: obj.saleBlacklist || "0, -, não, nao, n/a, vazio, sem, sem venda" }; }catch{ return { saleMode:"nonEmpty", saleNeedle:"", saleBlacklist:"0, -, não, nao, n/a, vazio, sem, sem venda" }; } } function saveCfg(cfg){ localStorage.setItem(LS_CFG, JSON.stringify(cfg)); } function normalizeText(s){ return String(s ?? "").trim().toLowerCase(); } function saleFromColO(value, cfg){ const vRaw = String(value ?? "").trim(); const v = normalizeText(vRaw); if(cfg.saleMode === "equals"){ const needle = normalizeText(cfg.saleNeedle); if(!needle) return false; return v === needle; } if(cfg.saleMode === "contains"){ const needle = normalizeText(cfg.saleNeedle); if(!needle) return false; return v.includes(needle); } if(cfg.saleMode === "numericPositive"){ // tenta extrair número const norm = vRaw.replace(/\./g,'').replace(',','.').replace(/[^\d.\-]/g,''); const num = Number(norm); return Number.isFinite(num) && num > 0; } // default: nonEmpty + blacklist if(!v) return false; const blacklist = String(cfg.saleBlacklist||"") .split(",") .map(x => normalizeText(x)) .filter(Boolean); if(blacklist.includes(v)) return false; return true; } // ========================== // Metas storage // ========================== const LS_METAS = "painel_metas_mm"; function loadMetas(){ try{ return JSON.parse(localStorage.getItem(LS_METAS) || "{}"); } catch{ return {}; } } function saveMetas(metas){ localStorage.setItem(LS_METAS, JSON.stringify(metas)); } function parseMes(s){ const m = /^(\d{4})-(\d{2})$/.exec(String(s||'').trim()); if(!m) return null; const yy = +m[1], mm = +m[2]; if(mm < 1 || mm > 12) return null; return { y: yy, m: mm }; } function mesesEntreDates(d1, d2){ const a = new Date(d1.getFullYear(), d1.getMonth(), 1); const b = new Date(d2.getFullYear(), d2.getMonth(), 1); const out = []; let y = a.getFullYear(), m = a.getMonth()+1; const endY = b.getFullYear(), endM = b.getMonth()+1; while(y < endY || (y === endY && m <= endM)){ out.push(`${y}-${pad2(m)}`); m++; if(m>12){ m=1; y++; } } return out; } function renderMetas(){ const metas = loadMetas(); const tbody = $("#metasTabela"); const rows = Object.entries(metas) .sort((a,b)=>a[0] > b[0] ? 1 : -1) .map(([k,m])=>{ const vgv = Number(m.vgv||0); const casais = Number(m.casais||0); const cotas = Number(m.cotas||0); return `<tr> <td class="mono">${k}</td> <td class="right mono">R$ ${vgv.toLocaleString("pt-BR",{minimumFractionDigits:0, maximumFractionDigits:0})}</td> <td class="right mono">${formatIntBR(casais)}</td> <td class="right mono">${formatIntBR(cotas)}</td> </tr>`; }).join(""); tbody.innerHTML = rows || `<tr><td colspan="4" class="muted">Nenhuma meta cadastrada.</td></tr>`; } function bindMetas(){ $("#btnSalvarMeta").onclick = ()=>{ const mes = $("#metaPeriodo").value.trim(); if(!parseMes(mes)){ alert("Período inválido. Use AAAA-MM."); return; } const vgv = parseMoneyBR($("#metaVGV").value); const casais = Number($("#metaCasais").value || 0); const cotas = Number($("#metaCotas").value || 0); const metas = loadMetas(); metas[mes] = { vgv, casais, cotas }; saveMetas(metas); renderMetas(); alert("Meta salva."); }; $("#btnLimparMeta").onclick = ()=>{ const mes = $("#metaPeriodo").value.trim(); const metas = loadMetas(); if(metas[mes] == null){ alert("Não existe meta para esse mês."); return; } delete metas[mes]; saveMetas(metas); renderMetas(); alert("Meta apagada."); }; $("#btnExportarMeta").onclick = ()=>{ const metas = loadMetas(); const blob = new Blob([JSON.stringify(metas, null, 2)], {type:"application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "metas.json"; a.click(); URL.revokeObjectURL(url); }; $("#btnImportarMeta").onclick = ()=> $("#fileMeta").click(); $("#fileMeta").onchange = async (e)=>{ const file = e.target.files[0]; if(!file) return; const txt = await file.text(); try{ const obj = JSON.parse(txt); saveMetas(obj); renderMetas(); alert("Metas importadas."); }catch{ alert("JSON inválido."); } }; } // ========================== // Estado do app // ========================== let rawText = ""; let csv = [];        // array de arrays let header = [];     // primeira linha let dataRows = [];   // demais function setFileStatus(msg){ $("#fileStatus").textContent = msg; } function updatePills(){ $("#pillRows").textContent = `${Math.max(0, dataRows.length)} linhas`; $("#pillCols").textContent = `${Math.max(0, header.length)} colunas`; } function defaultDateRangeFromData(dateColIdx){ // tenta pegar min e max const idx = dateColIdx - 1; const dates = []; for(const r of dataRows){ const dt = parseBRDate(r[idx]); if(dt) dates.push(dt.getTime()); } if(!dates.length) return; const min = new Date(Math.min(...dates)); const max = new Date(Math.max(...dates)); $("#dtIni").value = `${pad2(min.getDate())}/${pad2(min.getMonth()+1)}/${min.getFullYear()}`; $("#dtFim").value = `${pad2(max.getDate())}/${pad2(max.getMonth()+1)}/${max.getFullYear()}`; } function getDateColIndex(){ const v = $("#dateColIndex").value.trim(); if(!v) return null; // aceita número ou letra if(/^\d+$/.test(v)) return Number(v); const idx = colLetterToIndex(v); return idx; } function filterRowsByDate(dateColIdx, dtIni, dtFim){ if(!dateColIdx || !dtIni || !dtFim) return dataRows.slice(); const idx = dateColIdx - 1; const a = parseBRDate(dtIni); const b = parseBRDate(dtFim); if(!a || !b) return dataRows.slice(); const minT = a.getTime(); const maxT = b.getTime(); return dataRows.filter(r=>{ const d = parseBRDate(r[idx]); if(!d) return false; const t = d.getTime(); return t >= minT && t <= maxT; }); } function isNotourFromColB(v){ return normalizeText(v) === "notour"; } function computeKPIs(rows, cfg){ const COL_B = 2;  // B const COL_O = 15; // O let atendidos = 0; let notour = 0; let vendas = 0; for(const r of rows){ const b = r[COL_B-1]; if(isNotourFromColB(b)){ notour++; }else{ atendidos++; } const o = r[COL_O-1]; if(saleFromColO(o, cfg)) vendas++; } return { atendidos, notour, vendas }; } function renderPreview(rows){ const max = Math.min(200, rows.length); const h = header.map((name, i)=>`<th>${name || indexToColLetter(i+1)}</th>`).join(""); $("#theadPreview").innerHTML = `<tr>${h}</tr>`; const body = []; for(let i=0;i<max;i++){ const r = rows[i]; body.push("<tr>"+r.map((v)=>`<td>${escapeHtml(String(v ?? ""))}</td>`).join("")+"</tr>"); } $("#tbodyPreview").innerHTML = body.join("") || `<tr><td colspan="${header.length||1}" class="muted">Sem linhas no filtro.</td></tr>`; } function escapeHtml(s){ return s.replace(/[&<>"']/g, (c)=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])); } function renderResumo(){ const cfg = loadCfg(); const dateColIdx = getDateColIndex(); const dtIni = $("#dtIni").value.trim(); const dtFim = $("#dtFim").value.trim(); const filtered = filterRowsByDate(dateColIdx, dtIni, dtFim); const { atendidos, notour, vendas } = computeKPIs(filtered, cfg); $("#kpiAtendidos").textContent = formatIntBR(atendidos); $("#kpiNotour").textContent = formatIntBR(notour); $("#kpiVendas").textContent = formatIntBR(vendas); $("#kpiConv").textContent = `${pct(vendas, atendidos).toFixed(1).replace('.',',')}%`; // metas por período const a = parseBRDate(dtIni); const b = parseBRDate(dtFim); let metaCasais = 0, metaCotas = 0; if(a && b){ const meses = mesesEntreDates(a, b); const metas = loadMetas(); for(const m of meses){ const item = metas[m]; if(item){ metaCasais += Number(item.casais||0); metaCotas += Number(item.cotas||0); } } } $("#metaCasaisPeriodo").textContent = formatIntBR(metaCasais); $("#metaCotasPeriodo").textContent = formatIntBR(metaCotas); $("#batCasais").textContent = `${pct(atendidos, metaCasais).toFixed(1).replace('.',',')}%`; $("#batCotas").textContent = `${pct(vendas, metaCotas).toFixed(1).replace('.',',')}%`; // diagnóstico const conv = pct(vendas, atendidos); let diag = `No período filtrado, você teve <b>${formatIntBR(atendidos)}</b> atendidos, <b>${formatIntBR(notour)}</b> NOTour e <b>${formatIntBR(vendas)}</b> vendas/cotas.`; diag += `<br/>Conversão: <b>${conv.toFixed(1).replace('.',',')}%</b>.`; if(metaCotas > 0){ const bat = pct(vendas, metaCotas); diag += `<br/>Batimento da meta de cotas: <b>${bat.toFixed(1).replace('.',',')}%</b>.`; }else{ diag += `<br/><span class="muted">Cadastre metas para ver batimento.</span>`; } $("#diagTxt").innerHTML = diag; renderPreview(filtered); } // ========================== // Tabs // ========================== function bindTabs(){
 $$(".tabbtn").forEach(btn=>{
         btn.addEventListener("click", ()=>{
           $$
@@ -488,27 +550,29 @@ $$(".panel").forEach(p=>p.classList.remove("active"));
     }
 
     // ==========================
-    // Demo
+    // Demo data
     // ==========================
     function loadDemo(){
-      // cria 16 colunas A..P (O é 15)
+      // Cabeçalho A..P
       const cols = Array.from({length:16}, (_,i)=>indexToColLetter(i+1));
       const head = cols.join(";");
+      // linhas: A=data, B=status atendimento, O=venda
       const lines = [
-        ["01/06/2026","OK","","","","","","","","","","","","","ATIVO",""].join(";"),
+        ["01/06/2026","OK","","","","","","","","","","","","","SIM",""].join(";"),
         ["02/06/2026","NOTour","","","","","","","","","","","","","",""].join(";"),
-        ["03/06/2026","Encerrado","","","","","","","","","","","","","ATIVO # ATIVO",""].join(";"),
-        ["04/06/2026","OK","","","","","","","","","","","","","CANCELADO # CANCELADO # CANCELADO",""].join(";"),
+        ["03/06/2026","Encerrado","","","","","","","","","","","","","1",""].join(";"),
+        ["04/06/2026","OK","","","","","","","","","","","","","-",""].join(";"),
         ["05/06/2026","OK","","","","","","","","","","","","","",""].join(";"),
       ];
       const csvText = [head, ...lines].join("\n");
       handleCSVText(csvText, "demo.csv");
-      defaultDateRangeFromData();
+      $("#dateColIndex").value = "1"; // coluna A
+      defaultDateRangeFromData(1);
       renderResumo();
     }
 
     // ==========================
-    // Load / Clear
+    // Load CSV
     // ==========================
     function handleCSVText(text, filename){
       rawText = text || "";
@@ -520,7 +584,11 @@ $$(".panel").forEach(p=>p.classList.remove("active"));
       setFileStatus(`${filename} • delimitador "${delim}" • ${dataRows.length} linhas`);
       updatePills();
 
-      defaultDateRangeFromData();
+      // se a coluna de data estiver vazia, tenta usar A por padrão
+      if(!$("#dateColIndex").value.trim()){
+        $("#dateColIndex").value = "1";
+      }
+      defaultDateRangeFromData(getDateColIndex() || 1);
       renderResumo();
     }
 
@@ -533,20 +601,11 @@ $$(".panel").forEach(p=>p.classList.remove("active"));
       updatePills();
       $("#theadPreview").innerHTML = "";
       $("#tbodyPreview").innerHTML = "";
-      $("#diagTxt").textContent = "Carregue um CSV e aplique filtros para ver o diagnóstico.";
-      $("#projKpis").innerHTML = "";
       $("#kpiAtendidos").textContent = "0";
       $("#kpiNotour").textContent = "0";
       $("#kpiVendas").textContent = "0";
-      $("#kpiCancel").textContent = "0";
       $("#kpiConv").textContent = "0%";
-      $("#kpiPctCancel").textContent = "0%";
-      $("#metaCasaisPeriodo").textContent = "0";
-      $("#metaCotasPeriodo").textContent = "0";
-      $("#metaCancelPeriodo").textContent = "0";
-      $("#batCasais").textContent = "0%";
-      $("#batCotas").textContent = "0%";
-      $("#batCancel").textContent = "0%";
+      $("#diagTxt").textContent = "Carregue um CSV e aplique filtros para ver o diagnóstico.";
     }
 
     // ==========================
@@ -566,6 +625,32 @@ $$(".panel").forEach(p=>p.classList.remove("active"));
       $("#btnApply").onclick = ()=> renderResumo();
       $("#btnDemo").onclick = ()=> loadDemo();
       $("#btnClear").onclick = ()=> { $("#fileInput").value = ""; clearAll(); };
+
+      // config
+      const cfg = loadCfg();
+      $("#saleMode").value = cfg.saleMode;
+      $("#saleNeedle").value = cfg.saleNeedle;
+      $("#saleBlacklist").value = cfg.saleBlacklist;
+
+      $("#btnSaveConfig").onclick = ()=>{
+        const next = {
+          saleMode: $("#saleMode").value,
+          saleNeedle: $("#saleNeedle").value,
+          saleBlacklist: $("#saleBlacklist").value
+        };
+        saveCfg(next);
+        alert("Config salva.");
+        renderResumo();
+      };
+      $("#btnResetConfig").onclick = ()=>{
+        saveCfg({ saleMode:"nonEmpty", saleNeedle:"", saleBlacklist:"0, -, não, nao, n/a, vazio, sem, sem venda" });
+        const c = loadCfg();
+        $("#saleMode").value = c.saleMode;
+        $("#saleNeedle").value = c.saleNeedle;
+        $("#saleBlacklist").value = c.saleBlacklist;
+        alert("Config resetada.");
+        renderResumo();
+      };
     }
 
     // init
