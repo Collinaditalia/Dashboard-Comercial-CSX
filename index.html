@@ -3,467 +3,950 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Controle de Sala | Jan–Jun 2026</title>
+<title>Dashboard — Controle de Sala de Vendas</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; }
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3350;
+    --accent: #6c63ff;
+    --accent2: #00d4aa;
+    --accent3: #ff6b6b;
+    --accent4: #ffd166;
+    --text: #e8eaf6;
+    --text2: #9099c8;
+    --green: #00d4aa;
+    --red: #ff6b6b;
+    --yellow: #ffd166;
+    --purple: #6c63ff;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
 
-  .header { background: linear-gradient(135deg, #1a1f2e 0%, #16213e 100%); padding: 32px 40px; border-bottom: 2px solid #2d3748; }
-  .header h1 { font-size: 1.8rem; font-weight: 700; color: #fff; letter-spacing: 0.5px; }
-  .header p { color: #94a3b8; margin-top: 6px; font-size: 0.95rem; }
-  .header .badge { display: inline-block; background: #3b82f6; color: #fff; font-size: 0.75rem; padding: 3px 10px; border-radius: 20px; margin-top: 10px; font-weight: 600; }
+  /* HEADER PRINCIPAL */
+  .header { background: linear-gradient(135deg, #1a1d27, #12142080); border-bottom: 1px solid var(--border); padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .logo { width: 38px; height: 38px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .header h1 { font-size: 1.1rem; font-weight: 700; }
+  .header span { font-size: 0.72rem; color: var(--text2); }
+  .header-right { font-size: 0.72rem; color: var(--text2); text-align: right; }
+  .header-right strong { color: var(--accent2); }
 
-  .container { max-width: 1400px; margin: 0 auto; padding: 32px 24px; }
+  /* ===== BARRA DE MÉTRICAS DO CABEÇALHO ===== */
+  .metric-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 28px;
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+  .metric-bar-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 18px;
+    border-right: 1px solid var(--border);
+    min-width: 110px;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .metric-bar-item:first-child { border-left: none; }
+  .metric-bar-item::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .mb-purple::before { background: var(--purple); }
+  .mb-green::before { background: var(--green); }
+  .mb-yellow::before { background: var(--yellow); }
+  .mb-red::before { background: var(--red); }
+  .mb-blue::before { background: #4fc3f7; }
+  .mb-orange::before { background: #ff9800; }
+  .mb-teal::before { background: #26c6da; }
+  .metric-bar-label { font-size: 0.62rem; color: var(--text2); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 4px; white-space: nowrap; }
+  .metric-bar-value { font-size: 1.1rem; font-weight: 800; line-height: 1; white-space: nowrap; }
+  .mb-purple .metric-bar-value { color: var(--purple); }
+  .mb-green .metric-bar-value { color: var(--green); }
+  .mb-yellow .metric-bar-value { color: var(--yellow); }
+  .mb-red .metric-bar-value { color: var(--red); }
+  .mb-blue .metric-bar-value { color: #4fc3f7; }
+  .mb-orange .metric-bar-value { color: #ff9800; }
+  .mb-teal .metric-bar-value { color: #26c6da; }
+  .metric-bar-sub { font-size: 0.62rem; color: var(--text2); margin-top: 3px; white-space: nowrap; }
+  .metric-progress { width: 100%; height: 3px; background: var(--surface2); border-radius: 2px; margin-top: 5px; min-width: 70px; }
+  .metric-progress-fill { height: 100%; border-radius: 2px; transition: width .4s; }
 
-  .section-title { font-size: 0.7rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #64748b; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #1e293b; }
+  /* FILTERS */
+  .filters-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 28px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .fg { display: flex; align-items: center; gap: 7px; }
+  .fg label { font-size: 0.75rem; color: var(--text2); white-space: nowrap; }
+  .fg select { background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 5px 10px; font-size: 0.8rem; cursor: pointer; outline: none; }
+  .fg select:focus { border-color: var(--accent); }
+  .btn-apply { background: linear-gradient(135deg, var(--accent), #8b84ff); color: #fff; border: none; border-radius: 8px; padding: 6px 16px; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+  .btn-reset { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; cursor: pointer; }
+  .filter-badge { font-size: 0.72rem; color: var(--accent2); }
+
+  /* TABS */
+  .tabs { display: flex; gap: 3px; padding: 12px 28px 0; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tab-btn { padding: 8px 18px; border: none; background: transparent; color: var(--text2); font-size: 0.82rem; font-weight: 600; cursor: pointer; border-bottom: 3px solid transparent; border-radius: 8px 8px 0 0; transition: all .2s; white-space: nowrap; }
+  .tab-btn:hover { color: var(--text); background: var(--surface); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); background: var(--surface); }
+
+  /* CONTENT */
+  .tab-content { display: none; padding: 22px 28px; }
+  .tab-content.active { display: block; }
 
   /* KPI CARDS */
-  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 36px; }
-  .kpi-card { background: #1e293b; border-radius: 12px; padding: 20px; border: 1px solid #2d3748; position: relative; overflow: hidden; }
-  .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
-  .kpi-card.blue::before { background: #3b82f6; }
-  .kpi-card.green::before { background: #10b981; }
-  .kpi-card.yellow::before { background: #f59e0b; }
-  .kpi-card.red::before { background: #ef4444; }
-  .kpi-card.purple::before { background: #8b5cf6; }
-  .kpi-card.cyan::before { background: #06b6d4; }
-  .kpi-card.orange::before { background: #f97316; }
-  .kpi-label { font-size: 0.72rem; color: #64748b; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
-  .kpi-value { font-size: 2rem; font-weight: 800; color: #fff; margin: 8px 0 4px; line-height: 1; }
-  .kpi-sub { font-size: 0.78rem; color: #94a3b8; }
+  .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; position: relative; overflow: hidden; }
+  .kpi-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+  .kpi-card.c-purple::before { background: var(--purple); }
+  .kpi-card.c-green::before { background: var(--green); }
+  .kpi-card.c-red::before { background: var(--red); }
+  .kpi-card.c-yellow::before { background: var(--yellow); }
+  .kpi-card.c-blue::before { background: #4fc3f7; }
+  .kpi-card.c-orange::before { background: #ff9800; }
+  .kpi-label { font-size: 0.68rem; color: var(--text2); text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px; }
+  .kpi-value { font-size: 1.7rem; font-weight: 800; line-height: 1; }
+  .kpi-card.c-purple .kpi-value { color: var(--purple); }
+  .kpi-card.c-green .kpi-value { color: var(--green); }
+  .kpi-card.c-red .kpi-value { color: var(--red); }
+  .kpi-card.c-yellow .kpi-value { color: var(--yellow); }
+  .kpi-card.c-blue .kpi-value { color: #4fc3f7; }
+  .kpi-card.c-orange .kpi-value { color: #ff9800; }
+  .kpi-sub { font-size: 0.7rem; color: var(--text2); margin-top: 4px; }
 
-  /* TWO COLUMN */
-  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
-  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 28px; }
-  @media (max-width: 900px) { .two-col, .three-col { grid-template-columns: 1fr; } }
+  /* SECTION TITLE */
+  .sec-title { font-size: 0.92rem; font-weight: 700; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .sec-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
-  .card { background: #1e293b; border-radius: 12px; padding: 24px; border: 1px solid #2d3748; }
+  /* TABLE */
+  .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 22px; }
+  .table-hdr { padding: 12px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  .table-hdr h3 { font-size: 0.85rem; font-weight: 700; }
+  .sort-controls { display: flex; gap: 6px; flex-wrap: wrap; }
+  .sort-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text2); border-radius: 6px; padding: 3px 9px; font-size: 0.7rem; cursor: pointer; transition: all .2s; white-space: nowrap; }
+  .sort-btn:hover, .sort-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+  thead th { background: var(--surface2); color: var(--text2); font-size: 0.68rem; text-transform: uppercase; letter-spacing: .5px; padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--surface2); }
+  tbody td { padding: 8px 12px; }
+  .rank-badge { display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; font-size:0.68rem; font-weight:800; }
+  .r1{background:#ffd166;color:#000}.r2{background:#b0bec5;color:#000}.r3{background:#cd7f32;color:#fff}.rn{background:var(--surface2);color:var(--text2)}
+  .bar-cell { display:flex; align-items:center; gap:6px; }
+  .bar-track { flex:1; height:5px; background:var(--surface2); border-radius:3px; min-width:40px; }
+  .bar-fill { height:100%; border-radius:3px; }
+  .bf-purple{background:var(--purple)}.bf-green{background:var(--green)}.bf-yellow{background:var(--yellow)}
+  .badge { display:inline-block; padding:2px 8px; border-radius:20px; font-size:0.66rem; font-weight:700; }
+  .bg-green{background:rgba(0,212,170,.15);color:var(--green)}.bg-red{background:rgba(255,107,107,.15);color:var(--red)}.bg-yellow{background:rgba(255,209,102,.15);color:var(--yellow)}.bg-purple{background:rgba(108,99,255,.15);color:var(--purple)}
 
-  /* TABLES */
-  table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
-  thead th { background: #0f172a; color: #64748b; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1px; padding: 10px 12px; text-align: left; border-bottom: 1px solid #2d3748; }
-  tbody tr { border-bottom: 1px solid #1a2332; transition: background 0.15s; }
-  tbody tr:hover { background: #253046; }
-  tbody td { padding: 10px 12px; color: #cbd5e1; }
-  .td-num { text-align: right; font-weight: 700; color: #e2e8f0; }
-  .td-center { text-align: center; }
+  /* GESTÃO */
+  .mgmt-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 20px; overflow: hidden; }
+  .mgmt-panel-header { padding: 13px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; cursor: pointer; user-select: none; }
+  .mgmt-panel-header h3 { font-size: 0.88rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .mgmt-panel-header .chevron { font-size: 0.8rem; color: var(--text2); transition: transform .2s; }
+  .mgmt-panel-header.open .chevron { transform: rotate(180deg); }
+  .mgmt-panel-body { display: none; padding: 18px; }
+  .mgmt-panel-body.open { display: block; }
+  .prof-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 9px; }
+  .prof-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 9px 13px; display: flex; align-items: center; justify-content: space-between; gap: 10px; transition: all .2s; }
+  .prof-item.inactive { opacity: .42; border-style: dashed; }
+  .prof-name { font-size: 0.76rem; font-weight: 600; color: var(--text); line-height: 1.3; }
+  .prof-role { font-size: 0.65rem; color: var(--text2); margin-top: 2px; }
+  .toggle { position: relative; width: 38px; height: 20px; flex-shrink: 0; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; cursor: pointer; inset: 0; background: var(--border); border-radius: 20px; transition: .3s; }
+  .slider::before { content:''; position:absolute; width:14px; height:14px; left:3px; bottom:3px; background:#fff; border-radius:50%; transition:.3s; }
+  .toggle input:checked + .slider { background: var(--green); }
+  .toggle input:checked + .slider::before { transform: translateX(18px); }
+  .mgmt-actions { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .mgmt-act-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text2); border-radius: 8px; padding: 5px 12px; font-size: 0.73rem; cursor: pointer; transition: all .2s; }
+  .mgmt-act-btn:hover { color: var(--text); border-color: var(--text2); }
+  .mgmt-act-btn.danger:hover { color: var(--red); border-color: var(--red); }
 
-  /* BADGES */
-  .badge-ativo { background: #064e3b; color: #34d399; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; }
-  .badge-cancelado { background: #7f1d1d; color: #fca5a5; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; }
-  .badge-q { background: #1e3a5f; color: #60a5fa; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; }
-  .badge-nq { background: #2d1b69; color: #a78bfa; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; }
+  /* HEATMAP */
+  .heatmap-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 20px; }
+  .hm-grid { display: grid; gap: 4px; margin-top: 12px; overflow-x: auto; }
+  .hm-cell { border-radius: 6px; padding: 5px 3px; text-align: center; font-size: 0.68rem; font-weight: 600; min-height: 38px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .hm-hdr { background: var(--surface2); color: var(--text2); font-size: 0.65rem; font-weight: 700; text-transform: uppercase; }
+  .h0{background:var(--surface2);color:var(--text2)}.h1{background:rgba(108,99,255,.18);color:#a59fff}.h2{background:rgba(108,99,255,.35);color:#c0b8ff}.h3{background:rgba(108,99,255,.55);color:#d8d4ff}.h4{background:rgba(108,99,255,.75);color:#ede8ff}.h5{background:rgba(108,99,255,.95);color:#fff}
+  .hm-legend { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 0.68rem; color: var(--text2); flex-wrap: wrap; }
+  .hml-item { display: flex; align-items: center; gap: 4px; }
+  .hml-box { width: 13px; height: 13px; border-radius: 3px; }
+  .notice-box { background: rgba(255,209,102,.07); border: 1px solid rgba(255,209,102,.2); border-radius: var(--radius); padding: 12px 16px; margin-bottom: 16px; display: flex; gap: 10px; }
+  .notice-box p { font-size: 0.78rem; color: var(--text2); line-height: 1.5; }
+  .notice-box p strong { color: var(--yellow); }
 
-  /* BAR CHART */
-  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-  .bar-label { font-size: 0.78rem; color: #94a3b8; min-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .bar-track { flex: 1; background: #0f172a; border-radius: 4px; height: 20px; overflow: hidden; }
-  .bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 8px; font-size: 0.7rem; font-weight: 700; color: #fff; transition: width 0.3s; }
-  .bar-val { font-size: 0.78rem; color: #e2e8f0; font-weight: 700; min-width: 36px; text-align: right; }
+  /* FAIXA RENDA */
+  .faixa-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .faixa-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+  .faixa-title { font-size: 0.8rem; font-weight: 700; margin-bottom: 10px; }
+  .faixa-stat { display: flex; justify-content: space-between; font-size: 0.76rem; margin-bottom: 5px; }
+  .faixa-stat span:first-child { color: var(--text2); }
+  .faixa-stat span:last-child { font-weight: 700; }
+  .faixa-bar { height: 6px; background: var(--surface2); border-radius: 4px; margin: 4px 0 9px; }
+  .faixa-bar-fill { height: 100%; border-radius: 4px; }
 
-  /* INSIGHT BOX */
-  .insight-box { background: #0f172a; border-left: 3px solid #3b82f6; border-radius: 0 8px 8px 0; padding: 12px 16px; margin-bottom: 10px; }
-  .insight-box.green { border-color: #10b981; }
-  .insight-box.yellow { border-color: #f59e0b; }
-  .insight-box.red { border-color: #ef4444; }
-  .insight-title { font-size: 0.72rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
-  .insight-text { font-size: 0.83rem; color: #cbd5e1; line-height: 1.5; }
+  /* INSIGHTS */
+  .insights-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; margin-bottom: 20px; }
+  .insight-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 13px; border-left: 3px solid; }
+  .insight-card.ig{border-left-color:var(--green)}.insight-card.ir{border-left-color:var(--red)}.insight-card.iy{border-left-color:var(--yellow)}.insight-card.ip{border-left-color:var(--purple)}
+  .insight-type { font-size: 0.63rem; text-transform: uppercase; letter-spacing: .8px; font-weight: 700; margin-bottom: 5px; }
+  .ig .insight-type{color:var(--green)}.ir .insight-type{color:var(--red)}.iy .insight-type{color:var(--yellow)}.ip .insight-type{color:var(--purple)}
+  .insight-text { font-size: 0.78rem; line-height: 1.5; color: var(--text2); }
+  .insight-text strong { color: var(--text); }
 
-  /* HIGHLIGHT NUMBER */
-  .hl { color: #3b82f6; font-weight: 700; }
-  .hl-green { color: #10b981; font-weight: 700; }
-  .hl-yellow { color: #f59e0b; font-weight: 700; }
-  .hl-red { color: #ef4444; font-weight: 700; }
+  /* AUDIT */
+  .audit-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 20px; }
+  .audit-box h3 { font-size: 0.83rem; font-weight: 700; color: var(--text2); margin-bottom: 12px; }
+  .audit-row { display: flex; justify-content: space-between; font-size: 0.76rem; padding: 6px 0; border-bottom: 1px solid var(--border); }
+  .audit-row:last-child { border-bottom: none; }
+  .audit-row span:first-child { color: var(--text2); }
+  .audit-row span:last-child { font-weight: 700; }
 
-  .mb-28 { margin-bottom: 28px; }
-  .mb-16 { margin-bottom: 16px; }
-  .mt-16 { margin-top: 16px; }
+  /* ===== ABA METAS ===== */
+  .metas-container { max-width: 900px; }
+  .metas-intro { font-size: 0.82rem; color: var(--text2); line-height: 1.6; margin-bottom: 20px; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); border-left: 3px solid var(--accent); }
+  .metas-intro strong { color: var(--accent); }
+  .meses-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-bottom: 24px; }
+  .mes-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .mes-card-header { padding: 10px 16px; background: var(--surface2); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .mes-card-header h4 { font-size: 0.85rem; font-weight: 700; }
+  .mes-card-header span { font-size: 0.68rem; color: var(--text2); }
+  .mes-card-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+  .meta-field { display: flex; flex-direction: column; gap: 4px; }
+  .meta-field label { font-size: 0.68rem; color: var(--text2); text-transform: uppercase; letter-spacing: .5px; }
+  .meta-field input { background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 7px 10px; font-size: 0.82rem; outline: none; transition: border-color .2s; width: 100%; }
+  .meta-field input:focus { border-color: var(--accent); }
+  .meta-field input::placeholder { color: var(--text2); opacity: .5; }
+  .meta-field .field-icon { font-size: 0.72rem; color: var(--text2); margin-top: 1px; }
+  .mes-card-footer { padding: 10px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+  .btn-salvar-meta { background: linear-gradient(135deg, var(--accent), #8b84ff); color: #fff; border: none; border-radius: 8px; padding: 6px 14px; font-size: 0.75rem; font-weight: 600; cursor: pointer; flex: 1; }
+  .btn-limpar-meta { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; font-size: 0.75rem; cursor: pointer; }
+  .meta-saved { font-size: 0.68rem; color: var(--green); margin-left: auto; align-self: center; display: none; }
+  .meta-saved.show { display: block; }
+  /* Resumo de metas */
+  .metas-resumo { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 20px; }
+  .metas-resumo-header { padding: 12px 18px; border-bottom: 1px solid var(--border); font-size: 0.88rem; font-weight: 700; }
+  .metas-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+  .metas-table thead th { background: var(--surface2); color: var(--text2); font-size: 0.67rem; text-transform: uppercase; letter-spacing: .5px; padding: 9px 14px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  .metas-table tbody tr { border-bottom: 1px solid var(--border); }
+  .metas-table tbody tr:last-child { border-bottom: none; }
+  .metas-table tbody td { padding: 9px 14px; }
+  .meta-empty { color: var(--text2); opacity: .5; font-style: italic; font-size: 0.72rem; }
 
-  /* AUDITORIA */
-  .audit-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
-  .audit-item { background: #0f172a; border-radius: 8px; padding: 14px; text-align: center; border: 1px solid #1e293b; }
-  .audit-num { font-size: 1.5rem; font-weight: 800; color: #60a5fa; }
-  .audit-lbl { font-size: 0.68rem; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
-  .footer { text-align: center; padding: 24px; color: #334155; font-size: 0.75rem; border-top: 1px solid #1e293b; margin-top: 20px; }
+  @media(max-width:768px){
+    .header,.filters-bar,.tabs,.tab-content{padding-left:14px;padding-right:14px;}
+    .kpi-row{grid-template-columns:repeat(2,1fr);}
+    .metric-bar{padding:0 14px;}
+    .metric-bar-item{min-width:90px;padding:8px 12px;}
+    .metric-bar-value{font-size:0.95rem;}
+  }
 </style>
 </head>
 <body>
 
+<!-- HEADER PRINCIPAL -->
 <div class="header">
-  <h1>📊 Dashboard Controle de Sala</h1>
-  <p>Análise executiva de atendimentos, performance comercial e captação</p>
-  <span class="badge">Janeiro – 09 de Junho de 2026</span>
+  <div class="header-left">
+    <div class="logo">🏠</div>
+    <div>
+      <h1>Dashboard — Controle de Sala de Vendas</h1>
+      <span>Base: Janeiro a 09/Jun/2026 · Atualizado conforme filtros e profissionais ativos</span>
+    </div>
+  </div>
+  <div class="header-right">Período: <strong id="hdr-periodo">Jan–Jun/2026</strong><br>Base: <strong id="hdr-total">—</strong> atendimentos</div>
 </div>
 
-<div class="container">
-
-  <!-- RESUMO EXECUTIVO -->
-  <div class="mb-28">
-    <div class="section-title">Resumo Executivo</div>
-    <div class="card">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
-        <div>
-          <div class="insight-box green">
-            <div class="insight-title">🟢 Destaque Positivo</div>
-            <div class="insight-text">A operação registrou <span class="hl-green">295 atendimentos</span> no período, com <span class="hl-green">R$ 1.629.910,00</span> em contratos ativos. A taxa de conversão para vendas com valor registrado foi de <span class="hl-green">~16,6%</span> sobre o total de atendimentos encerrados.</div>
-          </div>
-          <div class="insight-box yellow">
-            <div class="insight-title">🟡 Ponto de Atenção</div>
-            <div class="insight-text"><span class="hl-yellow">7 contratos foram cancelados</span> após registro de venda, representando perda de receita relevante. Merece investigação sobre perfil e momento de cancelamento.</div>
-          </div>
-        </div>
-        <div>
-          <div class="insight-box">
-            <div class="insight-title">🔵 Perfil da Base</div>
-            <div class="insight-text">A maioria dos atendimentos concentra-se em leads <span class="hl">Qualificados (Q)</span>, com forte presença dos estados de <span class="hl">SP, RJ e MG</span>. O ponto de captação mais recorrente é o <span class="hl">Parque Dreams</span> e a <span class="hl">Frente da Sala Dream</span>.</div>
-          </div>
-          <div class="insight-box red">
-            <div class="insight-title">🔴 Risco Identificado</div>
-            <div class="insight-text"><span class="hl-red">14 registros NoTour</span> indicam leads captados que não completaram o tour — taxa de abandono de ~4,7% que pode ocultar potencial perdido de conversão.</div>
-          </div>
-        </div>
-      </div>
-    </div>
+<!-- ===== BARRA DE MÉTRICAS DO CABEÇALHO ===== -->
+<div class="metric-bar" id="metric-bar">
+  <div class="metric-bar-item mb-purple">
+    <div class="metric-bar-label">Meta VGV</div>
+    <div class="metric-bar-value" id="mb-meta-vgv">—</div>
+    <div class="metric-bar-sub">definida nas metas</div>
   </div>
-
-  <!-- KPIs PRINCIPAIS -->
-  <div class="mb-28">
-    <div class="section-title">Principais KPIs</div>
-    <div class="kpi-grid">
-      <div class="kpi-card blue">
-        <div class="kpi-label">Total Atendimentos</div>
-        <div class="kpi-value">295</div>
-        <div class="kpi-sub">Jan–Jun 2026</div>
-      </div>
-      <div class="kpi-card green">
-        <div class="kpi-label">Receita Contratos</div>
-        <div class="kpi-value" style="font-size:1.4rem;">R$ 1,63M</div>
-        <div class="kpi-sub">Contratos com valor > 0</div>
-      </div>
-      <div class="kpi-card purple">
-        <div class="kpi-label">Contratos Ativos</div>
-        <div class="kpi-value">22</div>
-        <div class="kpi-sub">Status ATIVO</div>
-      </div>
-      <div class="kpi-card red">
-        <div class="kpi-label">Cancelamentos</div>
-        <div class="kpi-value">7</div>
-        <div class="kpi-sub">Status CANCELADO</div>
-      </div>
-      <div class="kpi-card yellow">
-        <div class="kpi-label">NoTour</div>
-        <div class="kpi-value">14</div>
-        <div class="kpi-sub">Sem conclusão de tour</div>
-      </div>
-      <div class="kpi-card cyan">
-        <div class="kpi-label">Qualificados (Q)</div>
-        <div class="kpi-value">196</div>
-        <div class="kpi-sub">66,4% do total</div>
-      </div>
-      <div class="kpi-card orange">
-        <div class="kpi-label">Não Qualif. (NQ)</div>
-        <div class="kpi-value">99</div>
-        <div class="kpi-sub">33,6% do total</div>
-      </div>
-      <div class="kpi-card blue" style="--c:#06b6d4">
-        <div class="kpi-label">Ticket Médio</div>
-        <div class="kpi-value" style="font-size:1.4rem;">R$ 74,1K</div>
-        <div class="kpi-sub">Entre contratos com valor</div>
-      </div>
-    </div>
+  <div class="metric-bar-item mb-yellow">
+    <div class="metric-bar-label">VGV Realizado</div>
+    <div class="metric-bar-value" id="mb-vgv">—</div>
+    <div class="metric-progress"><div class="metric-progress-fill" id="mb-vgv-bar" style="background:var(--yellow);width:0%"></div></div>
   </div>
-
-  <!-- EVOLUÇÃO MENSAL -->
-  <div class="mb-28">
-    <div class="section-title">Evolução Mensal de Atendimentos</div>
-    <div class="card">
-      <div style="margin-bottom:20px;">
-        <div class="bar-row">
-          <div class="bar-label">Janeiro</div>
-          <div class="bar-track"><div class="bar-fill" style="width:100%;background:#3b82f6;">62</div></div>
-          <div class="bar-val">62</div>
-        </div>
-        <div class="bar-row">
-          <div class="bar-label">Fevereiro</div>
-          <div class="bar-track"><div class="bar-fill" style="width:74%;background:#6366f1;">46</div></div>
-          <div class="bar-val">46</div>
-        </div>
-        <div class="bar-row">
-          <div class="bar-label">Março</div>
-          <div class="bar-track"><div class="bar-fill" style="width:60%;background:#8b5cf6;">37</div></div>
-          <div class="bar-val">37</div>
-        </div>
-        <div class="bar-row">
-          <div class="bar-label">Abril</div>
-          <div class="bar-track"><div class="bar-fill" style="width:56%;background:#a78bfa;">35</div></div>
-          <div class="bar-val">35</div>
-        </div>
-        <div class="bar-row">
-          <div class="bar-label">Maio</div>
-          <div class="bar-track"><div class="bar-fill" style="width:60%;background:#06b6d4;">37</div></div>
-          <div class="bar-val">37</div>
-        </div>
-        <div class="bar-row">
-          <div class="bar-label">Junho (até dia 9)</div>
-          <div class="bar-track"><div class="bar-fill" style="width:18%;background:#10b981;">11</div></div>
-          <div class="bar-val">11</div>
-        </div>
-      </div>
-      <div class="insight-box yellow">
-        <div class="insight-title">Interpretação</div>
-        <div class="insight-text">Janeiro foi o mês de maior volume com <span class="hl">62 atendimentos</span>. Há uma tendência de redução entre fev–abr, com leve recuperação em maio. Junho ainda é parcial (apenas 9 dias), projetando volume potencial próximo a ~37 atendimentos se o ritmo se mantiver.</div>
-      </div>
-    </div>
+  <div class="metric-bar-item mb-green">
+    <div class="metric-bar-label">Nº de Vendas</div>
+    <div class="metric-bar-value" id="mb-vendas">—</div>
+    <div class="metric-progress"><div class="metric-progress-fill" id="mb-cotas-bar" style="background:var(--green);width:0%"></div></div>
   </div>
-
-  <!-- PERFORMANCE COMERCIAL E QUALIFICAÇÃO -->
-  <div class="two-col mb-28">
-
-    <div class="card">
-      <div class="section-title">Contratos por Status</div>
-      <div class="bar-row">
-        <div class="bar-label">Ativo</div>
-        <div class="bar-track"><div class="bar-fill" style="width:100%;background:#10b981;">22</div></div>
-        <div class="bar-val">22</div>
-      </div>
-      <div class="bar-row">
-        <div class="bar-label">Cancelado</div>
-        <div class="bar-track"><div class="bar-fill" style="width:32%;background:#ef4444;">7</div></div>
-        <div class="bar-val">7</div>
-      </div>
-      <div style="margin-top:16px;">
-        <div class="insight-box green">
-          <div class="insight-title">Taxa de Retenção de Contratos</div>
-          <div class="insight-text"><span class="hl-green">75,9%</span> dos contratos com valor registrado permanecem ativos. <span class="hl-red">24,1%</span> foram cancelados — índice que merece atenção estrutural.</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="section-title">Distribuição Q vs NQ por Mês</div>
-      <table>
-        <thead>
-          <tr>
-            <th>Mês</th>
-            <th class="td-center">Q</th>
-            <th class="td-center">NQ</th>
-            <th class="td-center">% Q</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>Janeiro</td><td class="td-center"><span class="badge-q">42</span></td><td class="td-center"><span class="badge-nq">20</span></td><td class="td-center">67,7%</td></tr>
-          <tr><td>Fevereiro</td><td class="td-center"><span class="badge-q">29</span></td><td class="td-center"><span class="badge-nq">17</span></td><td class="td-center">63,0%</td></tr>
-          <tr><td>Março</td><td class="td-center"><span class="badge-q">26</span></td><td class="td-center"><span class="badge-nq">11</span></td><td class="td-center">70,3%</td></tr>
-          <tr><td>Abril</td><td class="td-center"><span class="badge-q">21</span></td><td class="td-center"><span class="badge-nq">14</span></td><td class="td-center">60,0%</td></tr>
-          <tr><td>Maio</td><td class="td-center"><span class="badge-q">27</span></td><td class="td-center"><span class="badge-nq">10</span></td><td class="td-center">73,0%</td></tr>
-          <tr><td>Junho</td><td class="td-center"><span class="badge-q">7</span></td><td class="td-center"><span class="badge-nq">4</span></td><td class="td-center">63,6%</td></tr>
-          <tr style="background:#0f172a;font-weight:700;"><td>TOTAL</td><td class="td-center">196</td><td class="td-center">99</td><td class="td-center">66,4%</td></tr>
-        </tbody>
-      </table>
-    </div>
+  <div class="metric-bar-item mb-teal">
+    <div class="metric-bar-label">VGV Líquido</div>
+    <div class="metric-bar-value" id="mb-vgv-liq">—</div>
+    <div class="metric-bar-sub">VGV − cancelamentos</div>
   </div>
-
-  <!-- TOP PROMOTORES -->
-  <div class="two-col mb-28">
-    <div class="card">
-      <div class="section-title">Top 10 Promotores de Marketing (por atendimentos)</div>
-      <div class="bar-row"><div class="bar-label">Raphael Bueno da Silva</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:#3b82f6;"></div></div><div class="bar-val">40</div></div>
-      <div class="bar-row"><div class="bar-label">Francisco A. Rodrigues</div><div class="bar-track"><div class="bar-fill" style="width:55%;background:#6366f1;"></div></div><div class="bar-val">22</div></div>
-      <div class="bar-row"><div class="bar-label">Matheus Esley Silva</div><div class="bar-track"><div class="bar-fill" style="width:50%;background:#8b5cf6;"></div></div><div class="bar-val">20</div></div>
-      <div class="bar-row"><div class="bar-label">Pedro H. Gomes Santos</div><div class="bar-track"><div class="bar-fill" style="width:48%;background:#a78bfa;"></div></div><div class="bar-val">19</div></div>
-      <div class="bar-row"><div class="bar-label">Larissa Vitoria</div><div class="bar-track"><div class="bar-fill" style="width:40%;background:#06b6d4;"></div></div><div class="bar-val">16</div></div>
-      <div class="bar-row"><div class="bar-label">Ricardo Maltchik</div><div class="bar-track"><div class="bar-fill" style="width:35%;background:#10b981;"></div></div><div class="bar-val">14</div></div>
-      <div class="bar-row"><div class="bar-label">Ana Caroline</div><div class="bar-track"><div class="bar-fill" style="width:35%;background:#f59e0b;"></div></div><div class="bar-val">14</div></div>
-      <div class="bar-row"><div class="bar-label">Suene Cintia da Silva</div><div class="bar-track"><div class="bar-fill" style="width:30%;background:#ef4444;"></div></div><div class="bar-val">12</div></div>
-      <div class="bar-row"><div class="bar-label">Adriano Moreira</div><div class="bar-track"><div class="bar-fill" style="width:25%;background:#f97316;"></div></div><div class="bar-val">10</div></div>
-      <div class="bar-row"><div class="bar-label">Josyene Freitas</div><div class="bar-track"><div class="bar-fill" style="width:23%;background:#64748b;"></div></div><div class="bar-val">9</div></div>
-    </div>
-
-    <div class="card">
-      <div class="section-title">Top 10 Closers (por atendimentos)</div>
-      <div class="bar-row"><div class="bar-label">Fabricio Lelis Bignardi</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:#10b981;"></div></div><div class="bar-val">82</div></div>
-      <div class="bar-row"><div class="bar-label">Luis Alves do Amaral Neto</div><div class="bar-track"><div class="bar-fill" style="width:68%;background:#3b82f6;"></div></div><div class="bar-val">56</div></div>
-      <div class="bar-row"><div class="bar-label">Gustavo Cardoso Weber</div><div class="bar-track"><div class="bar-fill" style="width:28%;background:#8b5cf6;"></div></div><div class="bar-val">23</div></div>
-      <div class="bar-row"><div class="bar-label">Amanda Dorado</div><div class="bar-track"><div class="bar-fill" style="width:22%;background:#06b6d4;"></div></div><div class="bar-val">18</div></div>
-      <div class="bar-row"><div class="bar-label">Jose Neto</div><div class="bar-track"><div class="bar-fill" style="width:22%;background:#f59e0b;"></div></div><div class="bar-val">18</div></div>
-      <div class="bar-row"><div class="bar-label">Daniel Marcos</div><div class="bar-track"><div class="bar-fill" style="width:20%;background:#a78bfa;"></div></div><div class="bar-val">16</div></div>
-      <div class="bar-row"><div class="bar-label">Rutemberg Correia</div><div class="bar-track"><div class="bar-fill" style="width:13%;background:#f97316;"></div></div><div class="bar-val">11</div></div>
-      <div class="bar-row"><div class="bar-label">Renata Bueno</div><div class="bar-track"><div class="bar-fill" style="width:11%;background:#ef4444;"></div></div><div class="bar-val">9</div></div>
-      <div class="bar-row"><div class="bar-label">Bianca Santos</div><div class="bar-track"><div class="bar-fill" style="width:9%;background:#64748b;"></div></div><div class="bar-val">7</div></div>
-      <div class="bar-row"><div class="bar-label">Guilherme Santos Batista</div><div class="bar-track"><div class="bar-fill" style="width:7%;background:#0ea5e9;"></div></div><div class="bar-val">6</div></div>
-    </div>
+  <div class="metric-bar-item mb-red">
+    <div class="metric-bar-label">Cancelamentos</div>
+    <div class="metric-bar-value" id="mb-cancel">—</div>
+    <div class="metric-bar-sub">contratos cancelados</div>
   </div>
-
-  <!-- CAPTAÇÃO E UF -->
-  <div class="two-col mb-28">
-    <div class="card">
-      <div class="section-title">Top Locais de Captação</div>
-      <div class="bar-row"><div class="bar-label">Parque Dreams</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:#3b82f6;"></div></div><div class="bar-val">97</div></div>
-      <div class="bar-row"><div class="bar-label">Frente da Sala Dream</div><div class="bar-track"><div class="bar-fill" style="width:84%;background:#6366f1;"></div></div><div class="bar-val">82</div></div>
-      <div class="bar-row"><div class="bar-label">Esquina 1</div><div class="bar-track"><div class="bar-fill" style="width:32%;background:#8b5cf6;"></div></div><div class="bar-val">31</div></div>
-      <div class="bar-row"><div class="bar-label">Agendamento</div><div class="bar-track"><div class="bar-fill" style="width:23%;background:#06b6d4;"></div></div><div class="bar-val">22</div></div>
-      <div class="bar-row"><div class="bar-label">Baden Baden</div><div class="bar-track"><div class="bar-fill" style="width:23%;background:#10b981;"></div></div><div class="bar-val">22</div></div>
-      <div class="bar-row"><div class="bar-label">Outros</div><div class="bar-track"><div class="bar-fill" style="width:15%;background:#64748b;"></div></div><div class="bar-val">41</div></div>
-      <div style="margin-top:14px;" class="insight-box">
-        <div class="insight-title">Concentração de Captação</div>
-        <div class="insight-text"><span class="hl">Parque Dreams + Frente da Sala Dream</span> respondem por <span class="hl-green">~60,7%</span> de todos os atendimentos. Alta dependência desses dois pontos.</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="section-title">Top 10 Estados (UF)</div>
-      <div class="bar-row"><div class="bar-label">SP – São Paulo</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:#3b82f6;"></div></div><div class="bar-val">116</div></div>
-      <div class="bar-row"><div class="bar-label">RJ – Rio de Janeiro</div><div class="bar-track"><div class="bar-fill" style="width:46%;background:#6366f1;"></div></div><div class="bar-val">53</div></div>
-      <div class="bar-row"><div class="bar-label">MG – Minas Gerais</div><div class="bar-track"><div class="bar-fill" style="width:40%;background:#8b5cf6;"></div></div><div class="bar-val">46</div></div>
-      <div class="bar-row"><div class="bar-label">PA – Pará</div><div class="bar-track"><div class="bar-fill" style="width:9%;background:#10b981;"></div></div><div class="bar-val">10</div></div>
-      <div class="bar-row"><div class="bar-label">GO – Goiás</div><div class="bar-track"><div class="bar-fill" style="width:6%;background:#f59e0b;"></div></div><div class="bar-val">7</div></div>
-      <div class="bar-row"><div class="bar-label">PE – Pernambuco</div><div class="bar-track"><div class="bar-fill" style="width:6%;background:#ef4444;"></div></div><div class="bar-val">6</div></div>
-      <div class="bar-row"><div class="bar-label">MT – Mato Grosso</div><div class="bar-track"><div class="bar-fill" style="width:5%;background:#06b6d4;"></div></div><div class="bar-val">5</div></div>
-      <div class="bar-row"><div class="bar-label">DF – Brasília</div><div class="bar-track"><div class="bar-fill" style="width:4%;background:#a78bfa;"></div></div><div class="bar-val">3</div></div>
-      <div class="bar-row"><div class="bar-label">BA – Bahia</div><div class="bar-track"><div class="bar-fill" style="width:4%;background:#f97316;"></div></div><div class="bar-val">3</div></div>
-      <div class="bar-row"><div class="bar-label">Demais</div><div class="bar-track"><div class="bar-fill" style="width:15%;background:#334155;"></div></div><div class="bar-val">18</div></div>
-      <div style="margin-top:14px;" class="insight-box">
-        <div class="insight-title">Concentração Geográfica</div>
-        <div class="insight-text"><span class="hl">SP + RJ + MG</span> representam <span class="hl-green">73,2%</span> dos atendimentos — base fortemente concentrada no Sudeste.</div>
-      </div>
-    </div>
+  <div class="metric-bar-item mb-blue">
+    <div class="metric-bar-label">% Eficiência</div>
+    <div class="metric-bar-value" id="mb-efic">—</div>
+    <div class="metric-bar-sub">vendas / atend.</div>
   </div>
-
-  <!-- VENDAS COM VALOR -->
-  <div class="mb-28">
-    <div class="section-title">Contratos com Valor Registrado</div>
-    <div class="card">
-      <table>
-        <thead>
-          <tr>
-            <th>Data</th>
-            <th>Cliente</th>
-            <th>Promotor</th>
-            <th>Closer</th>
-            <th class="td-num">Valor (R$)</th>
-            <th class="td-center">Status</th>
-            <th>UF</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>09/01</td><td>Leandro Martins</td><td>Suene Cintia</td><td>Kimberly Tavares</td><td class="td-num">80.000</td><td class="td-center"><span class="badge-ativo">ATIVO</span></td><td>SP</td></tr>
-          <tr><td>25/01</td><td>Alan Menezes</td><td>Felipe Ribeiro</td><td>Fabricio Bignardi</td><td class="td-num">80.000</td><td class="td-center"><span class="badge-ativo">ATIVO</span></td><td>MA</td></tr>
-          <tr><td>27/01</td><td>Genivaldo Barbosa</td><td>Larissa Ribeiro</td><td>Fabricio Bignardi</td><td class="td-num">77.000</td><td class="td-center"><span class="badge-ativo">ATIVO</span></td><td>SP</td></tr>
-          <tr><td>28/01</td><td>Charles Gonçalves</td><td>Pedro H. Santos</td><td>Fabricio Bignardi</td><td class="td-num">80.000</td><td class="td-center"><span class="badge-cancelado">CANCELADO</span></td><td>RJ</td></tr>
-          <tr><td>11/01</td><td>Paulo Fernando</td><td>Pedro H. Santos</td><td>Fabricio Bignardi</td><td class="td-num">160.000</td><td class="td-center"><span class="badge-ativo">ATIVO</span></td><td>MT</td></tr>
-          <tr><td>15/01</td><td>Lais Mayhara</td><td>Larissa Ribeiro</td><td>Fabricio Bignardi</td><td class="td-num">80.000</td><td class="td-center"><span class="badge-ativo">ATIVO</span></td><td>RJ</td></tr>
-          <tr><td>22/02</td><td>Everton Martins</td><td>Ricardo Maltchik</td><td>Fabricio Bignardi</td><td class="td-num">80.000</td><td class="td-center"><span class="badge-ativo">ATIVO</span></td><td>SP</td></tr>
-          <tr><td>21/02</td><td>Eduardo Junior</td><td>Larissa Vitoria</td><td>Kimberly Tavares</td><td class="td-num">160.000</td><td class="td-center"><span class="badge-ativo">ATIVO</span></td><td>SP</td></tr>
-          <tr><td>01/03</td><td>Ivan Santos</td><td>Adriano Moreira</td><td>Amanda Dorado</td><td class="td-num">255.000</td><td class="td-center"><span class="badge-cancelado">CANCELADO</span></td><td>SP</td></tr>
-          <tr><td>13/03</td><td>Amauri de Souza</td><td>Raphael Bueno</td><td>Amanda Dorado</td><td class="td-num">80.000</td><td class="td-center"><span class="badge-ativo">ATIVO</span></td><td>PA</td></tr>
-          <tr><td>14/03</td><td>Wilton Siqueira</td><td>Larissa Vitoria</td><td>Amanda Dorado</td><td class="td-num">80.000</td><td class="td-center"><span class="badge-cancelado">CANCELADO</span></td><td>RJ</td></tr>
-          <tr><td>23/03</td><td>Italo Torres</td><td>Pedro H. Santos</td><td>Fabricio Bignardi</td><td class="td-num">80.000</td><td class="td-center"><span class="badge-cancelado">CANCELADO</span></td><td>BA</td></tr>
-          <tr><td>26/03</td><td>Joao Canetielli</td><td>Raphael Bueno</td><td>Jose Neto</td><td class="td-num">80.080</td><td class="td-center"><span class="badge-cancelado">CANCELADO</span></td><td>SP</td></tr>
-          <tr><td>31/03</td><td>Daniel de Freitas</td><td>Nick Vitoria</td><td>Luis Amaral Neto</td><td class="td-num">80.000</td><td class="td-center"><span class="badge-cancelado">CANCELADO</span></td><td>AM</td></tr>
-          <tr><td>02/04</td><td>Anselmo Santos</td><td>Pedro H. Santos</td><td>Fabricio Bignardi</td><td class="td-num">80.000</td><td class="td-center"><span class="badge-cancelado">CANCELADO</span></td><td>SP</td></tr>
-          <tr><td>11/05</td><td>Roni Hipolito</td><td>Ana Caroline</td><td>Daniel Marcos</td><td class="td-num">87.000</td><td class="td-center"><span class="badge-ativo">ATIVO</span></td><td>SP</td></tr>
-          <tr><td>10/05</td><td>Gustavo Carias</td><td>Ana Caroline</td><td>Bianca Santos</td><td class="td-num">87.000</td><td class="td-center"><span class="badge-ativo">ATIVO</span></td><td>SP</td></tr>
-          <tr><td>14/05</td><td>Cristiano Bento</td><td>Daniela Moura</td><td>Rutemberg Correia</td><td class="td-num">86.000</td><td class="td-center"><span class="badge-cancelado">CANCELADO</span></td><td>SP</td></tr>
-          <tr><td>21/05</td><td>Fernando Oliveira</td><td>Suene Cintia</td><td>Renata Bueno</td><td class="td-num">87.000</td><td class="td-center"><span class="badge-ativo">ATIVO</span></td><td>RJ</td></tr>
-          <tr><td>22/05</td><td>Jose Lima</td><td>André Carrião</td><td>Renata Bueno</td><td class="td-num">87.000</td><td class="td-center"><span class="badge-ativo">ATIVO</span></td><td>SP</td></tr>
-          <tr><td>26/05</td><td>Fernando Morao</td><td>Alexandre Pasquale Jr.</td><td>Jose Neto</td><td class="td-num">88.000</td><td class="td-center"><span class="badge-ativo">ATIVO</span></td><td>RR</td></tr>
-          <tr><td>03/06</td><td>Vitor Castanheira</td><td>Adriano Moreira</td><td>Rutemberg Correia</td><td class="td-num">180.000</td><td class="td-center"><span class="badge-ativo">ATIVO</span></td><td>RJ</td></tr>
-          <tr><td>04/06</td><td>Dalmo Bastos</td><td>Felipe Ribeiro</td><td>Jose Neto</td><td class="td-num">91.830</td><td class="td-center"><span class="badge-ativo">ATIVO</span></td><td>RJ</td></tr>
-          <tr><td>08/06</td><td>Bruno Moura</td><td>Matheus Domingos</td><td>Daniel Marcos</td><td class="td-num">88.000</td><td class="td-center"><span class="badge-ativo">ATIVO</span></td><td>SP</td></tr>
-        </tbody>
-      </table>
-      <div style="margin-top:16px;" class="insight-box green">
-        <div class="insight-title">Receita por Status</div>
-        <div class="insight-text">
-          <strong>Contratos Ativos:</strong> <span class="hl-green">R$ 1.629.830,00</span> &nbsp;|&nbsp;
-          <strong>Cancelados:</strong> <span class="hl-red">R$ 862.080,00</span> &nbsp;|&nbsp;
-          <strong>Total registrado:</strong> <span class="hl">R$ 2.491.910,00</span>
-        </div>
-      </div>
-    </div>
+  <div class="metric-bar-item mb-orange">
+    <div class="metric-bar-label">% Cancelamento</div>
+    <div class="metric-bar-value" id="mb-pct-cancel">—</div>
+    <div class="metric-bar-sub">cancel. / vendas</div>
   </div>
-
-  <!-- LEITURAS ESTRATÉGICAS -->
-  <div class="mb-28">
-    <div class="section-title">Leituras Estratégicas</div>
-    <div class="three-col">
-      <div>
-        <div class="insight-box green">
-          <div class="insight-title">Força: Captação Orgânica</div>
-          <div class="insight-text">Parque Dreams e Frente da Sala Dream são canais orgânicos de alto volume. A operação demonstra capacidade de gerar fluxo de leads sem dependência exclusiva de mídia paga.</div>
-        </div>
-        <div class="insight-box green">
-          <div class="insight-title">Força: Qualificação Alta</div>
-          <div class="insight-text">66,4% dos leads são qualificados (Q), indicando boa seletividade na captação ou critérios de qualificação bem aplicados pelo time de liners.</div>
-        </div>
-      </div>
-      <div>
-        <div class="insight-box red">
-          <div class="insight-title">Fragilidade: Cancelamento</div>
-          <div class="insight-text">34,5% dos contratos com valor registrado foram cancelados. Isso pode indicar problemas na validação financeira do cliente, pressão de venda sem fit real ou falhas no processo de pós-venda imediato.</div>
-        </div>
-        <div class="insight-box red">
-          <div class="insight-title">Fragilidade: Concentração de Closers</div>
-          <div class="insight-text">Fabricio Bignardi e Luis Amaral Neto respondem por ~47% dos atendimentos como closers. Alta dependência de duas pessoas cria risco operacional crítico.</div>
-        </div>
-      </div>
-      <div>
-        <div class="insight-box yellow">
-          <div class="insight-title">Oportunidade: Diversificação Geográfica</div>
-          <div class="insight-text">PA, GO, PE, MT e DF aparecem na base com volumes baixos, mas com conversões relevantes. Há potencial de expansão de captação fora do eixo SP–RJ–MG.</div>
-        </div>
-        <div class="insight-box yellow">
-          <div class="insight-title">Oportunidade: Agendamentos</div>
-          <div class="insight-text">22 atendimentos via agendamento com boa taxa de qualificação sugerem que leads pré-qualificados têm melhor perfil. Ampliar esse canal pode elevar eficiência geral da operação.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PERGUNTAS QUE OS DADOS EXIGEM -->
-  <div class="mb-28">
-    <div class="section-title">Perguntas que os Dados Passam a Exigir</div>
-    <div class="card">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <div class="insight-box"><div class="insight-text">❓ Qual o motivo predominante dos <span class="hl-red">cancelamentos</span>? Há padrão por promotor, closer, estado ou perfil NQ?</div></div>
-        <div class="insight-box"><div class="insight-text">❓ Por que o volume de atendimentos <span class="hl-yellow">caiu de janeiro para abril</span>? Foi sazonalidade ou redução de equipe?</div></div>
-        <div class="insight-box"><div class="insight-text">❓ Os <span class="hl">14 NoTour</span> têm algum padrão de captação ou liner que justifique investigação?</div></div>
-        <div class="insight-box"><div class="insight-text">❓ Qual a <span class="hl">taxa de conversão real</span> por promotor (atendimentos → contratos ativos)?</div></div>
-        <div class="insight-box"><div class="insight-text">❓ A concentração de closers em Fabricio e Luis é <span class="hl-yellow">intencional ou gargalo</span> de capacidade?</div></div>
-        <div class="insight-box"><div class="insight-text">❓ Os contratos de <span class="hl">maior valor</span> (R$160K, R$180K, R$255K) têm perfil de captação distinto que possa ser replicado?</div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- AUDITORIA DA BASE -->
-  <div class="mb-28">
-    <div class="section-title">Validação e Auditoria da Base</div>
-    <div class="card">
-      <div class="audit-grid">
-        <div class="audit-item"><div class="audit-num">295</div><div class="audit-lbl">Registros Totais</div></div>
-        <div class="audit-item"><div class="audit-num">281</div><div class="audit-lbl">Status Encerrado</div></div>
-        <div class="audit-item"><div class="audit-num">14</div><div class="audit-lbl">Status NoTour</div></div>
-        <div class="audit-item"><div class="audit-num">24</div><div class="audit-lbl">Com Valor > 0</div></div>
-        <div class="audit-item"><div class="audit-num">22</div><div class="audit-lbl">Contratos Ativos</div></div>
-        <div class="audit-item"><div class="audit-num">7</div><div class="audit-lbl">Cancelados</div></div>
-        <div class="audit-item"><div class="audit-num">196</div><div class="audit-lbl">Qualificados (Q)</div></div>
-        <div class="audit-item"><div class="audit-num">99</div><div class="audit-lbl">Não Qualif. (NQ)</div></div>
-      </div>
-      <div style="margin-top:16px;" class="insight-box yellow">
-        <div class="insight-title">⚠️ Limitação da Base</div>
-        <div class="insight-text">
-          O arquivo foi recebido com possível truncamento — a base pode conter mais registros além dos 295 processados. Métricas de volume, ranking e proporções podem sofrer pequena variação com a base completa. Os dados de valor vendido estão presentes apenas em 24 registros (8,1% do total); os demais possuem valor R$ 0,00, o que pode indicar vendas sem registro de valor, leads não convertidos ou campos não preenchidos. Essa limitação impede cálculo de taxa de conversão financeira plena.
-        </div>
-      </div>
-    </div>
-  </div>
-
 </div>
 
-<div class="footer">
-  Dashboard gerado com base nos dados de Controle de Sala — Janeiro a 09/06/2026 &nbsp;|&nbsp; Processado por IA Estratégica
+<!-- FILTERS -->
+<div class="filters-bar">
+  <div class="fg"><label>Mês</label>
+    <select id="filtroMes" onchange="aplicarFiltros()">
+      <option value="0">Todos</option>
+      <option value="1">Janeiro</option><option value="2">Fevereiro</option>
+      <option value="3">Março</option><option value="4">Abril</option>
+      <option value="5">Maio</option><option value="6">Junho</option>
+    </select>
+  </div>
+  <div class="fg"><label>Status Atend.</label>
+    <select id="filtroStatus" onchange="aplicarFiltros()">
+      <option value="todos">Todos</option>
+      <option value="Encerrado">Encerrado</option>
+      <option value="NoTour">NoTour</option>
+    </select>
+  </div>
+  <div class="fg"><label>Qualificação</label>
+    <select id="filtroQualif" onchange="aplicarFiltros()">
+      <option value="todos">Todos</option>
+      <option value="Q">Qualificado (Q)</option>
+      <option value="NQ">Não Qualificado (NQ)</option>
+    </select>
+  </div>
+  <button class="btn-reset" onclick="resetarFiltros()">↺ Limpar</button>
+  <span class="filter-badge" id="filtro-info"></span>
 </div>
 
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('ranking',this)">📊 Ranking</button>
+  <button class="tab-btn" onclick="showTab('heatmap',this)">🔥 Mapa de Calor</button>
+  <button class="tab-btn" onclick="showTab('faixarenda',this)">💰 Faixa de Renda</button>
+  <button class="tab-btn" onclick="showTab('auditoria',this)">🔍 Auditoria</button>
+  <button class="tab-btn" onclick="showTab('gestao',this)">⚙️ Equipe</button>
+  <button class="tab-btn" onclick="showTab('metas',this)">🎯 Metas</button>
+</div>
+
+<!-- ===== TAB: RANKING ===== -->
+<div id="tab-ranking" class="tab-content active">
+  <div class="kpi-row" id="kpi-geral"></div>
+  <div class="insights-grid" id="insights-box"></div>
+  <div id="ranking-promotores"></div>
+  <div id="ranking-liners"></div>
+  <div id="ranking-closers"></div>
+</div>
+
+<!-- ===== TAB: HEATMAP ===== -->
+<div id="tab-heatmap" class="tab-content">
+  <div class="notice-box">
+    <div style="font-size:1rem;flex-shrink:0">⚠️</div>
+    <p><strong>Coluna de horário não encontrada na base.</strong> Exibindo distribuição por <strong>dia da semana × mês</strong>.</p>
+  </div>
+  <div class="heatmap-wrap">
+    <div class="sec-title"><span class="sec-dot" style="background:var(--purple)"></span>Atendimentos por Dia da Semana × Mês</div>
+    <div id="heatmap-body"></div>
+    <div class="hm-legend">
+      <span>Volume:</span>
+      <div class="hml-item"><div class="hml-box h0"></div><span>0</span></div>
+      <div class="hml-item"><div class="hml-box h1"></div><span>1–3</span></div>
+      <div class="hml-item"><div class="hml-box h2"></div><span>4–6</span></div>
+      <div class="hml-item"><div class="hml-box h3"></div><span>7–9</span></div>
+      <div class="hml-item"><div class="hml-box h4"></div><span>10–12</span></div>
+      <div class="hml-item"><div class="hml-box h5"></div><span>13+</span></div>
+    </div>
+  </div>
+  <div class="kpi-row" id="kpi-heatmap"></div>
+</div>
+
+<!-- ===== TAB: FAIXA RENDA ===== -->
+<div id="tab-faixarenda" class="tab-content">
+  <div class="kpi-row" id="kpi-renda"></div>
+  <div class="sec-title"><span class="sec-dot" style="background:var(--yellow)"></span>Desempenho por Faixa de Renda Familiar</div>
+  <div class="faixa-grid" id="faixa-cards"></div>
+  <div class="table-wrap">
+    <div class="table-hdr"><h3>📋 Tabela Comparativa — Faixas de Renda</h3></div>
+    <div style="overflow-x:auto"><table id="table-faixa"><thead></thead><tbody></tbody></table></div>
+  </div>
+</div>
+
+<!-- ===== TAB: AUDITORIA ===== -->
+<div id="tab-auditoria" class="tab-content">
+  <div id="audit-body"></div>
+</div>
+
+<!-- ===== TAB: GESTÃO DE EQUIPE ===== -->
+<div id="tab-gestao" class="tab-content">
+  <div style="margin-bottom:18px;">
+    <div class="sec-title"><span class="sec-dot" style="background:var(--accent2)"></span>Gestão de Profissionais Ativos</div>
+    <p style="font-size:0.78rem;color:var(--text2);line-height:1.6">Use os toggles para marcar profissionais como <strong style="color:var(--green)">ativos</strong> ou <strong style="color:var(--red)">inativos</strong>. Rankings e métricas atualizam automaticamente.</p>
+  </div>
+  <div class="mgmt-panel">
+    <div class="mgmt-panel-header" onclick="toggleMgmt('mgmt-promo')">
+      <h3>🎯 Promotores <span id="counter-promo" style="font-size:0.72rem;color:var(--text2);font-weight:400;margin-left:8px"></span></h3>
+      <div class="chevron" id="chev-mgmt-promo">▼</div>
+    </div>
+    <div class="mgmt-panel-body" id="mgmt-promo">
+      <div class="mgmt-actions">
+        <button class="mgmt-act-btn" onclick="setAllActive('promotor',true)">✓ Ativar todos</button>
+        <button class="mgmt-act-btn danger" onclick="setAllActive('promotor',false)">✗ Desativar todos</button>
+      </div>
+      <div class="prof-grid" id="grid-promotores"></div>
+    </div>
+  </div>
+  <div class="mgmt-panel">
+    <div class="mgmt-panel-header" onclick="toggleMgmt('mgmt-liner')">
+      <h3>🔗 Liners <span id="counter-liner" style="font-size:0.72rem;color:var(--text2);font-weight:400;margin-left:8px"></span></h3>
+      <div class="chevron" id="chev-mgmt-liner">▼</div>
+    </div>
+    <div class="mgmt-panel-body" id="mgmt-liner">
+      <div class="mgmt-actions">
+        <button class="mgmt-act-btn" onclick="setAllActive('liner',true)">✓ Ativar todos</button>
+        <button class="mgmt-act-btn danger" onclick="setAllActive('liner',false)">✗ Desativar todos</button>
+      </div>
+      <div class="prof-grid" id="grid-liners"></div>
+    </div>
+  </div>
+  <div class="mgmt-panel">
+    <div class="mgmt-panel-header" onclick="toggleMgmt('mgmt-closer')">
+      <h3>🏆 Closers <span id="counter-closer" style="font-size:0.72rem;color:var(--text2);font-weight:400;margin-left:8px"></span></h3>
+      <div class="chevron" id="chev-mgmt-closer">▼</div>
+    </div>
+    <div class="mgmt-panel-body" id="mgmt-closer">
+      <div class="mgmt-actions">
+        <button class="mgmt-act-btn" onclick="setAllActive('closer',true)">✓ Ativar todos</button>
+        <button class="mgmt-act-btn danger" onclick="setAllActive('closer',false)">✗ Desativar todos</button>
+      </div>
+      <div class="prof-grid" id="grid-closers"></div>
+    </div>
+  </div>
+  <div style="margin-top:14px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);font-size:0.76rem;color:var(--text2)">
+    💡 <strong style="color:var(--text)">Dica:</strong> Profissionais inativos são excluídos de todos os cálculos.
+  </div>
+</div>
+
+<!-- ===== TAB: METAS ===== -->
+<div id="tab-metas" class="tab-content">
+  <div class="metas-container">
+    <div class="metas-intro">
+      🎯 Defina as metas mensais de <strong>VGV</strong>, <strong>Casais em Sala</strong> e <strong>Nº de Cotas</strong> para cada mês. As metas são salvas localmente e refletem na barra de indicadores do cabeçalho conforme o mês selecionado no filtro.
+    </div>
+    <div class="sec-title"><span class="sec-dot" style="background:var(--accent)"></span>Metas por Mês</div>
+    <div class="meses-grid" id="meses-metas-grid"></div>
+
+    <!-- Resumo -->
+    <div class="metas-resumo">
+      <div class="metas-resumo-header">📋 Resumo Consolidado de Metas</div>
+      <div style="overflow-x:auto">
+        <table class="metas-table">
+          <thead>
+            <tr>
+              <th>Mês</th>
+              <th>Meta VGV</th>
+              <th>Meta Casais em Sala</th>
+              <th>Meta Nº de Cotas</th>
+              <th>VGV Realizado</th>
+              <th>Cotas Realizadas</th>
+              <th>% VGV</th>
+              <th>% Cotas</th>
+            </tr>
+          </thead>
+          <tbody id="metas-resumo-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// BASE DE DADOS
+// ============================================================
+const BASE = [
+  ["2026-01-07","Encerrado","RAPHAEL BUENO DA SILVA","GABRIELLA FURTADO","LUIS ALVES DO AMARAL NETO",0,"Q",20000,""],
+  ["2026-05-21","Encerrado","SUENE CINTIA DA SILVA","KARINA FONTAN NASCIMENTO","RENATA BUENO",87000,"Q",22000,"ATIVO"],
+  ["2026-01-01","Encerrado","RAPHAEL BUENO DA SILVA","THAMIRES FERNANDES MOREIRA","LUIS ALVES DO AMARAL NETO",0,"Q",15000,""],
+  ["2026-01-02","Encerrado","MATHEUS DOMINGOS SANTOS","WILLIAN LUIZ DA SILVA XAVIER","LUIS ALVES DO AMARAL NETO",0,"Q",12000,""],
+  ["2026-01-03","NoTour","MATHEUS ESLEY SILVA","WILLIAN LUIZ DA SILVA XAVIER","",0,"NQ",11000,""],
+  ["2026-01-04","Encerrado","RAPHAEL BUENO DA SILVA","GABRIELLA FURTADO","FABRICIO LELIS BIGNARDI",0,"NQ",30000,""],
+  ["2026-01-05","Encerrado","ADRIANO MOREIRA","RAMON SILVEIRA PINHEIRO","FABRICIO LELIS BIGNARDI",0,"Q",20000,""],
+  ["2026-01-06","Encerrado","FRANCISCO ANTONIO RODRIGUES","AMANDA DORADO","LUIS ALVES DO AMARAL NETO",0,"Q",24000,""],
+  ["2026-01-08","Encerrado","LARISSA RIBEIRO","GABRIELLA FURTADO","FABRICIO LELIS BIGNARDI",0,"Q",13000,""],
+  ["2026-01-09","Encerrado","SUENE CINTIA DA SILVA","RENATA DORADO","KIMBERLY CRISTINA TAVARES",80000,"NQ",20000,"ATIVO"],
+  ["2026-01-10","Encerrado","JOSYENE FREITAS","RAMON SILVEIRA PINHEIRO","LUIS ALVES DO AMARAL NETO",0,"Q",20000,""],
+  ["2026-01-11","Encerrado","SUENE CINTIA DA SILVA","WILLIAN LUIZ DA SILVA XAVIER","LUIS ALVES DO AMARAL NETO",0,"NQ",15000,""],
+  ["2026-01-12","Encerrado","MATHEUS ESLEY SILVA","RAMON SILVEIRA PINHEIRO","GUSTAVO CARDOSO WEBER",0,"Q",20000,""],
+  ["2026-01-13","NoTour","JOSYENE FREITAS","BIANCA DUARTE","",0,"Q",20000,""],
+  ["2026-01-14","NoTour","FRANCISCO ANTONIO RODRIGUES","ENZO VINICIUS","",0,"Q",13000,""],
+  ["2026-01-15","Encerrado","FRANCISCO ANTONIO RODRIGUES","RENATA DORADO","LUIS ALVES DO AMARAL NETO",0,"Q",20000,""],
+  ["2026-01-16","Encerrado","GUILHERME CIRQUEIRA LEAO","RAMON SILVEIRA PINHEIRO","LUIS ALVES DO AMARAL NETO",0,"NQ",11000,""],
+  ["2026-01-17","NoTour","SUENE CINTIA DA SILVA","GABRIELLA FURTADO","",0,"Q",20000,""],
+  ["2026-01-18","Encerrado","AMANDA CONCEICAO DA COSTA","THAMIRES FERNANDES MOREIRA","LUIS ALVES DO AMARAL NETO",0,"NQ",11000,""],
+  ["2026-01-19","Encerrado","RAPHAEL BUENO DA SILVA","GUILHERME SANTOS BATISTA","LUIS ALVES DO AMARAL NETO",0,"NQ",20000,""],
+  ["2026-01-20","Encerrado","ADRIANO MOREIRA","ENZO VINICIUS","LUIS ALVES DO AMARAL NETO",0,"NQ",15000,""],
+  ["2026-01-21","Encerrado","JOSYENE FREITAS","GABRIELLA FURTADO","FABRICIO LELIS BIGNARDI",0,"NQ",12000,""],
+  ["2026-01-22","Encerrado","SUENE CINTIA DA SILVA","THAMIRES FERNANDES MOREIRA","FABRICIO LELIS BIGNARDI",0,"Q",15000,""],
+  ["2026-01-23","Encerrado","RAPHAEL BUENO DA SILVA","THAMIRES FERNANDES MOREIRA","FABRICIO LELIS BIGNARDI",0,"NQ",15000,""],
+  ["2026-01-24","Encerrado","MATHEUS ESLEY SILVA","BIANCA DUARTE","LUIS ALVES DO AMARAL NETO",0,"NQ",11000,""],
+  ["2026-01-25","Encerrado","FELIPE DA SILVA RIBEIRO","WILLIAN LUIZ DA SILVA XAVIER","FABRICIO LELIS BIGNARDI",80000,"Q",15000,"ATIVO"],
+  ["2026-01-27","Encerrado","LARISSA RIBEIRO","THAMIRES FERNANDES MOREIRA","FABRICIO LELIS BIGNARDI",77000,"Q",20000,"ATIVO"],
+  ["2026-01-28","Encerrado","PEDRO HENRIQUE GOMES SANTOS","BIANCA DUARTE","FABRICIO LELIS BIGNARDI",80000,"Q",12000,"CANCELADO"],
+  ["2026-01-29","Encerrado","MATHEUS ESLEY SILVA","GUILHERME SANTOS BATISTA","LUIS ALVES DO AMARAL NETO",0,"Q",15000,""],
+  ["2026-01-30","Encerrado","MATHEUS ESLEY SILVA","AMANDA DORADO","LUIS ALVES DO AMARAL NETO",0,"Q",20000,""],
+  ["2026-01-31","Encerrado","LARISSA RIBEIRO","ALEX FONSECA VIVIAN","FABRICIO LELIS BIGNARDI",0,"Q",11000,""],
+  ["2026-02-01","Encerrado","RICARDO MALTCHIK","THAMIRES FERNANDES MOREIRA","FABRICIO LELIS BIGNARDI",0,"Q",13000,""],
+  ["2026-02-02","Encerrado","RICARDO MALTCHIK","RAMON SILVEIRA PINHEIRO","FABRICIO LELIS BIGNARDI",0,"Q",15000,""],
+  ["2026-02-03","Encerrado","FRANCISCO ANTONIO RODRIGUES","GABRIELLA FURTADO","FABRICIO LELIS BIGNARDI",0,"Q",17000,""],
+  ["2026-02-04","Encerrado","LUAN DOS SANTOS S. FIRMINO","AMANDA DORADO","FABRICIO LELIS BIGNARDI",0,"Q",15000,""],
+  ["2026-02-05","Encerrado","FRANCISCO ANTONIO RODRIGUES","GABRIELLA FURTADO","FABRICIO LELIS BIGNARDI",0,"Q",15000,""],
+  ["2026-02-06","Encerrado","FRANCISCO ANTONIO RODRIGUES","BIANCA DUARTE","LUIS ALVES DO AMARAL NETO",0,"Q",15000,""],
+  ["2026-02-07","Encerrado","FRANCISCO ANTONIO RODRIGUES","GABRIELLA FURTADO","FABRICIO LELIS BIGNARDI",0,"Q",15000,""],
+  ["2026-02-08","Encerrado","LARISSA VITORIA","AMANDA DORADO","AMANDA DORADO",0,"NQ",15000,""],
+  ["2026-02-09","Encerrado","RAPHAEL BUENO DA SILVA","GUILHERME SANTOS BATISTA","",0,"Q",10000,""],
+  ["2026-02-10","Encerrado","RAPHAEL BUENO DA SILVA","WILLIAN LUIZ DA SILVA XAVIER","FABRICIO LELIS BIGNARDI",0,"NQ",15000,""],
+  ["2026-02-11","Encerrado","LUAN DOS SANTOS S. FIRMINO","RENATA DORADO","FABRICIO LELIS BIGNARDI",0,"NQ",12000,""],
+  ["2026-02-12","Encerrado","RAPHAEL BUENO DA SILVA","BIANCA DUARTE","FABRICIO LELIS BIGNARDI",0,"NQ",11000,""],
+  ["2026-02-13","Encerrado","RAPHAEL BUENO DA SILVA","GUILHERME SANTOS BATISTA","LUIS ALVES DO AMARAL NETO",0,"NQ",20000,""],
+  ["2026-02-14","Encerrado","LARISSA VITORIA","WILLIAN LUIZ DA SILVA XAVIER","LUIS ALVES DO AMARAL NETO",0,"Q",12000,""],
+  ["2026-02-15","Encerrado","PEDRO HENRIQUE GOMES SANTOS","GUILHERME SANTOS BATISTA","FABRICIO LELIS BIGNARDI",0,"Q",15000,""],
+  ["2026-02-16","Encerrado","JOSYENE FREITAS","GUILHERME SANTOS BATISTA","FABRICIO LELIS BIGNARDI",0,"Q",20000,""],
+  ["2026-02-17","Encerrado","FELIPE DA SILVA RIBEIRO","THAMIRES FERNANDES MOREIRA","FABRICIO LELIS BIGNARDI",0,"NQ",20000,""],
+  ["2026-02-18","Encerrado","RICARDO MALTCHIK","THAMIRES FERNANDES MOREIRA","FABRICIO LELIS BIGNARDI",0,"Q",15000,""],
+  ["2026-02-19","Encerrado","RAPHAEL BUENO DA SILVA","WILLIAN LUIZ DA SILVA XAVIER","LUIS ALVES DO AMARAL NETO",0,"Q",15000,""],
+  ["2026-02-20","Encerrado","RAPHAEL BUENO DA SILVA","GUSTAVO CARDOSO WEBER","GUSTAVO CARDOSO WEBER",0,"Q",25000,""],
+  ["2026-02-21","Encerrado","LUAN DOS SANTOS S. FIRMINO","BIANCA DUARTE","LUIS ALVES DO AMARAL NETO",0,"Q",12000,""],
+  ["2026-02-22","Encerrado","RICARDO MALTCHIK","GABRIELLA FURTADO","FABRICIO LELIS BIGNARDI",80000,"Q",12000,"ATIVO"],
+  ["2026-02-23","Encerrado","LARISSA VITORIA","GABRIELLA FURTADO","FABRICIO LELIS BIGNARDI",0,"Q",10000,""],
+  ["2026-02-24","Encerrado","SUENE CINTIA DA SILVA","THAMIRES FERNANDES MOREIRA","LUIS ALVES DO AMARAL NETO",0,"NQ",20000,""],
+  ["2026-02-25","Encerrado","FRANCISCO ANTONIO RODRIGUES","GABRIELLA FURTADO","AMANDA DORADO",0,"Q",8000,""],
+  ["2026-02-26","Encerrado","RICARDO MALTCHIK","GUILHERME SANTOS BATISTA","MARCIO DENNEY",0,"Q",12000,""],
+  ["2026-02-27","Encerrado","LARISSA VITORIA","GUSTAVO CARDOSO WEBER","GUSTAVO CARDOSO WEBER",0,"Q",12000,""],
+  ["2026-02-28","Encerrado","RAPHAEL BUENO DA SILVA","THAMIRES FERNANDES MOREIRA","FABRICIO LELIS BIGNARDI",0,"NQ",15000,""],
+  ["2026-03-01","Encerrado","ADRIANO MOREIRA","AMANDA DORADO","AMANDA DORADO",255000,"Q",20000,"CANCELADO"],
+  ["2026-03-02","Encerrado","LUAN DOS SANTOS S. FIRMINO","AMANDA DORADO","AMANDA DORADO",0,"Q",12000,""],
+  ["2026-03-03","Encerrado","RAPHAEL BUENO DA SILVA","AMANDA DORADO","AMANDA DORADO",0,"NQ",15000,""],
+  ["2026-03-04","Encerrado","RAPHAEL BUENO DA SILVA","GABRIELLA FURTADO","FABRICIO LELIS BIGNARDI",0,"Q",20000,""],
+  ["2026-03-05","NoTour","RAPHAEL BUENO DA SILVA","RENATA DORADO","",0,"Q",30000,""],
+  ["2026-03-06","Encerrado","RAPHAEL BUENO DA SILVA","RENATA DORADO","KIMBERLY CRISTINA TAVARES",0,"Q",25000,""],
+  ["2026-03-07","Encerrado","PEDRO HENRIQUE GOMES SANTOS","GUILHERME SANTOS BATISTA","GUILHERME SANTOS BATISTA",0,"Q",15000,""],
+  ["2026-03-08","Encerrado","RAPHAEL BUENO DA SILVA","GABRIELLA FURTADO","BIANCA SANTOS",0,"Q",12000,""],
+  ["2026-03-09","Encerrado","LARISSA VITORIA","BIANCA DUARTE","LUIS ALVES DO AMARAL NETO",0,"Q",15000,""],
+  ["2026-03-10","Encerrado","FRANCISCO ANTONIO RODRIGUES","GUILHERME SANTOS BATISTA","GUILHERME SANTOS BATISTA",0,"Q",10000,""],
+  ["2026-03-11","Encerrado","FRANCISCO ANTONIO RODRIGUES","RENATA DORADO","FABRICIO LELIS BIGNARDI",0,"Q",17000,""],
+  ["2026-03-12","Encerrado","JONATAS FRANCA DA SILVA","GABRIELLA FURTADO","BIANCA SANTOS",0,"Q",20000,""],
+  ["2026-03-13","Encerrado","RAPHAEL BUENO DA SILVA","AMANDA DORADO","AMANDA DORADO",80000,"Q",10000,"ATIVO"],
+  ["2026-03-14","Encerrado","LARISSA VITORIA","AMANDA DORADO","AMANDA DORADO",80000,"Q",12000,"CANCELADO"],
+  ["2026-03-15","Encerrado","FRANCISCO ANTONIO RODRIGUES","GUSTAVO CARDOSO WEBER","GUSTAVO CARDOSO WEBER",0,"Q",12000,""],
+  ["2026-03-16","Encerrado","JOSYENE FREITAS","BIANCA DUARTE","LUIS ALVES DO AMARAL NETO",0,"Q",20000,""],
+  ["2026-03-17","Encerrado","PEDRO HENRIQUE GOMES SANTOS","SILVIA REGINA","MARCIO DENNEY",0,"Q",18000,""],
+  ["2026-03-19","Encerrado","RAPHAEL BUENO DA SILVA","GABRIELLA FURTADO","FABRICIO LELIS BIGNARDI",0,"NQ",12000,""],
+  ["2026-03-20","Encerrado","JONATAS FRANCA DA SILVA","BIANCA DUARTE","MARCIO DENNEY",0,"Q",15000,""],
+  ["2026-03-21","Encerrado","LUAN DOS SANTOS S. FIRMINO","GABRIELLA FURTADO","LUIS ALVES DO AMARAL NETO",0,"Q",60000,""],
+  ["2026-03-22","Encerrado","PEDRO HENRIQUE GOMES SANTOS","THAMIRES FERNANDES MOREIRA","BIANCA SANTOS",0,"NQ",20001,""],
+  ["2026-03-23","Encerrado","PEDRO HENRIQUE GOMES SANTOS","THAMIRES FERNANDES MOREIRA","FABRICIO LELIS BIGNARDI",80000,"NQ",15000,"CANCELADO"],
+  ["2026-03-24","Encerrado","SERGIO CEZAR DA SILVA","THAMIRES FERNANDES MOREIRA","JOSE NETO",0,"Q",15000,""],
+  ["2026-03-25","Encerrado","ANA CAROLINE","THAMIRES FERNANDES MOREIRA","MARCIO DENNEY",0,"Q",12000,""],
+  ["2026-03-26","Encerrado","RAPHAEL BUENO DA SILVA","MEG LOIOLA","JOSE NETO",80080,"NQ",12000,"CANCELADO"],
+  ["2026-03-27","Encerrado","MATHEUS DOMINGOS SANTOS","MEG LOIOLA","JOSE NETO",0,"Q",15000,""],
+  ["2026-03-28","Encerrado","SERGIO CEZAR DA SILVA","BIANCA DUARTE","MARCIO DENNEY",0,"NQ",15000,""],
+  ["2026-03-29","Encerrado","LARISSA VITORIA","AMANDA DORADO","AMANDA DORADO",0,"Q",15000,""],
+  ["2026-03-30","Encerrado","ANA CAROLINE","GABRIELLA FURTADO","LUIS ALVES DO AMARAL NETO",0,"Q",20000,""],
+  ["2026-03-31","Encerrado","NICK VITORIA","BIANCA DUARTE","LUIS ALVES DO AMARAL NETO",80000,"Q",40000,"CANCELADO"],
+  ["2026-04-01","Encerrado","LARISSA VITORIA","SARA DE JESUS SILVA","JOSE NETO",0,"Q",12000,""],
+  ["2026-04-02","Encerrado","PEDRO HENRIQUE GOMES SANTOS","KARINA FONTAN NASCIMENTO","FABRICIO LELIS BIGNARDI",80000,"Q",27000,"CANCELADO"],
+  ["2026-04-03","Encerrado","LUAN DOS SANTOS S. FIRMINO","GABRIELLA FURTADO","FABRICIO LELIS BIGNARDI",0,"Q",15000,""],
+  ["2026-04-04","Encerrado","RICARDO MALTCHIK","GUILHERME SANTOS BATISTA","FABRICIO LELIS BIGNARDI",0,"Q",40000,""],
+  ["2026-04-05","Encerrado","PEDRO HENRIQUE GOMES SANTOS","KARINA FONTAN NASCIMENTO","FABRICIO LELIS BIGNARDI",0,"Q",50000,""],
+  ["2026-04-06","NoTour","JOSYENE FREITAS","BIANCA DUARTE","",0,"Q",20000,""],
+  ["2026-04-07","Encerrado","JOSYENE FREITAS","MEG LOIOLA","DANIEL MARCOS",0,"Q",15000,""],
+  ["2026-04-08","Encerrado","JONATAS FRANCA DA SILVA","GUILHERME SANTOS BATISTA","FABRICIO LELIS BIGNARDI",0,"NQ",20000,""],
+  ["2026-04-09","NoTour","LARISSA RIBEIRO","GUILHERME SANTOS BATISTA","",0,"NQ",13000,""],
+  ["2026-04-10","Encerrado","MATHEUS ESLEY SILVA","GUILHERME SANTOS BATISTA","FABRICIO LELIS BIGNARDI",0,"Q",15000,""],
+  ["2026-04-11","Encerrado","RICARDO MALTCHIK","STELLA CHRISTY DIAS","BIANCA SANTOS",0,"NQ",15000,""],
+  ["2026-04-12","Encerrado","FELIPE DA SILVA RIBEIRO","BIANCA DUARTE","FABRICIO LELIS BIGNARDI",0,"Q",30000,""],
+  ["2026-04-13","Encerrado","FELIPE DA SILVA RIBEIRO","THAMIRES FERNANDES MOREIRA","JOSE NETO",0,"NQ",15000,""],
+  ["2026-04-14","Encerrado","ANA CAROLINE","MEG LOIOLA","JOSE NETO",0,"Q",20000,""],
+  ["2026-04-15","Encerrado","JONATAS FRANCA DA SILVA","KARINA FONTAN NASCIMENTO","JOSE NETO",0,"Q",15000,""],
+  ["2026-04-16","Encerrado","MATHEUS ESLEY SILVA","BIANCA DUARTE","DANIEL MARCOS",0,"Q",15000,""],
+  ["2026-04-17","Encerrado","RICARDO MALTCHIK","SILVIA REGINA","JOSE NETO",0,"Q",20000,""],
+  ["2026-04-18","Encerrado","ADRIANO MOREIRA","AMANDA DORADO","JOSE NETO",0,"NQ",15000,""],
+  ["2026-04-19","Encerrado","ANA CAROLINE","STELLA CHRISTY DIAS","BIANCA SANTOS",0,"Q",15000,""],
+  ["2026-04-20","Encerrado","SUENE CINTIA DA SILVA","MEG LOIOLA","DANIEL MARCOS",0,"NQ",14000,""],
+  ["2026-04-21","Encerrado","ANA CAROLINE","JUNIOR PEREIRA","JUNIOR PEREIRA",0,"NQ",15000,""],
+  ["2026-04-22","Encerrado","RICARDO MALTCHIK","MEG LOIOLA","DANIEL MARCOS",0,"NQ",50000,""],
+  ["2026-04-23","Encerrado","ANA CAROLINE","KARINA FONTAN NASCIMENTO","DANIEL MARCOS",0,"Q",12000,""],
+  ["2026-04-24","Encerrado","MATHEUS ESLEY SILVA","KARINA FONTAN NASCIMENTO","",0,"Q",20000,""],
+  ["2026-04-25","Encerrado","LARISSA RIBEIRO","STELLA CHRISTY DIAS","JOSE NETO",0,"Q",25000,""],
+  ["2026-04-26","Encerrado","DANIELA MOURA","KARINA FONTAN NASCIMENTO","DANIEL MARCOS",0,"Q",15000,""],
+  ["2026-04-27","Encerrado","ANDRE CARRICO","RUTEMBERG CORREIA","RUTEMBERG CORREIA",0,"NQ",12000,""],
+  ["2026-04-28","Encerrado","ANA CAROLINE","ALEX DE MENDES BRITO","JOSE NETO",0,"NQ",15000,""],
+  ["2026-04-29","Encerrado","SUENE CINTIA DA SILVA","RENATA DORADO","LUIS ALVES DO AMARAL NETO",0,"NQ",30000,""],
+  ["2026-04-30","Encerrado","SUENE CINTIA DA SILVA","SILVIA REGINA","JOSE NETO",0,"Q",15000,""],
+  ["2026-05-01","Encerrado","ANA CAROLINE","KARINA FONTAN NASCIMENTO","BIANCA SANTOS",0,"Q",15000,""],
+  ["2026-05-02","Encerrado","PEDRO HENRIQUE GOMES SANTOS","ALEX DE MENDES BRITO","DANIEL MARCOS",0,"Q",100000,""],
+  ["2026-05-03","Encerrado","LARISSA VITORIA","THAMIRES FERNANDES MOREIRA","LUIS ALVES DO AMARAL NETO",0,"Q",15000,""],
+  ["2026-05-04","Encerrado","ANA CAROLINE","KARINA FONTAN NASCIMENTO","DANIEL MARCOS",0,"Q",20000,""],
+  ["2026-05-05","Encerrado","DANIELA MOURA","RUTEMBERG CORREIA","RUTEMBERG CORREIA",0,"Q",40000,""],
+  ["2026-05-06","Encerrado","JESSICA BARBOSA","SILVIA REGINA","RENATA BUENO",0,"NQ",15000,""],
+  ["2026-05-07","Encerrado","ROBSON ALLAN DO NASCIMENTO","JUNIOR PEREIRA","JUNIOR PEREIRA",0,"Q",15000,""],
+  ["2026-05-08","Encerrado","ADRIANO MOREIRA","RENATA DORADO","RENATA BUENO",0,"Q",15000,""],
+  ["2026-05-09","Encerrado","LARISSA VITORIA","BIANCA DUARTE","RENATA BUENO",0,"Q",15000,""],
+  ["2026-05-10","Encerrado","ANA CAROLINE","STELLA CHRISTY DIAS","BIANCA SANTOS",87000,"NQ",15000,"ATIVO"],
+  ["2026-05-11","Encerrado","ANA CAROLINE","KARINA FONTAN NASCIMENTO","DANIEL MARCOS",87000,"NQ",15000,"ATIVO"],
+  ["2026-05-12","Encerrado","LARISSA VITORIA","KARINA FONTAN NASCIMENTO","JOSE NETO",0,"Q",18000,""],
+  ["2026-05-13","Encerrado","DANIELA MOURA","JUNIOR PEREIRA","DANIEL MARCOS",0,"NQ",15000,""],
+  ["2026-05-14","Encerrado","DANIELA MOURA","RUTEMBERG CORREIA","RUTEMBERG CORREIA",86000,"Q",15000,"CANCELADO"],
+  ["2026-05-15","Encerrado","ADRIANO MOREIRA","STELLA CHRISTY DIAS","DANIEL MARCOS",0,"Q",20000,""],
+  ["2026-05-16","Encerrado","PEDRO HENRIQUE GOMES SANTOS","SILVIA REGINA","RENATA BUENO",0,"NQ",15000,""],
+  ["2026-05-17","Encerrado","JOSYENE FREITAS","RENAN FAGLIARI LOURENCO","BIANCA SANTOS",0,"Q",15000,""],
+  ["2026-05-18","Encerrado","MARCIO ALFAIA","JUNIOR PEREIRA","JOSE NETO",0,"Q",15000,""],
+  ["2026-05-19","NoTour","LARISSA RIBEIRO","STELLA CHRISTY DIAS","",0,"Q",15000,""],
+  ["2026-05-20","Encerrado","MATHEUS DOMINGOS SANTOS","KARINA FONTAN NASCIMENTO","DANIEL MARCOS",0,"Q",12000,""],
+  ["2026-05-21","Encerrado","MATHEUS DOMINGOS SANTOS","RUTEMBERG CORREIA","RUTEMBERG CORREIA",0,"NQ",15000,""],
+  ["2026-05-22","Encerrado","ANDRE CARRICO","RENAN FAGLIARI LOURENCO","RENATA BUENO",87000,"Q",12000,"ATIVO"],
+  ["2026-05-23","Encerrado","LARISSA VITORIA","THAMIRES FERNANDES MOREIRA","LUIS ALVES DO AMARAL NETO",0,"Q",12000,""],
+  ["2026-05-25","Encerrado","MATHEUS DOMINGOS SANTOS","KARINA FONTAN NASCIMENTO","DANIEL MARCOS",0,"Q",15000,""],
+  ["2026-05-26","Encerrado","ALEXANDRE PASQUALE JUNIOR","ALEX DE MENDES BRITO","JOSE NETO",88000,"NQ",20000,"ATIVO"],
+  ["2026-05-27","Encerrado","TASSIANE RENATA MUGNOLI","BIANCA DUARTE","RENATA BUENO",0,"Q",15000,""],
+  ["2026-05-29","Encerrado","DANIELA MOURA","RUTEMBERG CORREIA","RUTEMBERG CORREIA",0,"Q",20000,""],
+  ["2026-05-30","Encerrado","SUENE CINTIA DA SILVA","BRENDA KEROLAYNE OLIVEIRA DOS","RENATA BUENO",0,"Q",20000,""],
+  ["2026-05-31","Encerrado","MATHEUS ESLEY SILVA","RENATA DORADO","LUIS ALVES DO AMARAL NETO",0,"Q",15000,""],
+  ["2026-06-01","Encerrado","ANA CAROLINE","JUNIOR PEREIRA","RENATA BUENO",0,"NQ",14500,""],
+  ["2026-06-02","Encerrado","ANA CAROLINE","BRENDA KEROLAYNE OLIVEIRA DOS","DANIEL MARCOS",0,"Q",20000,""],
+  ["2026-06-03","Encerrado","ADRIANO MOREIRA","RUTEMBERG CORREIA","RUTEMBERG CORREIA",180000,"Q",15000,"ATIVO"],
+  ["2026-06-04","Encerrado","FELIPE DA SILVA RIBEIRO","BIANCA DUARTE","JOSE NETO",91830,"NQ",12000,"ATIVO"],
+  ["2026-06-05","Encerrado","ADRIANO MOREIRA","BRENDA KEROLAYNE OLIVEIRA DOS","BIANCA SANTOS",0,"NQ",13000,""],
+  ["2026-06-06","Encerrado","JOSYENE FREITAS","ALEX DE MENDES BRITO","RENATA BUENO",0,"Q",15000,""],
+  ["2026-06-07","Encerrado","SUENE CINTIA DA SILVA","RUTEMBERG CORREIA","RUTEMBERG CORREIA",0,"NQ",30000,""],
+  ["2026-06-08","Encerrado","MATHEUS DOMINGOS SANTOS","KARINA FONTAN NASCIMENTO","DANIEL MARCOS",88000,"NQ",25000,"ATIVO"],
+  ["2026-06-09","Encerrado","MATHEUS ESLEY SILVA","RENAN FAGLIARI LOURENCO","DANIEL MARCOS",0,"Q",30000,""],
+  ["2026-01-01","Encerrado","PEDRO HENRIQUE GOMES SANTOS","WILLIAN LUIZ DA SILVA XAVIER","GUSTAVO CARDOSO WEBER",0,"Q",10000,""],
+  ["2026-01-02","Encerrado","GUILHERME CIRQUEIRA LEAO","RENATA DORADO","LUIS ALVES DO AMARAL NETO",0,"Q",40000,""],
+  ["2026-01-03","Encerrado","MATHEUS ESLEY SILVA","ALEX FONSECA VIVIAN","FABRICIO LELIS BIGNARDI",0,"Q",10000,""],
+  ["2026-01-04","Encerrado","MATHEUS ESLEY SILVA","ALEX FONSECA VIVIAN","GUSTAVO CARDOSO WEBER",0,"Q",15000,""],
+  ["2026-01-05","Encerrado","ADRIANO MOREIRA","WILLIAN LUIZ DA SILVA XAVIER","FABRICIO LELIS BIGNARDI",0,"Q",15000,""],
+  ["2026-01-06","NoTour","FRANCISCO ANTONIO RODRIGUES","RAMON SILVEIRA PINHEIRO","",0,"Q",30000,""],
+  ["2026-01-07","Encerrado","ADRIANO MOREIRA","THAMIRES FERNANDES MOREIRA","FABRICIO LELIS BIGNARDI",80000,"Q",15000,"CANCELADO"],
+  ["2026-01-08","Encerrado","JOSYENE FREITAS","ALEX FONSECA VIVIAN","LUIS ALVES DO AMARAL NETO",0,"Q",15000,""],
+  ["2026-01-09","Encerrado","RICARDO MALTCHIK","RAMON SILVEIRA PINHEIRO","LUIS ALVES DO AMARAL NETO",0,"Q",11000,""],
+  ["2026-01-10","NoTour","MATHEUS DOMINGOS SANTOS","GUILHERME SANTOS BATISTA","",0,"NQ",15000,""],
+  ["2026-01-11","Encerrado","PEDRO HENRIQUE GOMES SANTOS","GUILHERME SANTOS BATISTA","FABRICIO LELIS BIGNARDI",160000,"Q",50000,"ATIVO"],
+  ["2026-01-12","Encerrado","LARISSA RIBEIRO","GUILHERME SANTOS BATISTA","LUIS ALVES DO AMARAL NETO",0,"Q",20000,""],
+  ["2026-01-13","NoTour","RAPHAEL BUENO DA SILVA","GUILHERME SANTOS BATISTA","",0,"Q",15000,""],
+  ["2026-01-14","Encerrado","MATHEUS DOMINGOS SANTOS","RENATA DORADO","FABRICIO LELIS BIGNARDI",0,"Q",70000,""],
+  ["2026-01-15","Encerrado","LARISSA RIBEIRO","THAMIRES FERNANDES MOREIRA","FABRICIO LELIS BIGNARDI",80000,"Q",20000,"ATIVO"],
+  ["2026-01-16","Encerrado","FELIPE DA SILVA RIBEIRO","RENATA DORADO","LUIS ALVES DO AMARAL NETO",0,"Q",15000,""],
+  ["2026-01-17","Encerrado","RAPHAEL BUENO DA SILVA","RENATA DORADO","LUIS ALVES DO AMARAL NETO",0,"Q",50000,""],
+  ["2026-01-18","Encerrado","AMANDA CONCEICAO DA COSTA","THAMIRES FERNANDES MOREIRA","LUIS ALVES DO AMARAL NETO",0,"Q",11000,""],
+  ["2026-01-19","Encerrado","RAPHAEL BUENO DA SILVA","ALEX FONSECA VIVIAN","FABRICIO LELIS BIGNARDI",0,"Q",11000,""],
+  ["2026-01-20","Encerrado","MATHEUS ESLEY SILVA","ALEX FONSECA VIVIAN","GUSTAVO CARDOSO WEBER",0,"Q",11000,""],
+  ["2026-01-21","Encerrado","FRANCISCO ANTONIO RODRIGUES","GUILHERME SANTOS BATISTA","GUSTAVO CARDOSO WEBER",0,"Q",10000,""],
+  ["2026-01-22","Encerrado","MATHEUS DOMINGOS SANTOS","GUILHERME SANTOS BATISTA","GUSTAVO CARDOSO WEBER",0,"Q",15000,""],
+  ["2026-01-23","Encerrado","FRANCISCO ANTONIO RODRIGUES","GUILHERME SANTOS BATISTA","GUSTAVO CARDOSO WEBER",0,"Q",15000,""],
+  ["2026-01-24","Encerrado","FRANCISCO ANTONIO RODRIGUES","GUILHERME SANTOS BATISTA","FABRICIO LELIS BIGNARDI",0,"Q",20000,""],
+  ["2026-01-25","Encerrado","MATHEUS ESLEY SILVA","GABRIELLA FURTADO","LUIS ALVES DO AMARAL NETO",0,"Q",15000,""],
+  ["2026-01-26","Encerrado","LUAN DOS SANTOS S. FIRMINO","WILLIAN LUIZ DA SILVA XAVIER","FABRICIO LELIS BIGNARDI",0,"Q",20000,""],
+  ["2026-01-27","Encerrado","RAPHAEL BUENO DA SILVA","RAMON SILVEIRA PINHEIRO","LUIS ALVES DO AMARAL NETO",0,"Q",30000,""],
+  ["2026-01-28","Encerrado","FRANCISCO ANTONIO RODRIGUES","THAMIRES FERNANDES MOREIRA","GUSTAVO CARDOSO WEBER",0,"Q",30000,""],
+  ["2026-01-29","Encerrado","FRANCISCO ANTONIO RODRIGUES","BIANCA DUARTE","GUSTAVO CARDOSO WEBER",0,"Q",11000,""],
+  ["2026-01-30","Encerrado","FELIPE DA SILVA RIBEIRO","RAMON SILVEIRA PINHEIRO","GUSTAVO CARDOSO WEBER",0,"Q",40000,""],
+  ["2026-01-31","Encerrado","RAPHAEL BUENO DA SILVA","GUILHERME SANTOS BATISTA","LUIS ALVES DO AMARAL NETO",0,"Q",30000,""],
+  ["2026-02-01","Encerrado","RICARDO MALTCHIK","WILLIAN LUIZ DA SILVA XAVIER","LUIS ALVES DO AMARAL NETO",0,"Q",13000,""],
+  ["2026-02-02","Encerrado","RAPHAEL BUENO DA SILVA","ALEX FONSECA VIVIAN","LUIS ALVES DO AMARAL NETO",0,"NQ",11000,""],
+  ["2026-02-03","Encerrado","JOSYENE FREITAS","RAMON SILVEIRA PINHEIRO","GUSTAVO CARDOSO WEBER",0,"NQ",12000,""],
+  ["2026-02-05","Encerrado","FRANCISCO ANTONIO RODRIGUES","BRUNO CEPKOUSKOS","LUIS ALVES DO AMARAL NETO",0,"Q",12000,""],
+  ["2026-02-06","Encerrado","LARISSA VITORIA","ALEX FONSECA VIVIAN","FABRICIO LELIS BIGNARDI",0,"Q",12000,""],
+  ["2026-02-07","Encerrado","PEDRO HENRIQUE GOMES SANTOS","GUILHERME SANTOS BATISTA","LUIS ALVES DO AMARAL NETO",0,"Q",12000,""],
+  ["2026-02-08","Encerrado","SUENE CINTIA DA SILVA","BIANCA DUARTE","GUSTAVO CARDOSO WEBER",0,"Q",11000,""],
+  ["2026-02-09","Encerrado","FELIPE DA SILVA RIBEIRO","RAMON SILVEIRA PINHEIRO","LUIS ALVES DO AMARAL NETO",0,"Q",14000,""],
+  ["2026-02-10","Encerrado","PEDRO HENRIQUE GOMES SANTOS","GABRIELLA FURTADO","FABRICIO LELIS BIGNARDI",0,"Q",12000,""],
+  ["2026-02-11","Encerrado","RICARDO MALTCHIK","ALEX FONSECA VIVIAN","GUSTAVO CARDOSO WEBER",0,"NQ",13000,""],
+  ["2026-02-12","Encerrado","LUAN DOS SANTOS S. FIRMINO","RENATA DORADO","KIMBERLY CRISTINA TAVARES",0,"NQ",20000,""],
+  ["2026-02-13","Encerrado","LARISSA VITORIA","WILLIAN LUIZ DA SILVA XAVIER","FABRICIO LELIS BIGNARDI",0,"Q",12000,""],
+  ["2026-02-14","Encerrado","ADRIANO MOREIRA","RAMON SILVEIRA PINHEIRO","FABRICIO LELIS BIGNARDI",0,"Q",15000,""],
+  ["2026-02-15","Encerrado","RAPHAEL BUENO DA SILVA","RAMON SILVEIRA PINHEIRO","LUIS ALVES DO AMARAL NETO",0,"NQ",12000,""],
+  ["2026-02-17","Encerrado","ADRIANO MOREIRA","GUILHERME SANTOS BATISTA","LUIS ALVES DO AMARAL NETO",0,"Q",15000,""],
+  ["2026-02-19","Encerrado","RAPHAEL BUENO DA SILVA","WILLIAN LUIZ DA SILVA XAVIER","LUIS ALVES DO AMARAL NETO",0,"NQ",15000,""],
+  ["2026-02-20","Encerrado","FRANCISCO ANTONIO RODRIGUES","GUILHERME SANTOS BATISTA","LUIS ALVES DO AMARAL NETO",0,"Q",20000,""],
+  ["2026-02-21","Encerrado","LARISSA VITORIA","RENATA DORADO","KIMBERLY CRISTINA TAVARES",160000,"Q",30000,"ATIVO"],
+  ["2026-02-22","Encerrado","RICARDO MALTCHIK","GUSTAVO CARDOSO WEBER","GUSTAVO CARDOSO WEBER",0,"Q",12000,""],
+  ["2026-02-23","Encerrado","PEDRO HENRIQUE GOMES SANTOS","AMANDA DORADO","AMANDA DORADO",0,"NQ",17000,""],
+  ["2026-02-24","Encerrado","LARISSA VITORIA","SILVIA REGINA","AMANDA DORADO",0,"Q",10000,""],
+  ["2026-02-25","Encerrado","LARISSA VITORIA","GUILHERME SANTOS BATISTA","GUILHERME SANTOS BATISTA",0,"Q",20000,""],
+  ["2026-02-26","Encerrado","RICARDO MALTCHIK","BIANCA DUARTE","FABRICIO LELIS BIGNARDI",0,"Q",13000,""],
+  ["2026-05-22","Encerrado","ANDRE CARRICO","RENAN FAGLIARI LOURENCO","RENATA BUENO",87000,"Q",12000,"ATIVO"],
+];
+
+// ============================================================
+// ESTADO GLOBAL
+// ============================================================
+const ativos = { promotor:{}, liner:{}, closer:{} };
+let sortState = { promotor:'casais', liner:'casais', closer:'casais' };
+let sortDir   = { promotor:-1, liner:-1, closer:-1 };
+let filtros   = { mes:0, status:'todos', qualif:'todos' };
+
+// Metas: { 1: {vgv:'', casais:'', cotas:''}, ... }
+const MESES_NOMES = ['','Janeiro','Fevereiro','Março','Abril','Maio','Junho'];
+let metas = JSON.parse(localStorage.getItem('dash_metas') || 'null') || {
+  1:{vgv:'',casais:'',cotas:''},2:{vgv:'',casais:'',cotas:''},
+  3:{vgv:'',casais:'',cotas:''},4:{vgv:'',casais:'',cotas:''},
+  5:{vgv:'',casais:'',cotas:''},6:{vgv:'',casais:'',cotas:''}
+};
+
+function salvarMetas() { localStorage.setItem('dash_metas', JSON.stringify(metas)); }
+
+// ============================================================
+// EXTRAÇÃO DE PROFISSIONAIS
+// ============================================================
+function extrairProfissionais() {
+  const promo=new Set(), liner=new Set(), closer=new Set();
+  BASE.forEach(r => {
+    if(r[2]) promo.add(r[2].trim());
+    if(r[3]) liner.add(r[3].trim());
+    if(r[4]) closer.add(r[4].trim());
+  });
+  [...promo].sort().forEach(p=>{ if(!(p in ativos.promotor)) ativos.promotor[p]=true; });
+  [...liner].sort().forEach(p=>{ if(!(p in ativos.liner))   ativos.liner[p]=true; });
+  [...closer].sort().forEach(p=>{ if(p && !(p in ativos.closer)) ativos.closer[p]=true; });
+}
+
+// ============================================================
+// FILTRO
+// ============================================================
+function dadosFiltrados() {
+  return BASE.filter(r => {
+    const mes = new Date(r[0]).getMonth()+1;
+    if(filtros.mes>0 && mes!==filtros.mes) return false;
+    if(filtros.status!=='todos' && r[1]!==filtros.status) return false;
+    if(filtros.qualif!=='todos' && r[6]!==filtros.qualif) return false;
+    const p=r[2]?r[2].trim():'', l=r[3]?r[3].trim():'', c=r[4]?r[4].trim():'';
+    if(p && ativos.promotor[p]===false) return false;
+    if(l && ativos.liner[l]===false) return false;
+    if(c && ativos.closer[c]===false) return false;
+    return true;
+  });
+}
+
+function aplicarFiltros() {
+  filtros.mes    = parseInt(document.getElementById('filtroMes').value);
+  filtros.status = document.getElementById('filtroStatus').value;
+  filtros.qualif = document.getElementById('filtroQualif').value;
+  const parts=[];
+  if(filtros.mes>0) parts.push(MESES_NOMES[filtros.mes]);
+  if(filtros.status!=='todos') parts.push(filtros.status);
+  if(filtros.qualif!=='todos') parts.push(filtros.qualif);
+  document.getElementById('filtro-info').textContent = parts.length?'🔎 '+parts.join(' · '):'';
+  document.getElementById('hdr-periodo').textContent = filtros.mes>0 ? MESES_NOMES[filtros.mes]+'/2026' : 'Jan–Jun/2026';
+  renderAll();
+}
+
+function resetarFiltros() {
+  document.getElementById('filtroMes').value='0';
+  document.getElementById('filtroStatus').value='todos';
+  document.getElementById('filtroQualif').value='todos';
+  filtros={mes:0,status:'todos',qualif:'todos'};
+  document.getElementById('filtro-info').textContent='';
+  document.getElementById('hdr-periodo').textContent='Jan–Jun/2026';
+  renderAll();
+}
+
+// ============================================================
+// PARSE CONTRATO
+// ============================================================
+function parseContrato(s) {
+  if(!s) return {vendas:0,cancelados:0,vgvCancel:0};
+  const u=s.toUpperCase();
+  return { vendas:(u.match(/ATIVO/g)||[]).length, cancelados:(u.match(/CANCELADO/g)||[]).length };
+}
+
+// ============================================================
+// BARRA DE MÉTRICAS DO CABEÇALHO
+// ============================================================
+function renderMetricBar() {
+  const dados = dadosFiltrados();
+  let vendas=0, cancelados=0, vgvTotal=0, vgvCancel=0;
+  dados.forEach(r => {
+    const c=parseContrato(r[8]);
+    vendas+=c.vendas; cancelados+=c.cancelados;
+    if(c.vendas>0) vgvTotal+=r[5]||0;
+    if(c.cancelados>0) vgvCancel+=r[5]||0;
+  });
+  const vgvLiq  = vgvTotal - vgvCancel;
+  const efic    = dados.length>0?(vendas/dados.length*100).toFixed(1):'0.0';
+  const pctCan  = vendas>0?(cancelados/vendas*100).toFixed(1):'0.0';
+
+  // Meta do mês selecionado
+  const m = filtros.mes>0 ? metas[filtros.mes] : null;
+  const metaVGV   = m && m.vgv   ? parseInt(m.vgv.replace(/\D/g,''))   : null;
+  const metaCotas = m && m.cotas ? parseInt(m.cotas.replace(/\D/g,'')) : null;
+
+  document.getElementById('mb-meta-vgv').textContent = metaVGV ? 'R$'+metaVGV.toLocaleString('pt-BR') : filtros.mes>0?'Não definida':'— (filtrar mês)';
+  document.getElementById('mb-vgv').textContent = 'R$'+(vgvTotal/1000).toFixed(0)+'k';
+  document.getElementById('mb-vendas').textContent = vendas;
+  document.getElementById('mb-vgv-liq').textContent = 'R$'+(vgvLiq/1000).toFixed(0)+'k';
+  document.getElementById('mb-cancel').textContent = cancelados;
+  document.getElementById('mb-efic').textContent = efic+'%';
+  document.getElementById('mb-pct-cancel').textContent = pctCan+'%';
+
+  // Barras de progresso
+  const vgvPct = metaVGV && metaVGV>0 ? Math.min(vgvTotal/metaVGV*100,100) : 0;
+  const cotaPct = metaCotas && metaCotas>0 ? Math.min(vendas/metaCotas*100,100) : 0;
+  document.getElementById('mb-vgv-bar').style.width = vgvPct+'%';
+  document.getElementById('mb-cotas-bar').style.width = cotaPct+'%';
+}
+
+// ============================================================
+// KPIs GERAIS
+// ============================================================
+function renderKPIGeral() {
+  const dados=dadosFiltrados();
+  let vendas=0,cancelados=0,vgvTotal=0;
+  dados.forEach(r=>{const c=parseContrato(r[8]);vendas+=c.vendas;cancelados+=c.cancelados;vgvTotal+=r[5]||0;});
+  const notour=dados.filter(r=>r[1]==='NoTour').length;
+  const efGeral=dados.length>0?(vendas/dados.length*100).toFixed(1):'0.0';
+  document.getElementById('hdr-total').textContent=BASE.length;
+  document.getElementById('kpi-geral').innerHTML=`
+    <div class="kpi-card c-purple"><div class="kpi-label">Total Atendimentos</div><div class="kpi-value">${dados.length}</div><div class="kpi-sub">no filtro</div></div>
+    <div class="kpi-card c-green"><div class="kpi-label">Vendas (Ativo)</div><div class="kpi-value">${vendas}</div><div class="kpi-sub">contratos ativos</div></div>
+    <div class="kpi-card c-yellow"><div class="kpi-label">VGV Total</div><div class="kpi-value" style="font-size:1.2rem">R$$
+{(vgvTotal/1000).toFixed(0)}k</div><div class="kpi-sub">${vgvTotal.toLocaleString('pt-BR')}</div></div> <div class="kpi-card c-red"><div class="kpi-label">Cancelamentos</div><div class="kpi-value">${cancelados}</div><div class="kpi-sub">contratos</div></div> <div class="kpi-card c-blue"><div class="kpi-label">Eficiência</div><div class="kpi-value">${efGeral}%</div><div class="kpi-sub">vendas/atend.</div></div> <div class="kpi-card c-orange"><div class="kpi-label">NoTour</div><div class="kpi-value">${notour}</div><div class="kpi-sub">sem tour</div></div>`; } // ============================================================ // INSIGHTS // ============================================================ function renderInsights() { const dados=dadosFiltrados(); let vendas=0,cancelados=0; dados.forEach(r=>{const c=parseContrato(r[8]);vendas+=c.vendas;cancelados+=c.cancelados;}); const pcCancel=vendas>0?(cancelados/vendas*100).toFixed(1):0; const notour=dados.filter(r=>r[1]==='NoTour').length; const pctNotour=dados.length>0?(notour/dados.length*100).toFixed(1):0; const pmapa={}; dados.forEach(r=>{const p=r[2]?.trim();if(p&&ativos.promotor[p]!==false)pmapa[p]=(pmapa[p]||0)+1;}); const topPromo=Object.entries(pmapa).sort((a,b)=>b[1]-a[1])[0]; const cmapa={}; dados.forEach(r=>{const c=r[4]?.trim();if(c&&ativos.closer[c]!==false){const vv=parseContrato(r[8]);cmapa[c]=(cmapa[c]||0)+vv.vendas;}}); const topCloser=Object.entries(cmapa).sort((a,b)=>b[1]-a[1])[0]; document.getElementById('insights-box').innerHTML=` <div class="insight-card ig"><div class="insight-type">✅ Destaque</div><div class="insight-text">Promotor com mais casais: <strong>${topPromo?topPromo[0]:'—'}</strong> (${topPromo?topPromo[1]:0} atend.)</div></div> <div class="insight-card ig"><div class="insight-type">🏆 Conversão</div><div class="insight-text">Closer com mais vendas: <strong>${topCloser?topCloser[0]:'—'}</strong> (${topCloser?topCloser[1]:0} vendas)</div></div> <div class="insight-card ${parseFloat(pcCancel)>30?'ir':'iy'}"><div class="insight-type">⚠️ Cancelamentos</div><div class="insight-text">Taxa de cancelamento: <strong>${pcCancel}%</strong> (${cancelados} de ${vendas})</div></div> <div class="insight-card ${parseFloat(pctNotour)>15?'ir':'ip'}"><div class="insight-type">📊 NoTour</div><div class="insight-text"><strong>${pctNotour}%</strong> saíram sem tour (${notour} casos)</div></div>`; } // ============================================================ // RANKING // ============================================================ function calcularMetricas(campo,lista){ const dados=dadosFiltrados(); const map={}; lista.forEach(p=>{map[p]={nome:p,casais:0,vendas:0,cancelados:0,vgv:0,rendaTotal:0,qtdRenda:0};}); dados.forEach(r=>{ const p=r[campo]?r[campo].trim():''; if(!p||!map[p])return; map[p].casais++; const c=parseContrato(r[8]); map[p].vendas+=c.vendas;map[p].cancelados+=c.cancelados;map[p].vgv+=r[5]||0; if(r[7]>0){map[p].rendaTotal+=r[7];map[p].qtdRenda++;} }); return Object.values(map).map(m=>({...m, eficiencia:m.casais>0?(m.vendas/m.casais*100):0, pctCancel:m.vendas>0?(m.cancelados/m.vendas*100):0, mediaRenda:m.qtdRenda>0?(m.rendaTotal/m.qtdRenda):0 })); } function renderRanking(containerId,campo,tipo,title,icon){ const lista=Object.keys(ativos[tipo]).filter(p=>ativos[tipo][p]); const metricas=calcularMetricas(campo,lista); const sk=sortState[tipo],sd=sortDir[tipo]; const sm={casais:m=>m.casais,vendas:m=>m.vendas,vgv:m=>m.vgv,eficiencia:m=>m.eficiencia,cancelados:m=>m.cancelados,pctCancel:m=>m.pctCancel,mediaRenda:m=>m.mediaRenda}; metricas.sort((a,b)=>sd*(sm[sk](b)-sm[sk](a))); const maxVGV=Math.max(...metricas.map(m=>m.vgv),1); const maxC=Math.max(...metricas.map(m=>m.casais),1); const sortBtns=[['casais','Casais'],['vendas','Vendas'],['vgv','VGV'],['eficiencia','Eficiência'],['cancelados','Cancel.'],['pctCancel','% Cancel.'],['mediaRenda','Média Renda']] .map(([k,l])=>`<button class="sort-btn${sk===k?' active':''}" onclick="setSortRanking('${tipo}','${k}')">${l}</button>`).join(''); const rows=metricas.map((m,i)=>{ const rc=i===0?'r1':i===1?'r2':i===2?'r3':'rn'; const ef=m.eficiencia.toFixed(1),pc=m.pctCancel.toFixed(1); const efB=m.eficiencia>=20?'bg-green':m.eficiencia>=10?'bg-yellow':'bg-red'; const pcB=m.pctCancel===0?'bg-green':m.pctCancel<=20?'bg-yellow':'bg-red'; return `<tr> <td><span class="rank-badge ${rc}">${i+1}</span></td> <td style="font-weight:600">${m.nome}</td> <td><div class="bar-cell"><div class="bar-track"><div class="bar-fill bf-purple" style="width:${m.casais/maxC*100}%"></div></div><span>${m.casais}</span></div></td> <td><span class="badge bg-green">${m.vendas}</span></td> <td><div class="bar-cell"><div class="bar-track"><div class="bar-fill bf-yellow" style="width:${m.vgv/maxVGV*100}%"></div></div><span>${m.vgv>0?'R$'+m.vgv.toLocaleString('pt-BR'):'—'}</span></div></td> <td><span class="badge ${efB}">${ef}%</span></td> <td>${m.cancelados}</td> <td><span class="badge ${pcB}">${m.cancelados>0||m.vendas>0?pc+'%':'—'}</span></td> <td>${m.mediaRenda>0?'R$'+Math.round(m.mediaRenda).toLocaleString('pt-BR'):'—'}</td> </tr>`; }).join(''); document.getElementById(containerId).innerHTML=` <div class="table-wrap"> <div class="table-hdr"><h3>${icon} ${title}</h3><div class="sort-controls">${sortBtns}</div></div> <div style="overflow-x:auto"><table> <thead><tr><th>#</th><th>Profissional</th><th>Casais</th><th>Vendas</th><th>VGV</th><th>Eficiência</th><th>Cancelamentos</th><th>% Cancel.</th><th>Média Renda</th></tr></thead> <tbody>${rows||'<tr><td colspan="9" style="text-align:center;color:var(--text2);padding:20px">Nenhum profissional ativo</td></tr>'}</tbody> </table></div> </div>`; } function setSortRanking(tipo,campo){ if(sortState[tipo]===campo) sortDir[tipo]*=-1; else{sortState[tipo]=campo;sortDir[tipo]=-1;} renderRankings(); } function renderRankings(){ renderRanking('ranking-promotores',2,'promotor','Promotores de Marketing','🎯'); renderRanking('ranking-liners',3,'liner','Liners','🔗'); renderRanking('ranking-closers',4,'closer','Closers','🏆'); } // ============================================================ // HEATMAP // ============================================================ function renderHeatmap(){ const dados=dadosFiltrados(); const dias=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb']; const meses=['Jan','Fev','Mar','Abr','Mai','Jun']; const matrix=Array.from({length:6},()=>new Array(7).fill(0)); dados.forEach(r=>{const d=new Date(r[0]);const me=d.getMonth(),di=d.getDay();if(me>=0&&me<=5)matrix[me][di]++;}); const maxVal=Math.max(...matrix.flat(),1); function hc(v){if(v===0)return'h0';const p=v/maxVal;if(p<.2)return'h1';if(p<.4)return'h2';if(p<.6)return'h3';if(p<.8)return'h4';return'h5';} let html=`<div class="hm-grid" style="grid-template-columns:70px repeat(7,1fr)">`; html+=`<div class="hm-cell hm-hdr"></div>`; dias.forEach(d=>html+=`<div class="hm-cell hm-hdr">${d}</div>`); matrix.forEach((row,mi)=>{ html+=`<div class="hm-cell hm-hdr">${meses[mi]}</div>`; row.forEach(v=>html+=`<div class="hm-cell ${hc(v)}">${v>0?v:''}</div>`); }); html+=`</div>`; document.getElementById('heatmap-body').innerHTML=html; const totalDia=new Array(7).fill(0); dados.forEach(r=>{const d=new Date(r[0]);totalDia[d.getDay()]++;}); const topDia=totalDia.indexOf(Math.max(...totalDia)); const filt=totalDia.filter(v=>v>0); const lowDia=filt.length>0?totalDia.indexOf(Math.min(...filt)):0; document.getElementById('kpi-heatmap').innerHTML=` <div class="kpi-card c-purple"><div class="kpi-label">Dia Mais Movimentado</div><div class="kpi-value" style="font-size:1.3rem">${dias[topDia]}</div><div class="kpi-sub">${totalDia[topDia]} atend.</div></div> <div class="kpi-card c-yellow"><div class="kpi-label">Dia Menos Movimentado</div><div class="kpi-value" style="font-size:1.3rem">${dias[lowDia]}</div><div class="kpi-sub">${totalDia[lowDia]} atend.</div></div> <div class="kpi-card c-green"><div class="kpi-label">Média / Dia Semana</div><div class="kpi-value" style="font-size:1.3rem">${(dados.length/7).toFixed(1)}</div><div class="kpi-sub">atend. médio</div></div> <div class="kpi-card c-blue"><div class="kpi-label">Meses na Base</div><div class="kpi-value" style="font-size:1.3rem">6</div><div class="kpi-sub">Jan–Jun 2026</div></div>`; } // ============================================================ // FAIXA RENDA // ============================================================ const FAIXAS=[ {label:'Até R$11.999',min:0,max:11999,cor:'#4fc3f7'}, {label:'R$12.000–14.999',min:12000,max:14999,cor:'#6c63ff'}, {label:'R$15.000–19.999',min:15000,max:19999,cor:'#00d4aa'}, {label:'R$20.000–40.000',min:20000,max:40000,cor:'#ffd166'}, {label:'Acima de R$40.000',min:40001,max:Infinity,cor:'#ff9800'}, ]; function renderFaixaRenda(){ const dados=dadosFiltrados(); const stats=FAIXAS.map(f=>{ const sub=dados.filter(r=>r[7]>=f.min&&r[7]<=f.max); let vendas=0,cancelados=0,vgv=0; sub.forEach(r=>{const c=parseContrato(r[8]);vendas+=c.vendas;cancelados+=c.cancelados;vgv+=r[5]||0;}); return{...f,total:sub.length,vendas,cancelados,vgv, eficiencia:sub.length>0?(vendas/sub.length*100).toFixed(1):'0.0', pctCancel:vendas>0?(cancelados/vendas*100).toFixed(1):'0.0'}; }); const maxT=Math.max(...stats.map(s=>s.total),1); const fTV=stats.reduce((a,b)=>b.vendas>a.vendas?b:a,stats[0]); const fTE=stats.reduce((a,b)=>parseFloat(b.eficiencia)>parseFloat(a.eficiencia)?b:a,stats[0]); document.getElementById('kpi-renda').innerHTML=` <div class="kpi-card c-green"><div class="kpi-label">Faixa c/ Mais Vendas</div><div class="kpi-value" style="font-size:1rem">${fTV.label}</div><div class="kpi-sub">${fTV.vendas} vendas</div></div> <div class="kpi-card c-purple"><div class="kpi-label">Faixa c/ Maior Eficiência</div><div class="kpi-value" style="font-size:1rem">${fTE.label}</div><div class="kpi-sub">${fTE.eficiencia}%</div></div> <div class="kpi-card c-yellow"><div class="kpi-label">Faixa Mais Atendida</div><div class="kpi-value" style="font-size:1rem">${stats.reduce((a,b)=>b.total>a.total?b:a,stats[0]).label}</div><div class="kpi-sub">${Math.max(...stats.map(s=>s.total))} atend.</div></div>`; document.getElementById('faixa-cards').innerHTML=stats.map(f=>` <div class="faixa-card"> <div class="faixa-title" style="color:${f.cor}">${f.label}</div> <div class="faixa-stat"><span>Atendimentos</span><span>${f.total}</span></div> <div class="faixa-bar"><div class="faixa-bar-fill" style="width:${(f.total/maxT*100)}%;background:${f.cor}"></div></div> <div class="faixa-stat"><span>Vendas</span><span style="color:var(--green)">${f.vendas}</span></div> <div class="faixa-stat"><span>Cancelamentos</span><span style="color:var(--red)">${f.cancelados}</span></div> <div class="faixa-stat"><span>VGV</span><span>${f.vgv>0?'R$'+f.vgv.toLocaleString('pt-BR'):'—'}</span></div> <div class="faixa-stat"><span>Eficiência</span><span>${f.eficiencia}%</span></div> <div class="faixa-stat"><span>% Cancelamento</span><span>${f.pctCancel}%</span></div> </div>`).join(''); const th=document.querySelector('#table-faixa thead'),tb=document.querySelector('#table-faixa tbody'); th.innerHTML=`<tr><th>Faixa de Renda</th><th>Atendimentos</th><th>Vendas</th><th>Cancel.</th><th>VGV</th><th>Eficiência</th><th>% Cancel.</th></tr>`; tb.innerHTML=stats.map(f=>`<tr> <td><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${f.cor};margin-right:7px"></span>${f.label}</td> <td>${f.total}</td><td><span class="badge bg-green">${f.vendas}</span></td> <td><span class="badge ${f.cancelados>0?'bg-red':'bg-green'}">${f.cancelados}</span></td> <td>${f.vgv>0?'R$'+f.vgv.toLocaleString('pt-BR'):'—'}</td> <td><span class="badge ${parseFloat(f.eficiencia)>=15?'bg-green':parseFloat(f.eficiencia)>=8?'bg-yellow':'bg-red'}">${f.eficiencia}%</span></td> <td><span class="badge ${parseFloat(f.pctCancel)===0?'bg-green':parseFloat(f.pctCancel)<=30?'bg-yellow':'bg-red'}">${f.pctCancel}%</span></td> </tr>`).join(''); } // ============================================================ // AUDITORIA // ============================================================ function renderAuditoria(){ const atP=Object.values(ativos.promotor).filter(Boolean).length; const atL=Object.values(ativos.liner).filter(Boolean).length; const atC=Object.values(ativos.closer).filter(Boolean).length; const dados=dadosFiltrados(); let vendas=0,cancelados=0,vgv=0; dados.forEach(r=>{const c=parseContrato(r[8]);vendas+=c.vendas;cancelados+=c.cancelados;vgv+=r[5]||0;}); document.getElementById('audit-body').innerHTML=` <div class="audit-box"> <h3>🔍 Auditoria da Base</h3> <div class="audit-row"><span>Registros brutos</span><span>${BASE.length}</span></div> <div class="audit-row"><span>Registros após filtros</span><span>${dados.length}</span></div> <div class="audit-row"><span>Promotores ativos</span><span>${atP} / ${Object.keys(ativos.promotor).length}</span></div> <div class="audit-row"><span>Liners ativos</span><span>${atL} / ${Object.keys(ativos.liner).length}</span></div> <div class="audit-row"><span>Closers ativos</span><span>${atC} / ${Object.keys(ativos.closer).length}</span></div> <div class="audit-row"><span>Vendas (Ativo)</span><span>${vendas}</span></div> <div class="audit-row"><span>Cancelamentos</span><span>${cancelados}</span></div> <div class="audit-row"><span>VGV no filtro</span><span>R$ ${vgv.toLocaleString('pt-BR')}</span></div> <div class="audit-row"><span>Coluna de horário</span><span style="color:var(--red)">Ausente</span></div> </div>`; } // ============================================================ // GESTÃO DE EQUIPE // ============================================================ function renderGestao(){ renderGridProfissionais('grid-promotores','promotor','Promotor'); renderGridProfissionais('grid-liners','liner','Liner'); renderGridProfissionais('grid-closers','closer','Closer'); atualizarCounters(); } function renderGridProfissionais(gridId,tipo,label){ const grid=document.getElementById(gridId); const profs=Object.keys(ativos[tipo]).sort(); grid.innerHTML=profs.map(p=>{ const ativo=ativos[tipo][p]; const id=`toggle-${tipo}-${p.replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'_')}`; return `<div class="prof-item${ativo?'':' inactive'}" id="item-${id}"> <div><div class="prof-name">${p}</div><div class="prof-role">${label}</div></div> <label class="toggle"><input type="checkbox" id="${id}" ${ativo?'checked':''} onchange="toggleProfissional('${tipo}','${p}',this.checked)"><span class="slider"></span></label> </div>`; }).join(''); } function toggleProfissional(tipo,nome,checked){ ativos[tipo][nome]=checked; const id=`toggle-${tipo}-${nome.replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'_')}`; const item=document.getElementById(`item-${id}`); if(item) item.classList.toggle('inactive',!checked); atualizarCounters(); renderAll(); } function setAllActive(tipo,state){ Object.keys(ativos[tipo]).forEach(p=>ativos[tipo][p]=state); renderGestao();renderAll(); } function atualizarCounters(){ ['promotor','liner','closer'].forEach(tipo=>{ const total=Object.keys(ativos[tipo]).length; const atv=Object.values(ativos[tipo]).filter(Boolean).length; const sufixo=tipo==='promotor'?'promo':tipo==='liner'?'liner':'closer'; const el=document.getElementById(`counter-${sufixo}`); if(el) el.textContent=`${atv} de ${total} ativos`; }); } function toggleMgmt(id){ const body=document.getElementById(id); const hdr=body.previousElementSibling; body.classList.toggle('open'); hdr.classList.toggle('open'); } // ============================================================ // ABA METAS // ============================================================ function renderMetas(){ const grid=document.getElementById('meses-metas-grid'); grid.innerHTML=Object.keys(metas).map(m=>{ const mes=parseInt(m); const mt=metas[mes]; const realizado=calcularRealizadoMes(mes); const pctVGV=mt.vgv&&parseInt(mt.vgv.replace(/\D/g,''))>0 ? Math.min(realizado.vgv/parseInt(mt.vgv.replace(/\D/g,''))*100,100).toFixed(0) : null; const pctCotas=mt.cotas&&parseInt(mt.cotas.replace(/\D/g,''))>0 ? Math.min(realizado.vendas/parseInt(mt.cotas.replace(/\D/g,''))*100,100).toFixed(0) : null; const pctCasais=mt.casais&&parseInt(mt.casais.replace(/\D/g,''))>0 ? Math.min(realizado.casais/parseInt(mt.casais.replace(/\D/g,''))*100,100).toFixed(0) : null; return ` <div class="mes-card"> <div class="mes-card-header"> <h4>📅 ${MESES_NOMES[mes]}</h4> <span>${realizado.casais} casais \cdot  ${realizado.vendas} vendas</span> </div> <div class="mes-card-body"> <div class="meta-field"> <label>🏆 Meta VGV (R$)</label> <input type="text" id="meta-vgv-${mes}" value="${mt.vgv||''}" placeholder="Ex: 500000" oninput="atualizarMetaField(${mes},'vgv',this.value)"> ${pctVGV!==null?`<div style="margin-top:4px"><div style="height:4px;background:var(--surface2);border-radius:2px"><div style="height:100%;width:${pctVGV}%;background:${parseFloat(pctVGV)>=100?'var(--green)':parseFloat(pctVGV)>=70?'var(--yellow)':'var(--red)'};border-radius:2px;transition:width .3s"></div></div><span style="font-size:0.65rem;color:var(--text2)">${pctVGV}% da meta \cdot  R
+$${realizado.vgv.toLocaleString('pt-BR')} realizado</span></div>`:''}
+        </div>
+        <div class="meta-field">
+          <label>👫 Meta Casais em Sala</label>
+          <input type="text" id="meta-casais-${mes}" value="${mt.casais||''}" placeholder="Ex: 40" oninput="atualizarMetaField(${mes},'casais',this.value)">
+          ${pctCasais!==null?`<div style="margin-top:4px"><div style="height:4px;background:var(--surface2);border-radius:2px"><div style="height:100%;width:${pctCasais}%;background:${parseFloat(pctCasais)>=100?'var(--green)':parseFloat(pctCasais)>=70?'var(--yellow)':'var(--red)'};border-radius:2px;transition:width .3s"></div></div><span style="font-size:0.65rem;color:var(--text2)">${pctCasais}% da meta · ${realizado.casais} realizados</span></div>`:''}
+        </div>
+        <div class="meta-field">
+          <label>📋 Meta Nº de Cotas</label>
+          <input type="text" id="meta-cotas-${mes}" value="${mt.cotas||''}" placeholder="Ex: 8" oninput="atualizarMetaField(${mes},'cotas',this.value)">
+          ${pctCotas!==null?`<div style="margin-top:4px"><div style="height:4px;background:var(--surface2);border-radius:2px"><div style="height:100%;width:${pctCotas}%;background:${parseFloat(pctCotas)>=100?'var(--green)':parseFloat(pctCotas)>=70?'var(--yellow)':'var(--red)'};border-radius:2px;transition:width .3s"></div></div><span style="font-size:0.65rem;color:var(--text2)">${pctCotas}% da meta · ${realizado.vendas} cotas realizadas</span></div>`:''}
+        </div>
+      </div>
+      <div class="mes-card-footer">
+        <button class="btn-salvar-meta" onclick="salvarMetaMes(${mes})">💾 Salvar</button>
+        <button class="btn-limpar-meta" onclick="limparMetaMes(${mes})">✕</button>
+        <span class="meta-saved" id="saved-${mes}">✓ Salvo!</span>
+      </div>
+    </div>`;
+  }).join('');
+  renderMetasResumo();
+}
+
+function calcularRealizadoMes(mes){
+  const dados=BASE.filter(r=>{
+    const d=new Date(r[0]);
+    const dm=d.getMonth()+1;
+    if(dm!==mes) return false;
+    const p=r[2]?r[2].trim():'',l=r[3]?r[3].trim():'',c=r[4]?r[4].trim():'';
+    if(p&&ativos.promotor[p]===false) return false;
+    if(l&&ativos.liner[l]===false) return false;
+    if(c&&ativos.closer[c]===false) return false;
+    return true;
+  });
+  let vendas=0,vgv=0,casais=dados.length;
+  dados.forEach(r=>{const c=parseContrato(r[8]);vendas+=c.vendas;vgv+=r[5]||0;});
+  return{casais,vendas,vgv};
+}
+
+function atualizarMetaField(mes,campo,valor){
+  metas[mes][campo]=valor;
+}
+
+function salvarMetaMes(mes){
+  metas[mes].vgv   = document.getElementById(`meta-vgv-${mes}`).value;
+  metas[mes].casais= document.getElementById(`meta-casais-${mes}`).value;
+  metas[mes].cotas = document.getElementById(`meta-cotas-${mes}`).value;
+  salvarMetas();
+  const el=document.getElementById(`saved-${mes}`);
+  if(el){el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2000);}
+  renderMetasResumo();
+  renderMetricBar();
+}
+
+function limparMetaMes(mes){
+  metas[mes]={vgv:'',casais:'',cotas:''};
+  salvarMetas();
+  renderMetas();
+  renderMetricBar();
+}
+
+function renderMetasResumo(){
+  const tbody=document.getElementById('metas-resumo-body');
+  tbody.innerHTML=Object.keys(metas).map(m=>{
+    const mes=parseInt(m);
+    const mt=metas[mes];
+    const r=calcularRealizadoMes(mes);
+    const metaVGV=mt.vgv?parseInt(mt.vgv.replace(/\D/g,'')):null;
+    const metaCotas=mt.cotas?parseInt(mt.cotas.replace(/\D/g,'')):null;
+    const metaCasais=mt.casais?parseInt(mt.casais.replace(/\D/g,'')):null;
+    const pVGV=metaVGV&&metaVGV>0?(r.vgv/metaVGV*100).toFixed(0):null;
+    const pCotas=metaCotas&&metaCotas>0?(r.vendas/metaCotas*100).toFixed(0):null;
+    function corPct(v){return parseFloat(v)>=100?'color:var(--green)':parseFloat(v)>=70?'color:var(--yellow)':'color:var(--red)';}
+    return `<tr>
+      <td style="font-weight:600">${MESES_NOMES[mes]}</td>
+      <td>${metaVGV?'R$'+metaVGV.toLocaleString('pt-BR'):'<span class="meta-empty">—</span>'}</td>
+      <td>${metaCasais||'<span class="meta-empty">—</span>'}</td>
+      <td>${metaCotas||'<span class="meta-empty">—</span>'}</td>
+      <td>R$${r.vgv.toLocaleString('pt-BR')}</td>
+      <td>${r.vendas}</td>
+      <td>${pVGV?`<span class="badge ${parseFloat(pVGV)>=100?'bg-green':parseFloat(pVGV)>=70?'bg-yellow':'bg-red'}">${pVGV}%</span>`:'<span class="meta-empty">—</span>'}</td>
+      <td>${pCotas?`<span class="badge ${parseFloat(pCotas)>=100?'bg-green':parseFloat(pCotas)>=70?'bg-yellow':'bg-red'}">${pCotas}%</span>`:'<span class="meta-empty">—</span>'}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ============================================================
+// RENDER ALL
+// ============================================================
+function renderAll(){
+  renderMetricBar();
+  renderKPIGeral();
+  renderInsights();
+  renderRankings();
+  renderHeatmap();
+  renderFaixaRenda();
+  renderAuditoria();
+  renderMetasResumo();
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function showTab(id,btn){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(id==='metas') renderMetas();
+}
+
+// ============================================================
+// INIT
+// ============================================================
+extrairProfissionais();
+renderGestao();
+renderAll();
+</script>
 </body>
 </html>
