@@ -1,128 +1,638 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Dashboard de Vendas</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dashboard Comercial</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f8f9fa; margin: 0; }
-    .container { max-width: 900px; margin: 40px auto; padding: 24px; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px #0001; }
-    .kpi-card { display:inline-block; margin-right:18px; background:#eee; border-radius:6px; padding:12px 16px; margin-bottom:12px; min-width:170px;}
-    .c-purple { background: #b77cff22; }
-    .c-green { background: #7cffb722; }
-    .c-yellow { background: #ffe67c22; }
-    .kpi-label { font-size:1.1rem; color: #666;}
-    .kpi-value { font-size:1.7rem; font-weight: bold; }
-    .kpi-sub { font-size:0.89rem; color: #888;}
-    .insight-card { display:block; border-radius:6px; margin-bottom:12px; padding:10px 16px;}
-    .ig { background: #c7f2fd; }
-    .ip { background: #d1ffd1; }
-    .ir { background: #ffe1e1; }
-    .iy { background: #fff6d1; }
-    .insight-type {font-weight: bold; font-size:1.04rem; margin-bottom:4px;}
-    .insight-text {font-size:1.04rem;}
-    h1 { font-weight: normal; text-align: center; color:#6247aa;}
-    .meta-field { margin-bottom:10px;}
-    .meta-field label { font-size:0.97rem; color: #444;}
-    input[type="text"] { border-radius:4px; border:1px solid #aaa; padding:3px 6px; font-size:1rem;}
-    .mes-card { border:1px solid #ccc; border-radius:8px; margin-bottom:16px; background:#fafbfd;}
-    .mes-card-body {padding:16px 22px;}
-    .mes-card h3 {margin:0; font-size:1.21rem; color: #5c469c;}
-    table { width:100%; border-collapse:collapse;}
-    th, td { padding:7px 10px;}
-    th { background:#eee; }
-    tr:nth-child(even) { background: #f1f1f1;}
+    :root{
+      --bg:#f6f7fb; --card:#fff; --text:#111827; --muted:#6b7280; --border:#e5e7eb;
+      --purple:#6d28d9; --green:#16a34a; --yellow:#ca8a04; --red:#dc2626; --blue:#2563eb; --orange:#ea580c; --teal:#0f766e;
+      --shadow:0 10px 30px rgba(17,24,39,.08);
+      --r:14px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans)}
+    .wrap{max-width:1180px;margin:34px auto;padding:0 18px}
+    .hero{background:var(--card);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:22px;padding:26px 22px;margin-bottom:18px}
+    .hero h1{margin:0 0 6px 0;text-align:center;font-size:44px;color:#6b46c1;font-weight:500}
+    .hero .sub{margin:0;text-align:center;color:var(--muted)}
+    .row{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+    .card{background:var(--card);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:var(--r);padding:16px}
+    .card h2{margin:0 0 12px 0;font-size:18px}
+    .span12{grid-column:span 12}
+    .span8{grid-column:span 8}
+    .span6{grid-column:span 6}
+    .span4{grid-column:span 4}
+    .span3{grid-column:span 3}
+    @media (max-width:980px){.span8,.span6,.span4,.span3{grid-column:span 12} .hero h1{font-size:34px}}
+    .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+    @media (max-width:980px){.kpis{grid-template-columns:repeat(2,1fr)}}
+    .kpi{border-radius:14px;color:#fff;padding:14px 14px 12px 14px;min-height:90px}
+    .kpi .lab{font-size:13px;opacity:.9}
+    .kpi .val{font-size:28px;font-weight:800;margin-top:4px}
+    .kpi .sub{font-size:12px;opacity:.9;margin-top:4px}
+    .c-purple{background:linear-gradient(135deg,#7c3aed,#5b21b6)}
+    .c-green{background:linear-gradient(135deg,#22c55e,#15803d)}
+    .c-yellow{background:linear-gradient(135deg,#fbbf24,#a16207)}
+    .c-red{background:linear-gradient(135deg,#f87171,#b91c1c)}
+    .c-blue{background:linear-gradient(135deg,#60a5fa,#1d4ed8)}
+    .c-orange{background:linear-gradient(135deg,#fb923c,#c2410c)}
+    .insights{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    @media (max-width:980px){.insights{grid-template-columns:1fr}}
+    .ins{border-radius:14px;padding:14px;border:1px solid var(--border)}
+    .ins .t{font-weight:800;font-size:13px;margin-bottom:6px}
+    .ins .d{color:#374151}
+    .ig{background:#ecfeff}
+    .ip{background:#ecfdf5}
+    .iy{background:#fffbeb}
+    .ir{background:#fef2f2}
+    .filters{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+    @media (max-width:980px){.filters{grid-template-columns:repeat(2,1fr)}}
+    label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
+    select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid var(--border);background:#fff}
+    .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    button{border:0;border-radius:12px;padding:10px 12px;font-weight:700;cursor:pointer}
+    .b1{background:var(--blue);color:#fff}
+    .b2{background:#eef2ff;color:#111827;border:1px solid #c7d2fe}
+    .b3{background:#111827;color:#fff}
+    .hint{color:var(--muted);font-size:12px;margin-top:10px}
+    table{width:100%;border-collapse:collapse;overflow:hidden;border-radius:14px;border:1px solid var(--border)}
+    th,td{padding:10px 10px;border-bottom:1px solid var(--border);font-size:13px}
+    th{background:#f3f4f6;text-align:left}
+    tr:hover td{background:#fafafa}
+    .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:800;color:#fff}
+    .bgG{background:var(--green)} .bgR{background:var(--red)} .bgY{background:var(--yellow);color:#111827}
+    .rank{font-family:var(--mono);font-weight:900}
+    .meta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    @media (max-width:980px){.meta-grid{grid-template-columns:1fr}}
+    .meta-month{border:1px solid var(--border);border-radius:14px;padding:14px;background:#fff}
+    .meta-month h3{margin:0 0 10px 0}
+    .bar{height:8px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin-top:8px}
+    .fill{height:100%;width:0%}
+    .ok{background:var(--green)} .mid{background:var(--yellow)} .bad{background:var(--red)}
+    .topline{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .small{font-size:12px;color:var(--muted)}
+    .err{display:none;margin-top:10px;background:#fef2f2;border:1px solid #fecaca;color:#991b1b;padding:10px;border-radius:12px}
+    .err.show{display:block}
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Dashboard de Vendas</h1>
-    <div id="kpi-geral"></div>
-    <h2>Insights</h2>
-    <div id="insights-box"></div>
-    <h2>Resumo Mensal / Metas</h2>
-    <div id="metas-box"></div>
+  <div class="wrap">
+    <div class="hero">
+      <h1>Dashboard de Vendas</h1>
+      <p class="sub">Base: Janeiro até 10/06/2026 • Publicável no GitHub Pages</p>
+    </div>
+
+    <div class="card span12">
+      <h2>Filtros</h2>
+      <div class="filters">
+        <div>
+          <label for="fMes">Mês</label>
+          <select id="fMes">
+            <option value="0">Todos</option>
+            <option value="1">Jan</option><option value="2">Fev</option><option value="3">Mar</option>
+            <option value="4">Abr</option><option value="5">Mai</option><option value="6">Jun</option>
+          </select>
+        </div>
+        <div>
+          <label for="fProm">Promotor</label>
+          <select id="fProm"><option value="">Todos</option></select>
+        </div>
+        <div>
+          <label for="fLin">Liner</label>
+          <select id="fLin"><option value="">Todos</option></select>
+        </div>
+        <div>
+          <label for="fClo">Closer</label>
+          <select id="fClo"><option value="">Todos</option></select>
+        </div>
+        <div>
+          <label for="fUF">UF</label>
+          <select id="fUF"><option value="">Todas</option></select>
+        </div>
+        <div>
+          <label for="fCap">Captação</label>
+          <select id="fCap"><option value="">Todas</option></select>
+        </div>
+      </div>
+      <div class="btns">
+        <button class="b1" id="btnAplicar">Aplicar</button>
+        <button class="b2" id="btnLimpar">Limpar</button>
+        <button class="b3" id="btnCSV">Exportar filtrado (CSV)</button>
+      </div>
+      <div class="hint">
+        Arquivo esperado no repositório: <b>dados.csv</b> (CSV UTF-8 exportado do Excel).
+      </div>
+      <div id="errBox" class="err"></div>
+    </div>
+
+    <div class="card span12">
+      <h2>KPIs Gerais</h2>
+      <div id="kpis" class="kpis"></div>
+    </div>
+
+    <div class="card span12">
+      <h2>Insights</h2>
+      <div id="insights" class="insights"></div>
+    </div>
+
+    <div class="card span12">
+      <h2>Rankings</h2>
+      <div class="row">
+        <div class="card span4">
+          <div class="topline"><h2>Promotores</h2><span class="small">por atendimentos</span></div>
+          <table id="tProm"><thead></thead><tbody></tbody></table>
+        </div>
+        <div class="card span4">
+          <div class="topline"><h2>Liners</h2><span class="small">por atendimentos</span></div>
+          <table id="tLin"><thead></thead><tbody></tbody></table>
+        </div>
+        <div class="card span4">
+          <div class="topline"><h2>Closers</h2><span class="small">por vendas</span></div>
+          <table id="tClo"><thead></thead><tbody></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <div class="card span12">
+      <h2>Resumo Mensal / Metas</h2>
+      <div id="metasGrid" class="meta-grid"></div>
+      <div style="margin-top:14px">
+        <table id="tMetas"><thead></thead><tbody></tbody></table>
+      </div>
+    </div>
   </div>
-  <script>
-    // Exemplo de dados fictícios
-    const dados = [
-      { status: 'ATIVO', promotor: 'Maria', closer: 'João', valor: 120000, renda: 4000 },
-      { status: 'CANCELADO', promotor: 'Maria', closer: 'Lucas', valor: 110000, renda: 3900 },
-      { status: 'ATIVO', promotor: 'Carlos', closer: 'João', valor: 125000, renda: 4200 },
-      { status: 'CANCELADO', promotor: 'Amanda', closer: 'Lucas', valor: 99000, renda: 3500 },
-      { status: 'ATIVO', promotor: 'Maria', closer: 'João', valor: 132000, renda: 4500 },
-    ];
 
-    // Função ajustada para parseContrato (soma ATIVO + CANCELADO)
-    function parseContrato(s){
-      if(!s) return {vendas:0, cancelados:0, total:0};
-      const u = String(s).toUpperCase();
-      const ativos = (u.match(/ATIVO/g) || []).length;
-      const cancelados = (u.match(/CANCELADO/g) || []).length;
-      return {vendas: ativos, cancelados, total: ativos + cancelados};
+<script>
+  // =========================
+  // Util
+  // =========================
+  const fmtBRL = (n) => (Number(n)||0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
+  const fmtPct = (n) => `${(Number(n)||0).toFixed(1)}%`;
+  const byDesc = (k) => (a,b) => (b[k]||0) - (a[k]||0);
+
+  function showErr(msg){
+    const box = document.getElementById('errBox');
+    box.textContent = msg;
+    box.classList.add('show');
+  }
+  function clearErr(){
+    const box = document.getElementById('errBox');
+    box.textContent = '';
+    box.classList.remove('show');
+  }
+
+  function parseDateBR(s){
+    // aceita "1/7/26" e "2026-01-07"
+    if(!s) return null;
+    const str = String(s).trim();
+    if(/^\d{4}-\d{2}-\d{2}/.test(str)){
+      const d = new Date(str);
+      return isNaN(d) ? null : d;
     }
+    const m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+    if(!m) return null;
+    let dd = Number(m[1]), mm = Number(m[2]), yy = Number(m[3]);
+    if(yy < 100) yy = 2000 + yy;
+    const d = new Date(yy, mm-1, dd);
+    return isNaN(d) ? null : d;
+  }
 
-    function renderKPIGeral() {
-      const vendas = dados.filter(d=>['ATIVO','CANCELADO'].includes(d.status.toUpperCase())).length;
-      const cancelados = dados.filter(d=>d.status.toUpperCase()==='CANCELADO').length;
-      const vgvTotal = dados.reduce((s,d)=>s+(parseFloat(d.valor)||0),0);
-      document.getElementById('kpi-geral').innerHTML=`
-        <div class="kpi-card c-purple"><div class="kpi-label">Total Atendimentos</div><div class="kpi-value">${dados.length}</div><div class="kpi-sub">no filtro</div></div>
-        <div class="kpi-card c-green"><div class="kpi-label">Vendas (Total)</div><div class="kpi-value">${vendas}</div><div class="kpi-sub">contratos ativos + cancelados</div></div>
-        <div class="kpi-card c-yellow"><div class="kpi-label">VGV Total</div><div class="kpi-value" style="font-size:1.15rem">R$$
-{(vgvTotal/1000).toFixed(0)}k</div><div class="kpi-sub">${vgvTotal.toLocaleString('pt-BR')}</div></div> `; } function renderInsights() { // Promotor com mais atendimentos const promoCont = {}; dados.forEach(d => { promoCont[d.promotor] = (promoCont[d.promotor]||0)+1; }); const topPromo = Object.entries(promoCont).sort((a,b)=>b[1]-a[1])[0]; // Closer com mais vendas const closerCont = {}; dados.forEach(d=>{ if(['ATIVO','CANCELADO'].includes(d.status.toUpperCase())) closerCont[d.closer] = (closerCont[d.closer]||0)+1; }); const topCloser = Object.entries(closerCont).sort((a,b)=>b[1]-a[1])[0]; const vendas = dados.filter(d=>['ATIVO','CANCELADO'].includes(d.status.toUpperCase())).length; const cancelados = dados.filter(d=>d.status.toUpperCase()==='CANCELADO').length; const pcCancel = vendas? ((cancelados/vendas)*100).toFixed(1) : '0'; const rendaMedia = vendas ? (dados.reduce((s,d)=>s+(parseFloat(d.renda)||0),0)/vendas) : 0; // Exemplo fictício para pctNotour e notour const notour = 2, pctNotour = ((notour/dados.length)*100).toFixed(1); document.getElementById('insights-box').innerHTML=` <div class="insight-card ig"><div class="insight-type">✅ Promotor Destaque</div><div class="insight-text">Mais atendimentos: <strong>${topPromo?topPromo[0]:'—'}</strong> (${topPromo?topPromo[1]:0} casais)</div></div> <div class="insight-card ig"><div class="insight-type">🏆 Closer Destaque</div><div class="insight-text">Mais vendas: <strong>${topCloser?topCloser[0]:'—'}</strong> (${topCloser?topCloser[1]:0} vendas)</div></div> <div class="insight-card ${(parseFloat(pcCancel)>30?'ir':'iy')}"><div class="insight-type">⚠️ Cancelamentos</div><div class="insight-text">Taxa: <strong>${pcCancel}%</strong> — ${cancelados} de ${vendas} vendas canceladas</div></div> <div class="insight-card ip"><div class="insight-type">💰 Renda Média</div><div class="insight-text">Média geral: <strong>R
-$${Math.round(rendaMedia).toLocaleString('pt-BR')}</strong></div></div>
-        <div class="insight-card ${(parseFloat(pctNotour)>15?'ir':'iy')}"><div class="insight-type">📊 NoTour</div><div class="insight-text"><strong>${pctNotour}%</strong> saíram sem tour (${notour} casos)</div></div>
-      `;
+  function parseMoneyAny(v){
+    // "87000.00" ou "R$ 20,000.00" (do excel veio assim no texto extraído)
+    if(v == null) return 0;
+    let s = String(v).trim();
+    if(!s) return 0;
+    s = s.replace(/\s/g,'').replace('R$','');
+    // se tiver vírgula e ponto, tenta padrão "20,000.00" (milhar com vírgula)
+    // remove separador de milhar
+    s = s.replace(/,/g,'');
+    const n = Number(s);
+    return isNaN(n) ? 0 : n;
+  }
+
+  function parseContrato(txt){
+    // conta repetições: "ATIVO # ATIVO" => 2 vendas, "CANCELADO # CANCELADO" => 2 cancelados
+    const u = (txt == null ? '' : String(txt)).toUpperCase();
+    const ativos = (u.match(/ATIVO/g) || []).length;
+    const canc = (u.match(/CANCELADO/g) || []).length;
+    return { ativos, canc, total: ativos + canc };
+  }
+
+  function csvParse(text){
+    // parser simples com suporte a aspas
+    const rows = [];
+    let cur = '', row = [], inQ = false;
+    for(let i=0;i<text.length;i++){
+      const ch = text[i];
+      const nxt = text[i+1];
+      if(ch === '"' ){
+        if(inQ && nxt === '"'){ cur += '"'; i++; }
+        else inQ = !inQ;
+      } else if(ch === ',' && !inQ){
+        row.push(cur); cur='';
+      } else if((ch === '\n' || ch === '\r') && !inQ){
+        if(ch === '\r' && nxt === '\n') i++;
+        row.push(cur); cur='';
+        if(row.some(c=>String(c).trim()!=='')) rows.push(row);
+        row=[];
+      } else {
+        cur += ch;
+      }
     }
+    row.push(cur);
+    if(row.some(c=>String(c).trim()!=='')) rows.push(row);
+    return rows;
+  }
 
-    function barPct(pct){
-      const val = Math.min(100,Math.round(pct));
-      return `<span style="display:inline-block;width:56px;height:8px;border-radius:4px;overflow:hidden;background:#eee;margin:0 8px 0 0;vertical-align:middle;">
-        <span style="background:#4fa0ff;display:block;height:100%;width:${val}%;"></span>
-      </span>`;
+  // =========================
+  // Estado
+  // =========================
+  let BASE = [];
+  const metasKey = 'dash_metas_v1';
+  let METAS = JSON.parse(localStorage.getItem(metasKey) || 'null') || {
+    1:{vgv:'', casais:'', cotas:''},
+    2:{vgv:'', casais:'', cotas:''},
+    3:{vgv:'', casais:'', cotas:''},
+    4:{vgv:'', casais:'', cotas:''},
+    5:{vgv:'', casais:'', cotas:''},
+    6:{vgv:'', casais:'', cotas:''},
+  };
+
+  const f = {
+    mes: () => Number(document.getElementById('fMes').value)||0,
+    prom: () => document.getElementById('fProm').value,
+    lin: () => document.getElementById('fLin').value,
+    clo: () => document.getElementById('fClo').value,
+    uf: () => document.getElementById('fUF').value,
+    cap: () => document.getElementById('fCap').value,
+  };
+
+  function filtered(){
+    const mes = f.mes(), prom = f.prom(), lin = f.lin(), clo = f.clo(), uf = f.uf(), cap = f.cap();
+    return BASE.filter(r=>{
+      if(mes && r.mes !== mes) return false;
+      if(prom && r.promotor !== prom) return false;
+      if(lin && r.liner !== lin) return false;
+      if(clo && r.closer !== clo) return false;
+      if(uf && r.uf !== uf) return false;
+      if(cap && r.captacao !== cap) return false;
+      return true;
+    });
+  }
+
+  // =========================
+  // Carregar dados do CSV
+  // =========================
+  async function load(){
+    clearErr();
+    try{
+      const res = await fetch('./dados.csv', { cache:'no-store' });
+      if(!res.ok) throw new Error(`Não consegui carregar dados.csv (HTTP ${res.status})`);
+      const text = await res.text();
+      const rows = csvParse(text);
+      if(rows.length < 2) throw new Error('dados.csv vazio ou sem linhas suficientes.');
+
+      const header = rows[0].map(h=>String(h).trim());
+      const idx = (name) => header.findIndex(h=>h.toLowerCase()===name.toLowerCase());
+
+      const need = [
+        'Data de atendimento','Status atendimento','Promotor de marketing','Valor vendido',
+        'Liner','Closer','Renda','Local Captação','Status do contrato','UF','Cidade'
+      ];
+      for(const c of need){
+        if(idx(c) < 0) throw new Error(`Coluna obrigatória não encontrada no CSV: "${c}"`);
+      }
+
+      BASE = rows.slice(1).map(cols=>{
+        const dt = parseDateBR(cols[idx('Data de atendimento')]);
+        const mes = dt ? (dt.getMonth()+1) : 0;
+        return {
+          data: dt,
+          mes,
+          statusAt: (cols[idx('Status atendimento')]||'').trim(),
+          promotor: (cols[idx('Promotor de marketing')]||'').trim(),
+          liner: (cols[idx('Liner')]||'').trim(),
+          closer: (cols[idx('Closer')]||'').trim(),
+          valor: parseMoneyAny(cols[idx('Valor vendido')]),
+          renda: parseMoneyAny(cols[idx('Renda')]),
+          captacao: (cols[idx('Local Captação')]||'').trim(),
+          contrato: (cols[idx('Status do contrato')]||'').trim(),
+          uf: (cols[idx('UF')]||'').trim(),
+          cidade: (cols[idx('Cidade')]||'').trim(),
+        };
+      }).filter(r=>r.promotor || r.liner || r.closer || r.captacao || r.uf || r.cidade || r.data);
+
+      fillFilters();
+      render();
+    }catch(e){
+      console.error(e);
+      showErr(e.message + ' • Dica: confira se "dados.csv" está na raiz do repositório e se o GitHub Pages está servindo o arquivo.');
     }
+  }
 
-    function renderMetas(){
-      // Exemplo de metas e resumo
-      const meses = ['06/2026','05/2026','04/2026'];
-      const metas = {
-        '06/2026': { vgv:300000, casais:8, cotas:3 },
-        '05/2026': { vgv:400000, casais:12, cotas:4 },
-        '04/2026': { vgv:250000, casais:10, cotas:2 },
-      };
-      const real = {
-        '06/2026': { vgv:367000, casais:8, vendas:3 },
-        '05/2026': { vgv:153000, casais:3, vendas:1 },
-        '04/2026': { vgv:40000, casais:1, vendas:0 }
-      };
-      let html = '';
-      meses.forEach(mes => {
-        const mt = metas[mes]||{}, r = real[mes]||{};
-        const pctVGV = mt.vgv ? Math.round((r.vgv/mt.vgv)*100) : null;
-        const pctCasais = mt.casais ? Math.round((r.casais/mt.casais)*100) : null;
-        const pctCotas = mt.cotas ? Math.round((r.vendas/mt.cotas)*100) : null;
-        html += `
-          <div class="mes-card">
-            <div class="mes-card-body">
-              <h3>${mes}</h3>
-              <div class="meta-field"><label>🏆 Meta VGV (R$)</label>
-                <input type="text" id="meta-vgv-${mes}" value="${mt.vgv||''}" placeholder="Ex: 500000">
-                ${barPct(pctVGV)}${pctVGV?`<span style="font-size:0.65rem;color:var(--text2)">${pctVGV}% · R$$
-{r.vgv.toLocaleString('pt-BR')} realizado</span>`:''} </div> <div class="meta-field"><label>👫 Meta Casais em Sala</label> <input type="text" id="meta-casais-${mes}" value="${mt.casais||''}" placeholder="Ex: 40"> ${barPct(pctCasais)}${pctCasais?`<span style="font-size:0.65rem;color:var(--text2)">${pctCasais}% \cdot  ${r.casais} realizados</span>`:''} </div> <div class="meta-field"><label>📋 Meta Nº de Cotas</label> <input type="text" id="meta-cotas-${mes}" value="${mt.cotas||''}" placeholder="Ex: 8"> ${barPct(pctCotas)}${pctCotas?`<span style="font-size:0.65rem;color:var(--text2)">${pctCotas}% \cdot  ${r.vendas} cotas realizadas</span>`:''} </div> </div> </div> `; }); // Resumo (tabela) html += ` <h3>Resumo das Metas</h3> <table> <tr><th>Mês</th><th>Meta Vendas</th><th>Realizado</th><th>Meta VGV</th><th>Realizado</th></tr> ${meses.map(mes=>{ const mt = metas[mes]||{}, r = real[mes]||{}; return `<tr> <td>${mes}</td> <td>${mt.cotas||''}</td> <td>${r.vendas||0}</td> <td>R
-$${(mt.vgv||0).toLocaleString('pt-BR')}</td>
-            <td>R$${(r.vgv||0).toLocaleString('pt-BR')}</td>
-          </tr>`;
-        }).join('')}
-      </table>
-      `;
-      document.getElementById('metas-box').innerHTML = html;
+  function fillSelect(id, values){
+    const el = document.getElementById(id);
+    const cur = el.value;
+    const opt0 = el.querySelector('option')?.outerHTML || '<option value="">Todos</option>';
+    el.innerHTML = opt0 + values.map(v=>`<option value="${v}">${v}</option>`).join('');
+    if(values.includes(cur)) el.value = cur;
+  }
+
+  function fillFilters(){
+    const uniq = (arr) => Array.from(new Set(arr.map(s=>String(s||'').trim()).filter(Boolean))).sort((a,b)=>a.localeCompare(b,'pt-BR'));
+    fillSelect('fProm', uniq(BASE.map(r=>r.promotor)));
+    fillSelect('fLin',  uniq(BASE.map(r=>r.liner)));
+    fillSelect('fClo',  uniq(BASE.map(r=>r.closer)));
+    fillSelect('fUF',   [''].concat(uniq(BASE.map(r=>r.uf))).filter((v,i,a)=>a.indexOf(v)===i)); // mantém "Todas"
+    fillSelect('fCap',  [''].concat(uniq(BASE.map(r=>r.captacao))).filter((v,i,a)=>a.indexOf(v)===i));
+  }
+
+  // =========================
+  // Render
+  // =========================
+  function calcAgg(data){
+    let atend = data.length;
+    let vendas = 0, canc = 0, vgv = 0, vgvCanc = 0;
+    let noTour = 0;
+
+    for(const r of data){
+      if(String(r.statusAt).toUpperCase() === 'NOTOUR') noTour++;
+      const c = parseContrato(r.contrato);
+      vendas += c.total;
+      canc += c.canc;
+      if(c.total > 0){
+        vgv += r.valor || 0;
+        if(c.canc > 0) vgvCanc += r.valor || 0;
+      }
     }
+    const efic = atend ? (vendas/atend*100) : 0;
+    const pctCanc = vendas ? (canc/vendas*100) : 0;
+    return { atend, vendas, canc, vgv, vgvCanc, vgvLiq: (vgv - vgvCanc), noTour, efic, pctCanc };
+  }
 
-    // Chama ao carregar:
-    renderKPIGeral();
-    renderInsights();
+  function render(){
+    const data = filtered();
+    const A = calcAgg(data);
+
+    document.getElementById('kpis').innerHTML = `
+      <div class="kpi c-purple"><div class="lab">Total Atendimentos</div><div class="val">${A.atend}</div><div class="sub">no filtro</div></div>
+      <div class="kpi c-green"><div class="lab">Vendas (Total)</div><div class="val">${A.vendas}</div><div class="sub">ativos + cancelados</div></div>
+      <div class="kpi c-yellow"><div class="lab">VGV</div><div class="val">${fmtBRL(A.vgv).replace(',00','')}</div><div class="sub">${fmtBRL(A.vgv)}</div></div>
+      <div class="kpi c-red"><div class="lab">Cancelamentos</div><div class="val">${A.canc}</div><div class="sub">${fmtPct(A.pctCanc)} das vendas</div></div>
+      <div class="kpi c-blue"><div class="lab">Eficiência</div><div class="val">${fmtPct(A.efic)}</div><div class="sub">vendas / atend.</div></div>
+      <div class="kpi c-orange"><div class="lab">NoTour</div><div class="val">${A.noTour}</div><div class="sub">${fmtPct(A.atend ? (A.noTour/A.atend*100) : 0)} do total</div></div>
+    `;
+
+    // Insights
+    const topBy = (key, metric, sort='desc') => {
+      const m = new Map();
+      for(const r of data){
+        const name = (r[key]||'').trim();
+        if(!name) continue;
+        if(!m.has(name)) m.set(name, { nome:name, atend:0, vendas:0, canc:0, vgv:0 });
+        const o = m.get(name);
+        o.atend++;
+        const c = parseContrato(r.contrato);
+        o.vendas += c.total;
+        o.canc += c.canc;
+        if(c.total>0) o.vgv += r.valor||0;
+      }
+      const arr = Array.from(m.values());
+      arr.sort((a,b)=> (b[metric]||0) - (a[metric]||0));
+      return arr[0] || null;
+    };
+
+    const topProm = topBy('promotor','atend');
+    const topClo = topBy('closer','vendas');
+    const rendaMedia = (() => {
+      const vals = data.map(r=>r.renda).filter(v=>Number(v)>0);
+      if(!vals.length) return 0;
+      return vals.reduce((a,b)=>a+b,0)/vals.length;
+    })();
+
+    document.getElementById('insights').innerHTML = `
+      <div class="ins ig">
+        <div class="t">Promotor Destaque</div>
+        <div class="d">Mais atendimentos: <b>${topProm ? topProm.nome : '—'}</b> (${topProm ? topProm.atend : 0} casais)</div>
+      </div>
+      <div class="ins ip">
+        <div class="t">Closer Destaque</div>
+        <div class="d">Mais vendas: <b>${topClo ? topClo.nome : '—'}</b> (${topClo ? topClo.vendas : 0} vendas)</div>
+      </div>
+      <div class="ins ${A.pctCanc>30?'ir':'iy'}">
+        <div class="t">Cancelamentos</div>
+        <div class="d">Taxa: <b>${fmtPct(A.pctCanc)}</b> — ${A.canc} de ${A.vendas} vendas canceladas</div>
+      </div>
+      <div class="ins ip">
+        <div class="t">Renda Média</div>
+        <div class="d">Média: <b>${fmtBRL(rendaMedia)}</b></div>
+      </div>
+    `;
+
+    // Rankings
+    renderRank('tProm', rankAgg(data, 'promotor'), 'atend');
+    renderRank('tLin',  rankAgg(data, 'liner'), 'atend');
+    renderRank('tClo',  rankAgg(data, 'closer'), 'vendas');
+
+    // Metas
     renderMetas();
-  </script>
+  }
+
+  function rankAgg(data, key){
+    const m = new Map();
+    for(const r of data){
+      const name = (r[key]||'').trim();
+      if(!name) continue;
+      if(!m.has(name)) m.set(name, { nome:name, atend:0, vendas:0, canc:0, vgv:0 });
+      const o = m.get(name);
+      o.atend++;
+      const c = parseContrato(r.contrato);
+      o.vendas += c.total;
+      o.canc += c.canc;
+      if(c.total>0) o.vgv += r.valor||0;
+    }
+    const arr = Array.from(m.values());
+    arr.forEach(o=>{
+      o.efic = o.atend ? (o.vendas/o.atend*100) : 0;
+      o.pctCanc = o.vendas ? (o.canc/o.vendas*100) : 0;
+    });
+    return arr;
+  }
+
+  function renderRank(tableId, arr, sortKey){
+    const t = document.getElementById(tableId);
+    const thead = t.querySelector('thead');
+    const tbody = t.querySelector('tbody');
+    const data = arr.slice().sort(byDesc(sortKey)).slice(0, 12);
+
+    thead.innerHTML = `<tr><th>#</th><th>Nome</th><th>Atend.</th><th>Vendas</th><th>Cancel.</th><th>Eficiência</th></tr>`;
+    tbody.innerHTML = data.map((o,i)=>`
+      <tr>
+        <td class="rank">${String(i+1).padStart(2,'0')}</td>
+        <td><b>${o.nome}</b></td>
+        <td>${o.atend}</td>
+        <td><span class="badge bgG">${o.vendas}</span></td>
+        <td><span class="badge ${o.canc>0?'bgR':'bgG'}">${o.canc}</span></td>
+        <td><span class="badge ${o.efic>=15?'bgG':(o.efic>=8?'bgY':'bgR')}">${fmtPct(o.efic)}</span></td>
+      </tr>
+    `).join('');
+  }
+
+  // =========================
+  // Metas
+  // =========================
+  function realizedByMonth(m){
+    const rows = BASE.filter(r => r.mes === m);
+    const A = calcAgg(rows);
+    return { casais: A.atend, vendas: A.vendas, vgv: A.vgv };
+  }
+
+  function pctBar(p){
+    const v = Math.max(0, Math.min(100, Math.round(p || 0)));
+    const cls = v>=100 ? 'ok' : (v>=70 ? 'mid' : 'bad');
+    return `<div class="bar"><div class="fill ${cls}" style="width:${v}%"></div></div>`;
+  }
+
+  function metaNum(x){
+    if(x==null) return null;
+    const s = String(x).trim();
+    if(!s) return null;
+    const n = Number(s.replace(/[^\d]/g,''));
+    return isNaN(n) ? null : n;
+  }
+
+  function renderMetas(){
+    const meses = [1,2,3,4,5,6];
+    const grid = document.getElementById('metasGrid');
+    const nomes = {1:'Janeiro',2:'Fevereiro',3:'Março',4:'Abril',5:'Maio',6:'Junho'};
+    grid.innerHTML = meses.map(m=>{
+      const R = realizedByMonth(m);
+      const M = METAS[m] || {vgv:'',casais:'',cotas:''};
+      const mv = metaNum(M.vgv), mc = metaNum(M.casais), mk = metaNum(M.cotas);
+      const pV = (mv && mv>0) ? (R.vgv/mv*100) : null;
+      const pC = (mc && mc>0) ? (R.casais/mc*100) : null;
+      const pK = (mk && mk>0) ? (R.vendas/mk*100) : null;
+      return `
+        <div class="meta-month">
+          <h3>${nomes[m]}</h3>
+
+          <div>
+            <label>Meta VGV (R$)</label>
+            <input id="m_vgv_${m}" value="${M.vgv||''}" placeholder="Ex: 500000" />
+            ${pV==null?'':`${pctBar(pV)}<div class="small">${Math.round(pV)}% • Realizado: ${fmtBRL(R.vgv)}</div>`}
+          </div>
+
+          <div style="margin-top:10px">
+            <label>Meta Casais</label>
+            <input id="m_cas_${m}" value="${M.casais||''}" placeholder="Ex: 40" />
+            ${pC==null?'':`${pctBar(pC)}<div class="small">${Math.round(pC)}% • Realizado: ${R.casais}</div>`}
+          </div>
+
+          <div style="margin-top:10px">
+            <label>Meta Cotas</label>
+            <input id="m_cot_${m}" value="${M.cotas||''}" placeholder="Ex: 8" />
+            ${pK==null?'':`${pctBar(pK)}<div class="small">${Math.round(pK)}% • Realizado: ${R.vendas}</div>`}
+          </div>
+
+          <div class="btns" style="margin-top:12px">
+            <button class="b1" onclick="saveMeta(${m})">Salvar</button>
+            <button class="b2" onclick="clearMeta(${m})">Limpar</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    const t = document.getElementById('tMetas');
+    t.querySelector('thead').innerHTML = `<tr><th>Mês</th><th>Meta VGV</th><th>Meta Casais</th><th>Meta Cotas</th><th>VGV Realizado</th><th>Vendas</th><th>% VGV</th><th>% Cotas</th></tr>`;
+    t.querySelector('tbody').innerHTML = meses.map(m=>{
+      const R = realizedByMonth(m);
+      const M = METAS[m] || {};
+      const mv = metaNum(M.vgv), mk = metaNum(M.cotas);
+      const pV = (mv && mv>0) ? (R.vgv/mv*100) : null;
+      const pK = (mk && mk>0) ? (R.vendas/mk*100) : null;
+      const nomes = {1:'Jan',2:'Fev',3:'Mar',4:'Abr',5:'Mai',6:'Jun'};
+      return `<tr>
+        <td><b>${nomes[m]}</b></td>
+        <td>${mv?fmtBRL(mv):'—'}</td>
+        <td>${M.casais||'—'}</td>
+        <td>${M.cotas||'—'}</td>
+        <td>${fmtBRL(R.vgv)}</td>
+        <td>${R.vendas}</td>
+        <td>${pV==null?'—':`<span class="badge ${pV>=100?'bgG':(pV>=70?'bgY':'bgR')}">${Math.round(pV)}%</span>`}</td>
+        <td>${pK==null?'—':`<span class="badge ${pK>=100?'bgG':(pK>=70?'bgY':'bgR')}">${Math.round(pK)}%</span>`}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  window.saveMeta = function(m){
+    METAS[m] = {
+      vgv: document.getElementById(`m_vgv_${m}`).value,
+      casais: document.getElementById(`m_cas_${m}`).value,
+      cotas: document.getElementById(`m_cot_${m}`).value,
+    };
+    localStorage.setItem(metasKey, JSON.stringify(METAS));
+    render();
+  }
+
+  window.clearMeta = function(m){
+    METAS[m] = {vgv:'',casais:'',cotas:''};
+    localStorage.setItem(metasKey, JSON.stringify(METAS));
+    render();
+  }
+
+  // =========================
+  // Export CSV filtrado
+  // =========================
+  function toCSV(rows){
+    const esc = (s)=> {
+      const v = String(s ?? '');
+      return /[",\n\r]/.test(v) ? `"${v.replace(/"/g,'""')}"` : v;
+    };
+    const header = ['Data','Status atendimento','Promotor','Liner','Closer','Valor vendido','Renda','Captação','Status do contrato','UF','Cidade'];
+    const lines = [header.map(esc).join(',')];
+    for(const r of rows){
+      lines.push([
+        r.data ? r.data.toLocaleDateString('pt-BR') : '',
+        r.statusAt, r.promotor, r.liner, r.closer,
+        r.valor, r.renda, r.captacao, r.contrato, r.uf, r.cidade
+      ].map(esc).join(','));
+    }
+    return lines.join('\n');
+  }
+
+  function download(name, content, type){
+    const blob = new Blob([content], {type});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 500);
+  }
+
+  // =========================
+  // Eventos
+  // =========================
+  document.getElementById('btnAplicar').addEventListener('click', ()=>render());
+  document.getElementById('btnLimpar').addEventListener('click', ()=>{
+    document.getElementById('fMes').value = '0';
+    document.getElementById('fProm').value = '';
+    document.getElementById('fLin').value = '';
+    document.getElementById('fClo').value = '';
+    document.getElementById('fUF').value = '';
+    document.getElementById('fCap').value = '';
+    render();
+  });
+  document.getElementById('btnCSV').addEventListener('click', ()=>{
+    const rows = filtered();
+    download('export_filtrado.csv', toCSV(rows), 'text/csv;charset=utf-8;');
+  });
+
+  // Start
+  load();
+</script>
 </body>
 </html>
