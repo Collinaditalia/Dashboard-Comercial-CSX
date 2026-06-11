@@ -49,9 +49,34 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       transition: all 0.3s;
       user-select: none;
+      border: none;
+      display: inline-block;
     }
     .tab.active { background: #007bff; color: white; }
     .tab:hover { transform: translateY(-2px); }
+
+    .subtabs {
+      display: flex;
+      gap: 5px;
+      margin: 15px 0;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+
+    .subtab {
+      padding: 8px 16px;
+      background: white;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s;
+      user-select: none;
+      font-size: 14px;
+      border: 1px solid #dee2e6;
+    }
+    .subtab.active { background: #28a745; color: white; border-color: #28a745; }
+    .subtab:hover { background: #e9ecef; }
+    .subtab.active:hover { background: #218838; }
 
     .content {
       background: white;
@@ -175,6 +200,9 @@
     .bar-value { font-size: 12px; font-weight: bold; }
 
     .muted { color: #666; font-size: 12px; margin-top: 8px; }
+
+    h1 { margin-bottom: 15px; }
+    h2 { margin-bottom: 20px; color: #333; }
   </style>
 </head>
 <body>
@@ -202,7 +230,9 @@
     <!-- Resumo -->
     <div class="tab-content active" id="tab-resumo">
       <h2>📈 Resumo Geral</h2>
-      <div class="metrics-grid" id="resumoMetrics"></div>
+      <div class="metrics-grid" id="resumoMetrics">
+        <div class="loading">Carregue um arquivo CSV para ver os dados</div>
+      </div>
       <div id="resumoTable" class="data-table"></div>
     </div>
 
@@ -210,7 +240,9 @@
     <div class="tab-content" id="tab-funil">
       <h2>🔄 Funil de Vendas</h2>
       <div class="funnel-container">
-        <div class="funnel" id="funnelChart"></div>
+        <div class="funnel" id="funnelChart">
+          <div class="loading">Carregue um arquivo CSV para ver o funil</div>
+        </div>
       </div>
       <div id="funilMetrics"></div>
     </div>
@@ -219,17 +251,19 @@
     <div class="tab-content" id="tab-promotores">
       <h2>👥 Análise de Promotores (por coluna de promotor)</h2>
       <p class="muted">Esta aba mantém o comportamento original do painel. O ranking detalhado por função está na aba "🏆 Ranking".</p>
-      <div id="promotoresTable" class="data-table"></div>
+      <div id="promotoresTable" class="data-table">
+        <div class="loading">Carregue um arquivo CSV para ver os dados</div>
+      </div>
     </div>
 
     <!-- Ranking -->
     <div class="tab-content" id="tab-ranking">
       <h2>🏆 Ranking por Função</h2>
 
-      <div class="tabs" style="border-radius: 10px; box-shadow: none; margin-top: 15px;">
-        <div class="tab active" data-subtab="promotor_marketing">Promotor de Marketing</div>
-        <div class="tab" data-subtab="liner">Liner</div>
-        <div class="tab" data-subtab="closer">Closer</div>
+      <div class="subtabs">
+        <div class="subtab active" data-subtab="promotor_marketing">Promotor de Marketing</div>
+        <div class="subtab" data-subtab="liner">Liner</div>
+        <div class="subtab" data-subtab="closer">Closer</div>
       </div>
 
       <p class="muted">
@@ -238,13 +272,17 @@
         VGVL = VGVB - soma do valor vendido (coluna F) das linhas canceladas.
       </p>
 
-      <div id="rankingTable" class="data-table"></div>
+      <div id="rankingTable" class="data-table">
+        <div class="loading">Carregue um arquivo CSV para ver o ranking</div>
+      </div>
     </div>
 
     <!-- Renda -->
     <div class="tab-content" id="tab-renda">
       <h2>💰 Análise por Faixa de Renda</h2>
-      <div id="rendaChart" class="renda-chart"></div>
+      <div id="rendaChart" class="renda-chart">
+        <div class="loading">Carregue um arquivo CSV para ver a análise de renda</div>
+      </div>
     </div>
 
     <!-- Dados -->
@@ -258,7 +296,9 @@
           <option value="Cancelado">Cancelado</option>
         </select>
       </div>
-      <div id="dadosTable" class="data-table"></div>
+      <div id="dadosTable" class="data-table">
+        <div class="loading">Carregue um arquivo CSV para ver os dados</div>
+      </div>
     </div>
   </div>
 </div>
@@ -502,26 +542,33 @@
     renderCurrentTab();
   }
 
+  // Event listeners para tabs principais
   document.addEventListener('click', function (e) {
     const tab = e.target.closest('.tab[data-tab]');
     if (!tab) return;
+    e.preventDefault();
     setActiveTab(tab.dataset.tab);
   });
 
+  // Event listeners para subtabs do ranking
   document.addEventListener('click', function (e) {
-    const subtab = e.target.closest('[data-subtab]');
+    const subtab = e.target.closest('.subtab[data-subtab]');
     if (!subtab) return;
+    e.preventDefault();
 
-    const wrap = subtab.closest('#tab-ranking');
-    if (!wrap) return;
+    // Verifica se estamos dentro da aba de ranking
+    const rankingTab = subtab.closest('#tab-ranking');
+    if (!rankingTab) return;
 
-    wrap.querySelectorAll('[data-subtab]').forEach(t => t.classList.remove('active'));
+    // Remove active de todos os subtabs
+    rankingTab.querySelectorAll('.subtab').forEach(t => t.classList.remove('active'));
     subtab.classList.add('active');
 
     window.appState.rankingView = subtab.dataset.subtab;
     renderRanking();
   });
 
+  // Event listener para ordenação
   document.addEventListener('click', function (e) {
     const th = e.target.closest('th[data-sort]');
     if (!th) return;
@@ -539,6 +586,7 @@
     renderCurrentTab(sortField, dir);
   });
 
+  // Event listener para upload de arquivo
   document.getElementById('csvFile').addEventListener('change', function (event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -574,11 +622,13 @@
   });
 
   function showLoading() {
-    document.querySelectorAll('.data-table').forEach(el => el.innerHTML = '<div class="loading">Carregando...</div>');
-    document.getElementById('resumoMetrics').innerHTML = '';
-    document.getElementById('funnelChart').innerHTML = '';
+    document.querySelectorAll('.data-table').forEach(el => {
+      el.innerHTML = '<div class="loading">Carregando dados...</div>';
+    });
+    document.getElementById('resumoMetrics').innerHTML = '<div class="loading">Processando dados...</div>';
+    document.getElementById('funnelChart').innerHTML = '<div class="loading">Carregando funil...</div>';
     document.getElementById('funilMetrics').innerHTML = '';
-    document.getElementById('rendaChart').innerHTML = '';
+    document.getElementById('rendaChart').innerHTML = '<div class="loading">Analisando dados de renda...</div>';
   }
 
   function showError(message) {
@@ -586,17 +636,15 @@
   }
 
   function renderAll() {
-    renderResumo();
-    renderFunil();
-    renderPromotores();
-    renderRanking();
-    renderRenda();
-    renderDados();
+    renderCurrentTab();
   }
 
   function renderResumo() {
     const r = window.appState.processedData.resumo;
-    if (!r) return;
+    if (!r) {
+      document.getElementById('resumoMetrics').innerHTML = '<div class="loading">Carregue um arquivo CSV para ver os dados</div>';
+      return;
+    }
 
     document.getElementById('resumoMetrics').innerHTML = `
       <div class="metric-card">
@@ -630,7 +678,10 @@
 
   function renderFunil() {
     const r = window.appState.processedData.resumo;
-    if (!r) return;
+    if (!r) {
+      document.getElementById('funnelChart').innerHTML = '<div class="loading">Carregue um arquivo CSV para ver o funil</div>';
+      return;
+    }
 
     document.getElementById('funnelChart').innerHTML = `
       <div class="funnel-step total">Total: ${r.total.toLocaleString('pt-BR')}</div>
@@ -658,7 +709,10 @@
 
   function renderPromotores() {
     const bucket = window.appState.processedData.promotores;
-    if (!bucket) return;
+    if (!bucket) {
+      document.getElementById('promotoresTable').innerHTML = '<div class="loading">Carregue um arquivo CSV para ver os dados</div>';
+      return;
+    }
 
     const list = Object.entries(bucket).map(([nome, d]) => {
       const total = d.total || 0;
@@ -716,12 +770,17 @@
 
   function renderRanking(sortField = null, sortDir = 'desc') {
     const view = window.appState.rankingView || 'promotor_marketing';
-    let rows = (window.appState.processedData?.funcoes?.[view]) ? [...window.appState.processedData.funcoes[view]] : [];
+    const funcoes = window.appState.processedData?.funcoes;
+    
+    if (!funcoes || !funcoes[view]) {
+      document.getElementById('rankingTable').innerHTML = '<div class="loading">Carregue um arquivo CSV para ver o ranking</div>';
+      return;
+    }
+
+    let rows = [...funcoes[view]];
 
     if (sortField) {
       rows = sortListByField(rows, sortField, sortDir);
-    } else {
-      // já vem ordenado por padrão no buildRankingList
     }
 
     document.getElementById('rankingTable').innerHTML = `
@@ -760,7 +819,10 @@
 
   function renderRenda() {
     const renda = window.appState.processedData.rendaAnalise;
-    if (!renda) return;
+    if (!renda) {
+      document.getElementById('rendaChart').innerHTML = '<div class="loading">Carregue um arquivo CSV para ver a análise de renda</div>';
+      return;
+    }
 
     const max = Math.max(...Object.values(renda), 1);
     document.getElementById('rendaChart').innerHTML = Object.entries(renda).map(([faixa, qtd]) => {
@@ -781,6 +843,12 @@
 
   function renderDados() {
     const data = window.appState.rawData || [];
+    
+    if (!data.length) {
+      document.getElementById('dadosTable').innerHTML = '<div class="loading">Carregue um arquivo CSV para ver os dados</div>';
+      return;
+    }
+
     const search = String(document.getElementById('searchInput')?.value || '').toLowerCase();
     const statusFilter = String(document.getElementById('statusFilter')?.value || '');
 
@@ -797,7 +865,7 @@
     }
 
     if (!filtered.length) {
-      document.getElementById('dadosTable').innerHTML = `<div class="loading">Nenhum dado para exibir.</div>`;
+      document.getElementById('dadosTable').innerHTML = `<div class="loading">Nenhum dado encontrado com os filtros aplicados.</div>`;
       return;
     }
 
