@@ -1,1004 +1,940 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard de Vendas</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dashboard - GitHub Pages</title>
+  <style>
+    :root{
+      --bg1:#0b1020; --bg2:#0b2a2d;
+      --card: rgba(255,255,255,.06);
+      --stroke: rgba(255,255,255,.14);
+      --txt: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.68);
+      --brand:#8b5cf6;
+      --shadow: 0 20px 70px rgba(0,0,0,.45);
+      --radius: 18px;
+      --radius2: 12px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--txt);
+      background: radial-gradient(1200px 700px at 10% 10%, rgba(139,92,246,.35), transparent 60%),
+                  radial-gradient(1200px 700px at 90% 80%, rgba(34,197,94,.18), transparent 55%),
+                  linear-gradient(160deg, var(--bg1), var(--bg2));
+      min-height:100vh;
+    }
+    .wrap{ max-width: 1400px; margin: 0 auto; padding: 18px 18px 44px; }
+    .topbar{
+      display:flex; gap:14px; align-items:center; justify-content:space-between;
+      margin-bottom:14px; padding:14px 16px;
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      box-shadow: var(--shadow);
+    }
+    .title{ display:flex; flex-direction:column; gap:4px; }
+    .title h1{ margin:0; font-size:18px; letter-spacing:.2px; }
+    .title small{ color:var(--muted); }
+    .top-actions{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+    .pill{
+      display:flex; align-items:center; gap:10px;
+      padding:10px 12px; border:1px solid var(--stroke);
+      border-radius: 999px; background: rgba(255,255,255,.04);
+      color: var(--muted); font-size: 13px; white-space:nowrap;
+    }
+    .btn{
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.06);
+      color: var(--txt);
+      padding:10px 12px;
+      border-radius: 999px;
+      cursor:pointer;
+      transition: .15s ease;
+      font-weight:700;
+    }
+    .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.09); }
+    .btn.primary{
+      border-color: rgba(139,92,246,.55);
+      background: linear-gradient(135deg, rgba(139,92,246,.45), rgba(139,92,246,.2));
+    }
+    .btn.good{
+      border-color: rgba(34,197,94,.55);
+      background: linear-gradient(135deg, rgba(34,197,94,.35), rgba(34,197,94,.14));
+    }
+    .file{
+      display:flex; align-items:center; gap:10px;
+      padding:10px 12px;
+      border:1px dashed rgba(255,255,255,.28);
+      border-radius: 999px;
+      background: rgba(0,0,0,.12);
+    }
+    input[type="file"]{ color: var(--muted); max-width: 260px; }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: #333;
-        }
+    .tabs{ display:flex; gap:10px; flex-wrap:wrap; margin: 14px 0; }
+    .tab{
+      padding:10px 14px;
+      border-radius: 999px;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.04);
+      color: var(--muted);
+      cursor:pointer;
+      font-weight:800;
+      user-select:none;
+    }
+    .tab.active{
+      color: var(--txt);
+      border-color: rgba(139,92,246,.6);
+      background: rgba(139,92,246,.18);
+    }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+    .panel{
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.03));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .panel .inner{ padding:16px; }
 
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
+    .filters{
+      display:grid;
+      grid-template-columns: 1.1fr 1.4fr 1fr 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .field{
+      border:1px solid var(--stroke);
+      border-radius: var(--radius2);
+      background: rgba(0,0,0,.14);
+      padding: 10px 12px;
+    }
+    .field label{
+      display:block; font-size:12px; color: var(--muted);
+      margin-bottom:6px; font-weight:800;
+    }
+    .field input, .field select{
+      width:100%;
+      background: rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: 10px;
+      padding: 10px 10px;
+      color: var(--txt);
+      outline:none;
+    }
+    .field input::placeholder{ color: rgba(255,255,255,.35); }
 
-        .header h1 {
-            color: white;
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
+    .filter-actions{ display:flex; gap:10px; margin-top: 10px; flex-wrap:wrap; }
 
-        .upload-section {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-            text-align: center;
-        }
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 12px;
+    }
+    .card{
+      grid-column: span 3;
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius2);
+      background: rgba(255,255,255,.05);
+      padding: 14px;
+      min-height: 92px;
+    }
+    .card h3{
+      margin:0 0 8px;
+      font-size: 12px; color: var(--muted);
+      font-weight:900; letter-spacing:.3px; text-transform:uppercase;
+    }
+    .card .big{ font-size: 22px; font-weight: 950; }
+    .card .sub{ margin-top:6px; color: var(--muted); font-size: 12px; }
 
-        .file-input-wrapper {
-            position: relative;
-            display: inline-block;
-            margin-bottom: 20px;
-        }
+    .tableWrap{
+      overflow:auto;
+      border:1px solid var(--stroke);
+      border-radius: var(--radius2);
+      background: rgba(0,0,0,.16);
+    }
+    table{
+      width:100%;
+      border-collapse: collapse;
+      min-width: 980px;
+      font-size: 13px;
+    }
+    th, td{
+      padding: 12px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      text-align:left;
+      white-space: nowrap;
+    }
+    th{
+      position:sticky; top:0;
+      background: rgba(10,16,32,.88);
+      backdrop-filter: blur(8px);
+      z-index: 2;
+      color: rgba(255,255,255,.86);
+      font-weight:950;
+      user-select:none;
+    }
+    th[data-sort]{ cursor:pointer; }
+    th[data-sort]::after{ content:" ⇅"; opacity:.45; font-weight:900; margin-left:6px; }
+    th.asc::after{ content:" ↑"; opacity:1; color: rgba(167,139,250,.95); }
+    th.desc::after{ content:" ↓"; opacity:1; color: rgba(167,139,250,.95); }
+    tr:hover td{ background: rgba(255,255,255,.03); }
+    .muted{ color: var(--muted); }
+    .right{ text-align:right; }
+    .mono{ font-family: var(--mono); }
+    .hide{ display:none !important; }
 
-        .file-input {
-            position: absolute;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-        }
-
-        .file-input-button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px 30px;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-block;
-        }
-
-        .file-input-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        .process-button {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-left: 20px;
-        }
-
-        .process-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        .process-button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .file-info {
-            margin-top: 15px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            color: #666;
-        }
-
-        .tabs {
-            display: flex;
-            background: white;
-            border-radius: 15px 15px 0 0;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            margin-bottom: 0;
-            overflow-x: auto;
-        }
-
-        .tab {
-            padding: 15px 25px;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s ease;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-
-        .tab:hover {
-            background: #f8f9fa;
-        }
-
-        .tab.active {
-            border-bottom-color: #667eea;
-            background: #f8f9fa;
-            color: #667eea;
-        }
-
-        .content {
-            background: white;
-            border-radius: 0 0 15px 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            min-height: 500px;
-        }
-
-        .tab-content {
-            display: none;
-            padding: 30px;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .metric-card {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            padding: 25px;
-            border-radius: 15px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .metric-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        }
-
-        .metric-card h3 {
-            font-size: 1.1rem;
-            margin-bottom: 10px;
-            opacity: 0.9;
-        }
-
-        .metric-card .value {
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .metric-card .subtitle {
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-
-        .data-table {
-            overflow-x: auto;
-            margin-top: 20px;
-        }
-
-        .data-table table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9rem;
-        }
-
-        .data-table th,
-        .data-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-
-        .data-table th {
-            background: #f8f9fa;
-            font-weight: 600;
-            color: #333;
-            cursor: pointer;
-            user-select: none;
-            position: relative;
-        }
-
-        .data-table th:hover {
-            background: #e9ecef;
-        }
-
-        .data-table th[data-sort]::after {
-            content: " ⇅";
-            opacity: 0.5;
-            margin-left: 5px;
-        }
-
-        .data-table th[data-sort].asc::after {
-            content: " ↑";
-            opacity: 1;
-            color: #667eea;
-        }
-
-        .data-table th[data-sort].desc::after {
-            content: " ↓";
-            opacity: 1;
-            color: #667eea;
-        }
-
-        .data-table tr:hover {
-            background: #f8f9fa;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 50px;
-            color: #666;
-        }
-
-        .loading::before {
-            content: "⏳";
-            font-size: 2rem;
-            display: block;
-            margin-bottom: 10px;
-        }
-
-        .error {
-            background: #fee;
-            border: 1px solid #fcc;
-            color: #c66;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-
-        .success {
-            background: #efe;
-            border: 1px solid #cfc;
-            color: #6c6;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-
-        /* Estilos específicos para diferentes tipos de cards */
-        .metric-card.vendas { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .metric-card.faturamento { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-        .metric-card.conversao { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-        .metric-card.cancelamento { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
-        .metric-card.ticket { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #333; }
-        .metric-card.renda { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); color: #333; }
-
-        .chart-container {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-        }
-
-        .renda-grupos {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        .renda-grupo {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .renda-grupo h4 {
-            font-size: 0.9rem;
-            margin-bottom: 10px;
-            opacity: 0.9;
-        }
-
-        .renda-grupo .count {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .renda-grupo .percentage {
-            font-size: 0.8rem;
-            opacity: 0.8;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            .metrics-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .tabs {
-                flex-wrap: wrap;
-            }
-            
-            .tab {
-                flex: 1;
-                text-align: center;
-                min-width: 120px;
-            }
-        }
-    </style>
+    @media (max-width: 1100px){
+      .filters{ grid-template-columns: 1fr 1fr; }
+      .card{ grid-column: span 6; }
+      table{ min-width: 920px; }
+    }
+    @media (max-width: 560px){
+      .card{ grid-column: span 12; }
+      input[type="file"]{ max-width: 200px; }
+    }
+  </style>
 </head>
+
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>📊 Dashboard de Vendas</h1>
-            <p style="color: white; opacity: 0.9;">Análise completa dos dados de vendas</p>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="title">
+        <h1>Leitura de <span class="mono">./dados.csv</span> via GitHub Pages (sem backend)</h1>
+        <small id="statusLine" class="muted">Carregando…</small>
+      </div>
+
+      <div class="top-actions">
+        <div class="pill">Linhas: <b id="rowsCount">0</b></div>
+
+        <div class="file">
+          <input id="fileInput" type="file" accept=".csv,text/csv" />
         </div>
 
-        <div class="upload-section">
-            <h2 style="margin-bottom: 20px;">📁 Upload do Arquivo CSV</h2>
-            <div class="file-input-wrapper">
-                <input type="file" id="csvFile" class="file-input" accept=".csv" />
-                <label for="csvFile" class="file-input-button">
-                    Escolher Arquivo CSV
-                </label>
-            </div>
-            <button id="processBtn" class="process-button" disabled>
-                🚀 Processar Dados
-            </button>
-            <div id="fileInfo" class="file-info" style="display: none;"></div>
-        </div>
-
-        <div id="dashboard" style="display: none;">
-            <div class="tabs">
-                <div class="tab active" data-tab="resumo">📈 Resumo Geral</div>
-                <div class="tab" data-tab="funil">🔄 Funil de Vendas</div>
-                <div class="tab" data-tab="promotores">👥 Promotores</div>
-                <div class="tab" data-tab="renda">💰 Análise por Renda</div>
-                <div class="tab" data-tab="dados">📋 Dados Brutos</div>
-            </div>
-
-            <div class="content">
-                <!-- Aba Resumo Geral -->
-                <div class="tab-content active" id="tab-resumo">
-                    <h2>📊 Resumo Geral das Vendas</h2>
-                    <div class="metrics-grid" id="resumoMetrics"></div>
-                    <div class="chart-container">
-                        <h3>📈 Principais Indicadores</h3>
-                        <p>Visão geral do desempenho de vendas e conversão.</p>
-                    </div>
-                </div>
-
-                <!-- Aba Funil de Vendas -->
-                <div class="tab-content" id="tab-funil">
-                    <h2>🔄 Funil de Vendas</h2>
-                    <div class="metrics-grid" id="funilMetrics"></div>
-                    <div class="data-table" id="funilTable"></div>
-                </div>
-
-                <!-- Aba Promotores -->
-                <div class="tab-content" id="tab-promotores">
-                    <h2>👥 Análise por Promotores</h2>
-                    <div class="metrics-grid" id="promotoresMetrics"></div>
-                    <div class="data-table" id="promotoresTable"></div>
-                </div>
-
-                <!-- Aba Análise por Renda -->
-                <div class="tab-content" id="tab-renda">
-                    <h2>💰 Análise por Faixa de Renda</h2>
-                    <div class="renda-grupos" id="rendaGrupos"></div>
-                    <div class="data-table" id="rendaTable"></div>
-                </div>
-
-                <!-- Aba Dados Brutos -->
-                <div class="tab-content" id="tab-dados">
-                    <h2>📋 Dados Brutos</h2>
-                    <div class="data-table" id="dadosTable"></div>
-                </div>
-            </div>
-        </div>
+        <button class="btn good" id="reloadBtn" type="button">Recarregar</button>
+        <button class="btn primary" id="applyBtn" type="button">Aplicar filtros</button>
+        <button class="btn" id="clearBtn" type="button">Limpar</button>
+      </div>
     </div>
 
-    <script>
-        // Estado global da aplicação
-        window.appState = {
-            rawData: [],
-            processedData: {},
-            sortState: {}
+    <div class="tabs">
+      <div class="tab active" data-tab="resumo">Resumo</div>
+      <div class="tab" data-tab="ranking">Ranking</div>
+      <div class="tab" data-tab="profissionais">Profissionais (ativo/inativo)</div>
+      <div class="tab" data-tab="renda">Resultado por renda</div>
+      <div class="tab" data-tab="dados">Dados (amostra)</div>
+    </div>
+
+    <div class="panel">
+      <div class="inner">
+        <div class="filters">
+          <div class="field">
+            <label>Dimensão (não filtra o Ranking)</label>
+            <select id="dimensaoSelect">
+              <option value="promotor" selected>Promotor de marketing</option>
+              <option value="liner">Liner</option>
+              <option value="closer">Closer</option>
+              <option value="todos">Todos (papéis)</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Busca (nome contém)</label>
+            <input id="buscaInput" placeholder="Ex.: GABRIELLA" />
+          </div>
+
+          <div class="field">
+            <label>Somente ATIVOS? (Status do contrato)</label>
+            <select id="ativosSelect">
+              <option value="sim" selected>Sim</option>
+              <option value="nao">Não</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Período (início)</label>
+            <input id="dataIni" type="date" />
+          </div>
+
+          <div class="field">
+            <label>Período (fim)</label>
+            <input id="dataFim" type="date" />
+          </div>
+        </div>
+
+        <div class="filter-actions">
+          <button class="btn primary" id="applyBtn2" type="button">Aplicar filtros</button>
+          <button class="btn" id="clearBtn2" type="button">Limpar</button>
+        </div>
+
+        <div class="muted" style="margin-top:10px;font-size:12px;">
+          Observação: no seu CSV, “Ativo” vem em <span class="mono">Status do contrato</span>.
+          A coluna <span class="mono">Status atendimento</span> (Encerrado/NoTour) é separada.
+        </div>
+      </div>
+    </div>
+
+    <div style="height:14px"></div>
+
+    <!-- RESUMO -->
+    <section id="tab-resumo" class="panel">
+      <div class="inner">
+        <div class="grid" id="resumoCards"></div>
+      </div>
+    </section>
+
+    <!-- RANKING -->
+    <section id="tab-ranking" class="panel hide">
+      <div class="inner">
+        <div class="tableWrap" id="rankingTable"></div>
+      </div>
+    </section>
+
+    <!-- PROFISSIONAIS -->
+    <section id="tab-profissionais" class="panel hide">
+      <div class="inner">
+        <div class="tableWrap" id="profTable"></div>
+      </div>
+    </section>
+
+    <!-- RENDA -->
+    <section id="tab-renda" class="panel hide">
+      <div class="inner">
+        <div class="grid" id="rendaCards"></div>
+        <div style="height:12px"></div>
+        <div class="tableWrap" id="rendaTable"></div>
+      </div>
+    </section>
+
+    <!-- DADOS -->
+    <section id="tab-dados" class="panel hide">
+      <div class="inner">
+        <div class="tableWrap" id="dadosTable"></div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // =========================
+    // CSV do Marcel: colunas conhecidas
+    // =========================
+    const COL = {
+      data: "data",
+      statusAtendimento: "Status atendimento",
+      nome1: "Nome 1",
+      nome2: "Nome 2",
+      promotor: "Promotor de marketing",
+      valor: "Valor vendido",
+      liner: "Liner",
+      closer: "Closer",
+      qualificacao: "Qualificação",
+      renda: "Renda",
+      local: "Local Captação",
+      statusContrato: "Status do contrato",
+      uf: "UF",
+      cidade: "Cidade"
+    };
+
+    // =========================
+    // Estado
+    // =========================
+    const app = {
+      raw: [],
+      filtered: [],
+      sortState: {}, // `${tab}_${field}` => asc|desc
+    };
+
+    // =========================
+    // Utils
+    // =========================
+    function normStr(v){
+      return String(v ?? "")
+        .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+        .trim().toLowerCase();
+    }
+
+    function parseNumberBR(v){
+      if (typeof v === "number") return v;
+      const s0 = String(v ?? "").trim();
+      if (!s0) return 0;
+
+      const s = s0
+        .replace(/\uFEFF/g, "") // BOM
+        .replace(/[R$\s]/g,"")
+        .replace(/\./g,"")
+        .replace(/,/g,".");
+
+      const n = Number(s);
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    function toBRL(n){
+      const x = Number(n || 0);
+      return x.toLocaleString("pt-BR", { style:"currency", currency:"BRL" });
+    }
+
+    function toPct(n){
+      const x = Number(n || 0);
+      return x.toFixed(1) + "%";
+    }
+
+    function parseDateBR(v){
+      const s = String(v ?? "").trim();
+      const m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+      if (!m) return null;
+      const dd = m[1], mm = m[2], yyyy = m[3];
+      const d = new Date(`${yyyy}-${mm}-${dd}T00:00:00`);
+      return Number.isNaN(d.getTime()) ? null : d;
+    }
+
+    function splitCSVLine(line, sep=";"){
+      const out = [];
+      let cur = "";
+      let inQuotes = false;
+      for (let i=0; i<line.length; i++){
+        const ch = line[i];
+        if (ch === '"'){
+          if (inQuotes && line[i+1] === '"'){ cur += '"'; i++; }
+          else inQuotes = !inQuotes;
+        } else if (ch === sep && !inQuotes){
+          out.push(cur);
+          cur = "";
+        } else {
+          cur += ch;
+        }
+      }
+      out.push(cur);
+      return out;
+    }
+
+    function parseCSV(text){
+      const cleaned = text.replace(/\r/g,"");
+      const lines = cleaned.split("\n").filter(l => l.trim().length);
+      if (!lines.length) return [];
+
+      const headerLine = lines[0].replace(/\uFEFF/g,""); // remove BOM
+      const headers = splitCSVLine(headerLine, ";").map(h => h.trim().replace(/^"|"$/g,""));
+
+      const rows = [];
+      for (let i=1; i<lines.length; i++){
+        const parts = splitCSVLine(lines[i], ";");
+        if (!parts.length) continue;
+        const row = {};
+        for (let c=0; c<headers.length; c++){
+          row[headers[c]] = (parts[c] ?? "").trim().replace(/^"|"$/g,"");
+        }
+        rows.push(row);
+      }
+      return rows;
+    }
+
+    function isContratoAtivo(v){
+      const s = normStr(v);
+      if (!s) return false;
+      // exemplos: "ATIVO", "ATIVO # ATIVO"
+      if (s.includes("ativo")) return true;
+      if (s.includes("cancel")) return false;
+      return false;
+    }
+
+    // ranking: juntar todos colaboradores das 3 colunas
+    function getAllCollaboratorsFromRow(r){
+      const out = [];
+      const p = String(r[COL.promotor] ?? "").trim();
+      const l = String(r[COL.liner] ?? "").trim();
+      const c = String(r[COL.closer] ?? "").trim();
+      if (p) out.push({ nome: p, papel: "Promotor" });
+      if (l) out.push({ nome: l, papel: "Liner" });
+      if (c) out.push({ nome: c, papel: "Closer" });
+      return out;
+    }
+
+    function rendaFaixa(valor){
+      const v = Number(valor || 0);
+      if (v < 12000) return "Até R$ 11,9k";
+      if (v < 15000) return "R$ 12k - R$ 14,9k";
+      if (v < 20000) return "R$ 15k - R$ 19,9k";
+      if (v < 40000) return "R$ 20k - R$ 39,9k";
+      return "Acima de R$ 40k";
+    }
+
+    function getActiveTab(){
+      return document.querySelector(".tab.active")?.dataset?.tab || "resumo";
+    }
+
+    function sortByField(arr, field, dir){
+      const mult = dir === "asc" ? 1 : -1;
+      return [...arr].sort((a,b)=>{
+        const va = a[field], vb = b[field];
+        // números
+        const na = (typeof va === "number") ? va : parseNumberBR(va);
+        const nb = (typeof vb === "number") ? vb : parseNumberBR(vb);
+        const bothNum = Number.isFinite(na) && Number.isFinite(nb) && !Number.isNaN(na) && !Number.isNaN(nb);
+        if (bothNum && field !== "nome" && field !== "papel"){
+          return (na - nb) * mult;
+        }
+        // strings
+        const sa = String(va ?? "");
+        const sb = String(vb ?? "");
+        return sa.localeCompare(sb, "pt-BR", { numeric:true, sensitivity:"base" }) * mult;
+      });
+    }
+
+    document.addEventListener("click", (e)=>{
+      const th = e.target.closest("th[data-sort]");
+      if (!th) return;
+
+      const tab = getActiveTab();
+      const field = th.dataset.sort;
+      const key = `${tab}_${field}`;
+      const current = app.sortState[key] || "desc";
+      const next = current === "desc" ? "asc" : "desc";
+      app.sortState[key] = next;
+
+      // limpa classes só da tabela do tab atual
+      const container = document.querySelector(`#tab-${tab}`);
+      container?.querySelectorAll("th[data-sort]").forEach(x=>x.classList.remove("asc","desc"));
+      th.classList.add(next);
+
+      renderActiveTab(field, next);
+    });
+
+    // =========================
+    // Filtros
+    // =========================
+    function applyFiltersBase(){
+      const dim = document.getElementById("dimensaoSelect").value; // promotor/liner/closer/todos
+      const busca = normStr(document.getElementById("buscaInput").value);
+      const onlyAtivos = document.getElementById("ativosSelect").value === "sim";
+      const ini = document.getElementById("dataIni").value ? new Date(document.getElementById("dataIni").value + "T00:00:00") : null;
+      const fim = document.getElementById("dataFim").value ? new Date(document.getElementById("dataFim").value + "T23:59:59") : null;
+
+      // OBS: essa base é usada por Resumo/Profissionais/Renda.
+      // Ela pode respeitar dimensão (papel selecionado).
+      const out = app.raw.filter(r=>{
+        // período
+        if (ini || fim){
+          const d = parseDateBR(r[COL.data]);
+          if (!d) return false;
+          if (ini && d < ini) return false;
+          if (fim && d > fim) return false;
+        }
+
+        // ativos
+        if (onlyAtivos){
+          if (!isContratoAtivo(r[COL.statusContrato])) return false;
+        }
+
+        // busca (procura no papel selecionado; se "todos", procura em qualquer um)
+        if (busca){
+          if (dim === "promotor"){
+            if (!normStr(r[COL.promotor]).includes(busca)) return false;
+          } else if (dim === "liner"){
+            if (!normStr(r[COL.liner]).includes(busca)) return false;
+          } else if (dim === "closer"){
+            if (!normStr(r[COL.closer]).includes(busca)) return false;
+          } else {
+            const any = [r[COL.promotor], r[COL.liner], r[COL.closer]].some(v => normStr(v).includes(busca));
+            if (!any) return false;
+          }
+        }
+
+        // dimensão: aqui SIM filtra linhas (para Resumo/Profissionais/Renda)
+        if (dim === "promotor" && !String(r[COL.promotor] ?? "").trim()) return false;
+        if (dim === "liner" && !String(r[COL.liner] ?? "").trim()) return false;
+        if (dim === "closer" && !String(r[COL.closer] ?? "").trim()) return false;
+
+        return true;
+      });
+
+      app.filtered = out;
+      document.getElementById("rowsCount").textContent = String(out.length);
+    }
+
+    // Ranking deve mostrar TODOS colaboradores SEM filtrar por dimensão
+    function getRowsForRanking(){
+      const busca = normStr(document.getElementById("buscaInput").value);
+      const onlyAtivos = document.getElementById("ativosSelect").value === "sim";
+      const ini = document.getElementById("dataIni").value ? new Date(document.getElementById("dataIni").value + "T00:00:00") : null;
+      const fim = document.getElementById("dataFim").value ? new Date(document.getElementById("dataFim").value + "T23:59:59") : null;
+
+      return app.raw.filter(r=>{
+        if (ini || fim){
+          const d = parseDateBR(r[COL.data]);
+          if (!d) return false;
+          if (ini && d < ini) return false;
+          if (fim && d > fim) return false;
+        }
+        if (onlyAtivos){
+          if (!isContratoAtivo(r[COL.statusContrato])) return false;
+        }
+        if (busca){
+          const any = [r[COL.promotor], r[COL.liner], r[COL.closer]].some(v => normStr(v).includes(busca));
+          if (!any) return false;
+        }
+        return true;
+      });
+    }
+
+    // =========================
+    // Agregações e Render
+    // =========================
+    function renderResumo(){
+      const rows = app.filtered;
+
+      const total = rows.length;
+      const ativos = rows.filter(r=>isContratoAtivo(r[COL.statusContrato])).length;
+      const cancelados = rows.filter(r=>normStr(r[COL.statusContrato]).includes("cancel")).length;
+      const vgv = rows.reduce((s,r)=>s + parseNumberBR(r[COL.valor]), 0);
+      const ticket = ativos ? (vgv / ativos) : 0;
+
+      const dim = document.getElementById("dimensaoSelect").value;
+
+      const cards = [
+        { title:"Registros", big: total.toLocaleString("pt-BR"), sub:"linhas após filtros (base)" },
+        { title:"Ativos", big: ativos.toLocaleString("pt-BR"), sub:"Status do contrato contém 'ATIVO'" },
+        { title:"Cancelados", big: cancelados.toLocaleString("pt-BR"), sub:"Status do contrato contém 'CANCEL'" },
+        { title:"VGV", big: toBRL(vgv), sub:"soma de Valor vendido" },
+        { title:"Ticket médio (Ativos)", big: toBRL(ticket), sub:"VGV / ativos" },
+        { title:"Dimensão (base)", big: dim.toUpperCase(), sub:"Ranking ignora dimensão" },
+      ];
+
+      const el = document.getElementById("resumoCards");
+      el.innerHTML = cards.map(c=>`
+        <div class="card">
+          <h3>${c.title}</h3>
+          <div class="big">${c.big}</div>
+          <div class="sub">${c.sub}</div>
+        </div>
+      `).join("");
+    }
+
+    function buildRankingAgg(rows){
+      // Cada linha contribui para até 3 pessoas (Promotor/Liner/Closer)
+      const map = new Map();
+
+      for (const r of rows){
+        const valor = parseNumberBR(r[COL.valor]);
+        const ativo = isContratoAtivo(r[COL.statusContrato]);
+
+        for (const p of getAllCollaboratorsFromRow(r)){
+          if (!map.has(p.nome)){
+            map.set(p.nome, {
+              nome: p.nome,
+              aparicoes: 0,
+              ativos: 0,
+              vgv: 0,
+              papeis: new Set()
+            });
+          }
+          const it = map.get(p.nome);
+          it.aparicoes += 1;
+          if (ativo) it.ativos += 1;
+          it.vgv += valor;
+          it.papeis.add(p.papel);
+        }
+      }
+
+      return [...map.values()].map(it=>{
+        const eficiencia = it.aparicoes ? (it.ativos / it.aparicoes) * 100 : 0;
+        return {
+          nome: it.nome,
+          papel: [...it.papeis].sort().join(", "),
+          aparicoes: it.aparicoes,
+          ativos: it.ativos,
+          eficiencia,
+          vgv: it.vgv
         };
+      });
+    }
 
-        // Mapeamento de alias para colunas
-        function headerAliasKey(header) {
-            const h = header.toLowerCase().trim();
-            
-            if (h.includes('status') || h.includes('situacao') || h.includes('situação')) return 'status';
-            if (h.includes('valor') && (h.includes('vendido') || h.includes('venda'))) return 'valor_vendido';
-            if (h.includes('promotor') || h.includes('vendedor')) return 'promotor';
-            if (h.includes('renda')) return 'renda';
-            if (h.includes('nome') && !h.includes('promotor')) return 'nome_cliente';
-            if (h.includes('email')) return 'email';
-            if (h.includes('telefone') || h.includes('celular')) return 'telefone';
-            if (h.includes('data') && h.includes('venda')) return 'data_venda';
-            if (h.includes('produto')) return 'produto';
-            
-            return h.replace(/\s+/g, '_');
+    function renderRanking(sortField=null, sortDir="desc"){
+      // >>> CORREÇÃO: ignora dimensão aqui <<<
+      const base = getRowsForRanking();
+      let rows = buildRankingAgg(base);
+
+      if (sortField) rows = sortByField(rows, sortField, sortDir);
+      else rows = sortByField(rows, "vgv", "desc");
+
+      const el = document.getElementById("rankingTable");
+      el.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th data-sort="nome">Colaborador</th>
+              <th data-sort="papel">Papéis</th>
+              <th class="right" data-sort="aparicoes">Registros</th>
+              <th class="right" data-sort="ativos">Ativos</th>
+              <th class="right" data-sort="eficiencia">Eficiência</th>
+              <th class="right" data-sort="vgv">VGV</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map(r=>{
+              return `
+                <tr>
+                  <td>${r.nome}</td>
+                  <td class="muted">${r.papel || "-"}</td>
+                  <td class="right mono">${r.aparicoes.toLocaleString("pt-BR")}</td>
+                  <td class="right mono">${r.ativos.toLocaleString("pt-BR")}</td>
+                  <td class="right mono">${toPct(r.eficiencia)}</td>
+                  <td class="right mono">${toBRL(r.vgv)}</td>
+                </tr>
+              `;
+            }).join("")}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function buildProfissionaisAgg(rows){
+      const dim = document.getElementById("dimensaoSelect").value;
+      const getName = (r)=>{
+        if (dim === "promotor") return String(r[COL.promotor] ?? "").trim();
+        if (dim === "liner") return String(r[COL.liner] ?? "").trim();
+        if (dim === "closer") return String(r[COL.closer] ?? "").trim();
+        // todos: concat / pega "principal" como promotor se existir
+        return String(r[COL.promotor] ?? r[COL.liner] ?? r[COL.closer] ?? "").trim();
+      };
+
+      const map = new Map();
+      for (const r of rows){
+        const nome = getName(r) || "Não informado";
+        if (!map.has(nome)){
+          map.set(nome, { nome, registros:0, ativos:0, vgv:0 });
         }
+        const it = map.get(nome);
+        it.registros += 1;
+        if (isContratoAtivo(r[COL.statusContrato])) it.ativos += 1;
+        it.vgv += parseNumberBR(r[COL.valor]);
+      }
+      return [...map.values()].map(it=>{
+        const eficiencia = it.registros ? (it.ativos/it.registros)*100 : 0;
+        return { ...it, eficiencia };
+      });
+    }
 
-        // Parser CSV melhorado
-        function parseCSV(csvText) {
-            const lines = csvText.trim().split('\n');
-            if (lines.length === 0) return [];
-            
-            const headers = lines[0].split(';').map(h => h.replace(/"/g, '').trim());
-            const mappedHeaders = headers.map(headerAliasKey);
-            
-            const data = [];
-            for (let i = 1; i < lines.length; i++) {
-                const values = lines[i].split(';').map(v => v.replace(/"/g, '').trim());
-                if (values.length === headers.length) {
-                    const row = {};
-                    mappedHeaders.forEach((header, index) => {
-                        let value = values[index];
-                        
-                        // Conversão de valores
-                        if (header === 'valor_vendido' || header === 'renda') {
-                            value = parseFloat(value.replace(/\./g, '').replace(',', '.')) || 0;
-                        }
-                        
-                        row[header] = value;
-                    });
-                    data.push(row);
-                }
-            }
-            
-            return data;
+    function renderProfissionais(sortField=null, sortDir="desc"){
+      let rows = buildProfissionaisAgg(app.filtered);
+      if (sortField) rows = sortByField(rows, sortField, sortDir);
+      else rows = sortByField(rows, "nome", "asc");
+
+      const el = document.getElementById("profTable");
+      el.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th data-sort="nome">Profissional (pela Dimensão)</th>
+              <th class="right" data-sort="registros">Registros</th>
+              <th class="right" data-sort="ativos">Ativos</th>
+              <th class="right" data-sort="eficiencia">Eficiência</th>
+              <th class="right" data-sort="vgv">VGV</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map(r=>`
+              <tr>
+                <td>${r.nome}</td>
+                <td class="right mono">${r.registros.toLocaleString("pt-BR")}</td>
+                <td class="right mono">${r.ativos.toLocaleString("pt-BR")}</td>
+                <td class="right mono">${toPct(r.eficiencia)}</td>
+                <td class="right mono">${toBRL(r.vgv)}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function buildRendaAgg(rows){
+      const map = new Map();
+      for (const r of rows){
+        const renda = parseNumberBR(r[COL.renda]);
+        if (!renda) continue;
+        const faixa = rendaFaixa(renda);
+        if (!map.has(faixa)){
+          map.set(faixa, { faixa, leads:0, ativos:0, vgv:0 });
         }
+        const it = map.get(faixa);
+        it.leads += 1;
+        if (isContratoAtivo(r[COL.statusContrato])) it.ativos += 1;
+        it.vgv += parseNumberBR(r[COL.valor]);
+      }
+      const order = ["Até R$ 11,9k","R$ 12k - R$ 14,9k","R$ 15k - R$ 19,9k","R$ 20k - R$ 39,9k","Acima de R$ 40k"];
+      const out = [...map.values()].map(it=>{
+        const conv = it.leads ? (it.ativos/it.leads)*100 : 0;
+        const ticket = it.ativos ? (it.vgv/it.ativos) : 0;
+        return { ...it, conversao: conv, ticket };
+      });
+      out.sort((a,b)=>order.indexOf(a.faixa)-order.indexOf(b.faixa));
+      return out;
+    }
 
-        // Função para classificar faixa de renda
-        function classificarRenda(valor) {
-            if (valor < 12000) return 'Até R$ 11,9k';
-            if (valor < 15000) return 'R$ 12k - R$ 14,9k';
-            if (valor < 20000) return 'R$ 15k - R$ 19,9k';
-            if (valor < 40000) return 'R$ 20k - R$ 39,9k';
-            return 'Acima de R$ 40k';
-        }
+    function renderRenda(sortField=null, sortDir="desc"){
+      let rows = buildRendaAgg(app.filtered);
 
-        // Sistema de ordenação global
-        function getActiveTabId() {
-            const active = document.querySelector('.tab.active');
-            return active?.dataset?.tab || 'resumo';
-        }
+      // cards
+      const total = rows.reduce((s,r)=>s + r.leads, 0);
+      document.getElementById("rendaCards").innerHTML = rows.map(r=>{
+        const pct = total ? (r.leads/total)*100 : 0;
+        return `
+          <div class="card">
+            <h3>${r.faixa}</h3>
+            <div class="big">${r.leads.toLocaleString("pt-BR")}</div>
+            <div class="sub">${pct.toFixed(1)}% • conv: ${toPct(r.conversao)} • ticket: ${toBRL(r.ticket)}</div>
+          </div>
+        `;
+      }).join("");
 
-        function sortDataByField(arr, field, dir = 'desc') {
-            const mult = dir === 'asc' ? 1 : -1;
-            
-            return [...arr].sort((a, b) => {
-                const va = a[field];
-                const vb = b[field];
-                
-                // Tratamento para números
-                const na = typeof va === 'number' ? va : parseFloat(String(va || '0').replace(/\./g, '').replace(',', '.'));
-                const nb = typeof vb === 'number' ? vb : parseFloat(String(vb || '0').replace(/\./g, '').replace(',', '.'));
-                
-                if (Number.isFinite(na) && Number.isFinite(nb)) {
-                    return (na - nb) * mult;
-                }
-                
-                // Fallback para strings
-                const sa = String(va || '');
-                const sb = String(vb || '');
-                return sa.localeCompare(sb, 'pt-BR', { numeric: true }) * mult;
-            });
-        }
+      if (sortField) rows = sortByField(rows, sortField, sortDir);
 
-        // Event listener para ordenação
-        document.addEventListener('click', function(e) {
-            const sortElement = e.target.closest('[data-sort]');
-            if (!sortElement) return;
-            
-            const field = sortElement.dataset.sort;
-            const tabId = getActiveTabId();
-            const stateKey = `${tabId}_${field}`;
-            
-            // Toggle sort direction
-            const currentDir = window.appState.sortState[stateKey] || 'desc';
-            const newDir = currentDir === 'desc' ? 'asc' : 'desc';
-            window.appState.sortState[stateKey] = newDir;
-            
-            // Update visual indicators
-            document.querySelectorAll('[data-sort]').forEach(el => {
-                el.classList.remove('asc', 'desc');
-            });
-            sortElement.classList.add(newDir);
-            
-            // Re-render with sorted data
-            renderCurrentTab(field, newDir);
-        });
+      document.getElementById("rendaTable").innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th data-sort="faixa">Faixa</th>
+              <th class="right" data-sort="leads">Leads</th>
+              <th class="right" data-sort="ativos">Ativos</th>
+              <th class="right" data-sort="conversao">Conversão</th>
+              <th class="right" data-sort="vgv">VGV</th>
+              <th class="right" data-sort="ticket">Ticket</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map(r=>`
+              <tr>
+                <td>${r.faixa}</td>
+                <td class="right mono">${r.leads.toLocaleString("pt-BR")}</td>
+                <td class="right mono">${r.ativos.toLocaleString("pt-BR")}</td>
+                <td class="right mono">${toPct(r.conversao)}</td>
+                <td class="right mono">${toBRL(r.vgv)}</td>
+                <td class="right mono">${toBRL(r.ticket)}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+    }
 
-        // Função para renderizar tab atual
-        function renderCurrentTab(sortField = null, sortDir = 'desc') {
-            const tabId = getActiveTabId();
-            
-            switch(tabId) {
-                case 'resumo':
-                    renderResumo(sortField, sortDir);
-                    break;
-                case 'funil':
-                    renderFunil(sortField, sortDir);
-                    break;
-                case 'promotores':
-                    renderPromotores(sortField, sortDir);
-                    break;
-                case 'renda':
-                    renderRenda(sortField, sortDir);
-                    break;
-                case 'dados':
-                    renderDados(sortField, sortDir);
-                    break;
-            }
-        }
+    function renderDados(){
+      const sample = app.filtered.slice(0, 80);
+      const headers = app.raw.length ? Object.keys(app.raw[0]) : [];
+      document.getElementById("dadosTable").innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              ${headers.map(h=>`<th>${h}</th>`).join("")}
+            </tr>
+          </thead>
+          <tbody>
+            ${sample.map(r=>`
+              <tr>
+                ${headers.map(h=>`<td>${String(r[h] ?? "")}</td>`).join("")}
+              </tr>
+            `).join("")}
+            ${app.filtered.length > 80 ? `<tr><td colspan="${headers.length}"><span class="muted">Mostrando 80 de ${app.filtered.length} linhas filtradas.</span></td></tr>` : ""}
+          </tbody>
+        </table>
+      `;
+    }
 
-        // Processamento dos dados
-        function processData(rawData) {
-            const total = rawData.length;
-            const vendas = rawData.filter(row => row.status && row.status.toLowerCase().includes('ativ')).length;
-            const cancelamentos = rawData.filter(row => row.status && (
-                row.status.toLowerCase().includes('cancel') || 
-                row.status.toLowerCase().includes('inativ')
-            )).length;
-            
-            const faturamento = rawData
-                .filter(row => row.status && row.status.toLowerCase().includes('ativ'))
-                .reduce((sum, row) => sum + (row.valor_vendido || 0), 0);
-            
-            const conversao = total > 0 ? (vendas / total) * 100 : 0;
-            const cancelamento = total > 0 ? (cancelamentos / total) * 100 : 0;
-            const ticketMedio = vendas > 0 ? faturamento / vendas : 0;
-            
-            // Análise por promotor
-            const promotores = {};
-            rawData.forEach(row => {
-                const promotor = row.promotor || 'Não informado';
-                if (!promotores[promotor]) {
-                    promotores[promotor] = {
-                        total: 0,
-                        vendas: 0,
-                        cancelamentos: 0,
-                        faturamento: 0
-                    };
-                }
-                
-                promotores[promotor].total++;
-                if (row.status && row.status.toLowerCase().includes('ativ')) {
-                    promotores[promotor].vendas++;
-                    promotores[promotor].faturamento += row.valor_vendido || 0;
-                }
-                if (row.status && (row.status.toLowerCase().includes('cancel') || row.status.toLowerCase().includes('inativ'))) {
-                    promotores[promotor].cancelamentos++;
-                }
-            });
-            
-            // Análise por renda
-            const rendaAnalise = {
-                'Até R$ 11,9k': 0,
-                'R$ 12k - R$ 14,9k': 0,
-                'R$ 15k - R$ 19,9k': 0,
-                'R$ 20k - R$ 39,9k': 0,
-                'Acima de R$ 40k': 0
-            };
-            
-            rawData.forEach(row => {
-                if (row.renda && row.renda > 0) {
-                    const faixa = classificarRenda(row.renda);
-                    rendaAnalise[faixa]++;
-                }
-            });
-            
-            return {
-                resumo: {
-                    total,
-                    vendas,
-                    cancelamentos,
-                    faturamento,
-                    conversao,
-                    cancelamento: cancelamento,
-                    ticketMedio
-                },
-                promotores,
-                rendaAnalise
-            };
-        }
+    function renderActiveTab(sortField=null, sortDir="desc"){
+      const tab = getActiveTab();
+      if (tab === "resumo") renderResumo();
+      if (tab === "ranking") renderRanking(sortField, sortDir);
+      if (tab === "profissionais") renderProfissionais(sortField, sortDir);
+      if (tab === "renda") renderRenda(sortField, sortDir);
+      if (tab === "dados") renderDados();
+    }
 
-        // Renderizadores
-        function renderResumo(sortField, sortDir) {
-            const { resumo } = window.appState.processedData;
-            const container = document.getElementById('resumoMetrics');
-            
-            container.innerHTML = `
-                <div class="metric-card vendas" data-sort="vendas">
-                    <h3>Total de Vendas</h3>
-                    <div class="value">${resumo.vendas.toLocaleString('pt-BR')}</div>
-                    <div class="subtitle">contratos ativos</div>
-                </div>
-                
-                <div class="metric-card faturamento" data-sort="faturamento">
-                    <h3>Faturamento Total</h3>
-                    <div class="value">R$ ${resumo.faturamento.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
-                    <div class="subtitle">receita gerada</div>
-                </div>
-                
-                <div class="metric-card conversao" data-sort="conversao">
-                    <h3>% de Conversão</h3>
-                    <div class="value">${resumo.conversao.toFixed(1)}%</div>
-                    <div class="subtitle">taxa de sucesso</div>
-                </div>
-                
-                <div class="metric-card cancelamento" data-sort="cancelamento">
-                    <h3>% de Cancelamento</h3>
-                    <div class="value">${resumo.cancelamento.toFixed(1)}%</div>
-                    <div class="subtitle">taxa de perda</div>
-                </div>
-                
-                <div class="metric-card ticket" data-sort="ticketMedio">
-                    <h3>Ticket Médio</h3>
-                    <div class="value">R$ ${resumo.ticketMedio.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
-                    <div class="subtitle">valor médio por venda</div>
-                </div>
-                
-                <div class="metric-card renda" data-sort="total">
-                    <h3>Total de Leads</h3>
-                    <div class="value">${resumo.total.toLocaleString('pt-BR')}</div>
-                    <div class="subtitle">registros processados</div>
-                </div>
-            `;
-        }
+    // =========================
+    // Tabs
+    // =========================
+    function setActiveTab(tab){
+      document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active", x.dataset.tab === tab));
+      document.querySelectorAll("section[id^='tab-']").forEach(sec=>sec.classList.add("hide"));
+      document.getElementById(`tab-${tab}`)?.classList.remove("hide");
+      renderActiveTab();
+    }
+    document.querySelectorAll(".tab").forEach(t=>{
+      t.addEventListener("click", ()=>setActiveTab(t.dataset.tab));
+    });
 
-        function renderFunil(sortField, sortDir) {
-            const { resumo } = window.appState.processedData;
-            const container = document.getElementById('funilMetrics');
-            
-            container.innerHTML = `
-                <div class="metric-card" data-sort="leads">
-                    <h3>Leads Totais</h3>
-                    <div class="value">${resumo.total.toLocaleString('pt-BR')}</div>
-                    <div class="subtitle">100% da base</div>
-                </div>
-                
-                <div class="metric-card" data-sort="vendas">
-                    <h3>Vendas Realizadas</h3>
-                    <div class="value">${resumo.vendas.toLocaleString('pt-BR')}</div>
-                    <div class="subtitle">${resumo.conversao.toFixed(1)}% dos leads</div>
-                </div>
-                
-                <div class="metric-card" data-sort="cancelamentos">
-                    <h3>Cancelamentos</h3>
-                    <div class="value">${resumo.cancelamentos.toLocaleString('pt-BR')}</div>
-                    <div class="subtitle">${resumo.cancelamento.toFixed(1)}% dos leads</div>
-                </div>
-            `;
-            
-            // Tabela do funil
-            const tableContainer = document.getElementById('funilTable');
-            tableContainer.innerHTML = `
-                <table>
-                    <thead>
-                        <tr>
-                            <th data-sort="etapa">Etapa do Funil</th>
-                            <th data-sort="quantidade">Quantidade</th>
-                            <th data-sort="percentual">% do Total</th>
-                            <th data-sort="conversao">% de Conversão</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Leads Totais</td>
-                            <td>${resumo.total.toLocaleString('pt-BR')}</td>
-                            <td>100,0%</td>
-                            <td>-</td>
-                        </tr>
-                        <tr>
-                            <td>Vendas Ativas</td>
-                            <td>${resumo.vendas.toLocaleString('pt-BR')}</td>
-                            <td>${resumo.conversao.toFixed(1)}%</td>
-                            <td>${resumo.conversao.toFixed(1)}%</td>
-                        </tr>
-                        <tr>
-                            <td>Cancelamentos</td>
-                            <td>${resumo.cancelamentos.toLocaleString('pt-BR')}</td>
-                            <td>${resumo.cancelamento.toFixed(1)}%</td>
-                            <td>-</td>
-                        </tr>
-                    </tbody>
-                </table>
-            `;
-        }
+    // =========================
+    // Load
+    // =========================
+    function setDefaultDates(){
+      const hoje = new Date();
+      const yyyy = hoje.getFullYear();
+      const mm = String(hoje.getMonth()+1).padStart(2,"0");
+      const dd = String(hoje.getDate()).padStart(2,"0");
+      if (!document.getElementById("dataFim").value){
+        document.getElementById("dataFim").value = `${yyyy}-${mm}-${dd}`;
+      }
+    }
 
-        function renderPromotores(sortField, sortDir) {
-            const { promotores } = window.appState.processedData;
-            const promotoresList = Object.entries(promotores).map(([nome, dados]) => ({
-                nome,
-                ...dados,
-                conversao: dados.total > 0 ? (dados.vendas / dados.total) * 100 : 0,
-                cancelamento: dados.total > 0 ? (dados.cancelamentos / dados.total) * 100 : 0,
-                ticketMedio: dados.vendas > 0 ? dados.faturamento / dados.vendas : 0
-            }));
-            
-            // Ordenar se necessário
-            let sortedPromotores = promotoresList;
-            if (sortField) {
-                sortedPromotores = sortDataByField(promotoresList, sortField, sortDir);
-            }
-            
-            // Métricas dos promotores
-            const topPromotor = promotoresList.reduce((max, p) => p.vendas > max.vendas ? p : max, promotoresList[0] || {});
-            const melhorConversao = promotoresList.reduce((max, p) => p.conversao > max.conversao ? p : max, promotoresList[0] || {});
-            
-            const container = document.getElementById('promotoresMetrics');
-            container.innerHTML = `
-                <div class="metric-card">
-                    <h3>Total de Promotores</h3>
-                    <div class="value">${promotoresList.length}</div>
-                    <div class="subtitle">vendedores ativos</div>
-                </div>
-                
-                <div class="metric-card">
-                    <h3>Top Vendedor</h3>
-                    <div class="value">${topPromotor.vendas || 0}</div>
-                    <div class="subtitle">${topPromotor.nome || 'N/A'}</div>
-                </div>
-                
-                <div class="metric-card">
-                    <h3>Melhor Conversão</h3>
-                    <div class="value">${(melhorConversao.conversao || 0).toFixed(1)}%</div>
-                    <div class="subtitle">${melhorConversao.nome || 'N/A'}</div>
-                </div>
-            `;
-            
-            // Tabela dos promotores
-            const tableContainer = document.getElementById('promotoresTable');
-            tableContainer.innerHTML = `
-                <table>
-                    <thead>
-                        <tr>
-                            <th data-sort="nome">Promotor</th>
-                            <th data-sort="total">Total Leads</th>
-                            <th data-sort="vendas">Vendas</th>
-                            <th data-sort="conversao">% Conversão</th>
-                            <th data-sort="cancelamentos">Cancelamentos</th>
-                            <th data-sort="cancelamento">% Cancelamento</th>
-                            <th data-sort="faturamento">Faturamento</th>
-                            <th data-sort="ticketMedio">Ticket Médio</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${sortedPromotores.map(p => `
-                            <tr>
-                                <td>${p.nome}</td>
-                                <td>${p.total.toLocaleString('pt-BR')}</td>
-                                <td>${p.vendas.toLocaleString('pt-BR')}</td>
-                                <td>${p.conversao.toFixed(1)}%</td>
-                                <td>${p.cancelamentos.toLocaleString('pt-BR')}</td>
-                                <td>${p.cancelamento.toFixed(1)}%</td>
-                                <td>R$ ${p.faturamento.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
-                                <td>R$ ${p.ticketMedio.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            `;
-        }
+    async function loadFromUrl(){
+      const status = document.getElementById("statusLine");
+      status.textContent = "Tentando ler ./dados.csv …";
+      try{
+        const res = await fetch("./dados.csv", { cache:"no-store" });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const text = await res.text();
+        const rows = parseCSV(text);
+        if (!rows.length) throw new Error("CSV vazio ou inválido");
+        app.raw = rows;
+        setDefaultDates();
+        applyFiltersBase();
+        status.textContent = `OK: ./dados.csv carregado. Linhas: ${rows.length}.`;
+        renderActiveTab();
+      } catch(err){
+        status.textContent = "Não consegui ler ./dados.csv automaticamente. Use o seletor de arquivo para carregar manualmente.";
+        console.warn(err);
+        app.raw = [];
+        app.filtered = [];
+        document.getElementById("rowsCount").textContent = "0";
+        renderActiveTab();
+      }
+    }
 
-        function renderRenda(sortField, sortDir) {
-            const { rendaAnalise } = window.appState.processedData;
-            const total = Object.values(rendaAnalise).reduce((sum, count) => sum + count, 0);
-            
-            // Grupos de renda
-            const container = document.getElementById('rendaGrupos');
-            container.innerHTML = Object.entries(rendaAnalise).map(([faixa, count]) => {
-                const percentage = total > 0 ? (count / total) * 100 : 0;
-                return `
-                    <div class="renda-grupo">
-                        <h4>${faixa}</h4>
-                        <div class="count">${count.toLocaleString('pt-BR')}</div>
-                        <div class="percentage">${percentage.toFixed(1)}%</div>
-                    </div>
-                `;
-            }).join('');
-            
-            // Tabela detalhada por renda
-            const rawData = window.appState.rawData.filter(row => row.renda && row.renda > 0);
-            const rendaDetalhes = {};
-            
-            rawData.forEach(row => {
-                const faixa = classificarRenda(row.renda);
-                if (!rendaDetalhes[faixa]) {
-                    rendaDetalhes[faixa] = {
-                        total: 0,
-                        vendas: 0,
-                        faturamento: 0
-                    };
-                }
-                
-                rendaDetalhes[faixa].total++;
-                if (row.status && row.status.toLowerCase().includes('ativ')) {
-                    rendaDetalhes[faixa].vendas++;
-                    rendaDetalhes[faixa].faturamento += row.valor_vendido || 0;
-                }
-            });
-            
-            let rendaList = Object.entries(rendaDetalhes).map(([faixa, dados]) => ({
-                faixa,
-                ...dados,
-                conversao: dados.total > 0 ? (dados.vendas / dados.total) * 100 : 0,
-                ticketMedio: dados.vendas > 0 ? dados.faturamento / dados.vendas : 0
-            }));
-            
-            if (sortField) {
-                rendaList = sortDataByField(rendaList, sortField, sortDir);
-            }
-            
-            const tableContainer = document.getElementById('rendaTable');
-            tableContainer.innerHTML = `
-                <table>
-                    <thead>
-                        <tr>
-                            <th data-sort="faixa">Faixa de Renda</th>
-                            <th data-sort="total">Total Leads</th>
-                            <th data-sort="vendas">Vendas</th>
-                            <th data-sort="conversao">% Conversão</th>
-                            <th data-sort="faturamento">Faturamento</th>
-                            <th data-sort="ticketMedio">Ticket Médio</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${rendaList.map(item => `
-                            <tr>
-                                <td>${item.faixa}</td>
-                                <td>${item.total.toLocaleString('pt-BR')}</td>
-                                <td>${item.vendas.toLocaleString('pt-BR')}</td>
-                                <td>${item.conversao.toFixed(1)}%</td>
-                                <td>R$ ${item.faturamento.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
-                                <td>R$ ${item.ticketMedio.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            `;
-        }
+    document.getElementById("fileInput").addEventListener("change", async (e)=>{
+      const f = e.target.files?.[0];
+      if (!f) return;
+      const text = await f.text();
+      const rows = parseCSV(text);
+      app.raw = rows;
+      setDefaultDates();
+      applyFiltersBase();
+      document.getElementById("statusLine").textContent = `OK: arquivo carregado (${f.name}). Linhas: ${rows.length}.`;
+      renderActiveTab();
+    });
 
-        function renderDados(sortField, sortDir) {
-            let data = [...window.appState.rawData];
-            
-            if (sortField) {
-                data = sortDataByField(data, sortField, sortDir);
-            }
-            
-            const container = document.getElementById('dadosTable');
-            const headers = Object.keys(data[0] || {});
-            
-            container.innerHTML = `
-                <table>
-                    <thead>
-                        <tr>
-                            ${headers.map(header => `<th data-sort="${header}">${header.replace(/_/g, ' ').toUpperCase()}</th>`).join('')}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${data.slice(0, 100).map(row => `
-                            <tr>
-                                ${headers.map(header => {
-                                    let value = row[header];
-                                    if (typeof value === 'number' && (header.includes('valor') || header.includes('renda'))) {
-                                        value = 'R$ ' + value.toLocaleString('pt-BR', {minimumFractionDigits: 2});
-                                    }
-                                    return `<td>${value || ''}</td>`;
-                                }).join('')}
-                            </tr>
-                        `).join('')}
-                        ${data.length > 100 ? `<tr><td colspan="${headers.length}"><em>Mostrando apenas os primeiros 100 registros de ${data.length} total</em></td></tr>` : ''}
-                    </tbody>
-                </table>
-            `;
-        }
+    function doApply(){
+      applyFiltersBase();
+      renderActiveTab();
+    }
+    function doClear(){
+      document.getElementById("buscaInput").value = "";
+      document.getElementById("ativosSelect").value = "sim";
+      document.getElementById("dimensaoSelect").value = "promotor";
+      document.getElementById("dataIni").value = "";
+      // mantém data fim
+      doApply();
+    }
 
-        // Event Listeners
-        document.getElementById('csvFile').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            const processBtn = document.getElementById('processBtn');
-            const fileInfo = document.getElementById('fileInfo');
-            
-            if (file) {
-                processBtn.disabled = false;
-                fileInfo.style.display = 'block';
-                fileInfo.innerHTML = `
-                    <strong>Arquivo selecionado:</strong> ${file.name}<br>
-                    <strong>Tamanho:</strong> ${(file.size / 1024).toFixed(1)} KB<br>
-                    <strong>Tipo:</strong> ${file.type || 'text/csv'}
-                `;
-            } else {
-                processBtn.disabled = true;
-                fileInfo.style.display = 'none';
-            }
-        });
+    document.getElementById("applyBtn").addEventListener("click", doApply);
+    document.getElementById("applyBtn2").addEventListener("click", doApply);
+    document.getElementById("clearBtn").addEventListener("click", doClear);
+    document.getElementById("clearBtn2").addEventListener("click", doClear);
 
-        document.getElementById('processBtn').addEventListener('click', function() {
-            const fileInput = document.getElementById('csvFile');
-            const file = fileInput.files[0];
-            
-            if (!file) {
-                alert('Por favor, selecione um arquivo CSV primeiro.');
-                return;
-            }
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const csvText = e.target.result;
-                    const rawData = parseCSV(csvText);
-                    
-                    if (rawData.length === 0) {
-                        throw new Error('Nenhum dado válido foi encontrado no arquivo.');
-                    }
-                    
-                    // Salvar no estado global
-                    window.appState.rawData = rawData;
-                    window.appState.processedData = processData(rawData);
-                    
-                    // Mostrar dashboard
-                    document.getElementById('dashboard').style.display = 'block';
-                    
-                    // Renderizar aba ativa
-                    renderCurrentTab();
-                    
-                    // Scroll para o dashboard
-                    document.getElementById('dashboard').scrollIntoView({ behavior: 'smooth' });
-                    
-                } catch (error) {
-                    alert('Erro ao processar o arquivo: ' + error.message);
-                    console.error(error);
-                }
-            };
-            
-            reader.readAsText(file);
-        });
+    document.getElementById("reloadBtn").addEventListener("click", ()=>loadFromUrl());
 
-        // Navegação entre abas
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                const tabId = this.dataset.tab;
-                
-                // Atualizar abas ativas
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                
-                this.classList.add('active');
-                document.getElementById(`tab-${tabId}`).classList.add('active');
-                
-                // Renderizar conteúdo da aba
-                renderCurrentTab();
-            });
-        });
-    </script>
+    // Boot
+    loadFromUrl();
+  </script>
 </body>
 </html>
