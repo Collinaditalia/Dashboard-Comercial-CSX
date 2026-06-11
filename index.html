@@ -3,20 +3,25 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Dashboard - GitHub Pages</title>
+  <title>Dashboard (GitHub Pages)</title>
   <style>
     :root{
       --bg1:#0b1020; --bg2:#0b2a2d;
       --card: rgba(255,255,255,.06);
+      --card2: rgba(255,255,255,.09);
       --stroke: rgba(255,255,255,.14);
       --txt: rgba(255,255,255,.92);
       --muted: rgba(255,255,255,.68);
       --brand:#8b5cf6;
+      --brand2:#22c55e;
+      --warn:#f59e0b;
+      --bad:#fb7185;
+      --good:#34d399;
       --shadow: 0 20px 70px rgba(0,0,0,.45);
       --radius: 18px;
       --radius2: 12px;
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
     }
     *{ box-sizing:border-box; }
     body{
@@ -28,24 +33,37 @@
                   linear-gradient(160deg, var(--bg1), var(--bg2));
       min-height:100vh;
     }
-    .wrap{ max-width: 1400px; margin: 0 auto; padding: 18px 18px 44px; }
+    a{ color:inherit; }
+    .wrap{
+      max-width: 1400px; margin: 0 auto; padding: 18px 18px 44px;
+    }
     .topbar{
       display:flex; gap:14px; align-items:center; justify-content:space-between;
-      margin-bottom:14px; padding:14px 16px;
+      margin-bottom:14px;
+      padding:14px 16px;
       border: 1px solid var(--stroke);
       border-radius: var(--radius);
       background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
       box-shadow: var(--shadow);
     }
-    .title{ display:flex; flex-direction:column; gap:4px; }
-    .title h1{ margin:0; font-size:18px; letter-spacing:.2px; }
-    .title small{ color:var(--muted); }
-    .top-actions{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+    .title{
+      display:flex; flex-direction:column; gap:4px;
+    }
+    .title h1{
+      margin:0; font-size:18px; letter-spacing:.2px;
+    }
+    small{ color:var(--muted); }
+    .top-actions{
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+      justify-content:flex-end;
+    }
     .pill{
       display:flex; align-items:center; gap:10px;
-      padding:10px 12px; border:1px solid var(--stroke);
-      border-radius: 999px; background: rgba(255,255,255,.04);
-      color: var(--muted); font-size: 13px; white-space:nowrap;
+      padding:10px 12px;
+      border:1px solid var(--stroke);
+      border-radius: 999px;
+      background: rgba(255,255,255,.04);
+      font-size: 13px;
     }
     .btn{
       border:1px solid var(--stroke);
@@ -55,7 +73,7 @@
       border-radius: 999px;
       cursor:pointer;
       transition: .15s ease;
-      font-weight:700;
+      font-weight:600;
     }
     .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.09); }
     .btn.primary{
@@ -66,6 +84,7 @@
       border-color: rgba(34,197,94,.55);
       background: linear-gradient(135deg, rgba(34,197,94,.35), rgba(34,197,94,.14));
     }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; transform:none; }
     .file{
       display:flex; align-items:center; gap:10px;
       padding:10px 12px;
@@ -73,9 +92,11 @@
       border-radius: 999px;
       background: rgba(0,0,0,.12);
     }
-    input[type="file"]{ color: var(--muted); max-width: 260px; }
-
-    .tabs{ display:flex; gap:10px; flex-wrap:wrap; margin: 14px 0; }
+    input[type="file"]{ color: var(--muted); }
+    .tabs{
+      display:flex; gap:10px; flex-wrap:wrap;
+      margin: 14px 0;
+    }
     .tab{
       padding:10px 14px;
       border-radius: 999px;
@@ -83,53 +104,22 @@
       background: rgba(255,255,255,.04);
       color: var(--muted);
       cursor:pointer;
-      font-weight:800;
+      font-weight:700;
       user-select:none;
     }
     .tab.active{
       color: var(--txt);
       border-color: rgba(139,92,246,.6);
-      background: rgba(139,92,246,.18);
+      background:rgba(139,92,246,.18);
     }
-
     .panel{
-      border: 1px solid var(--stroke);
+      border:1px solid var(--stroke);
       border-radius: var(--radius);
       background: linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.03));
       box-shadow: var(--shadow);
       overflow:hidden;
     }
     .panel .inner{ padding:16px; }
-
-    .filters{
-      display:grid;
-      grid-template-columns: 1.1fr 1.4fr 1fr 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-    .field{
-      border:1px solid var(--stroke);
-      border-radius: var(--radius2);
-      background: rgba(0,0,0,.14);
-      padding: 10px 12px;
-    }
-    .field label{
-      display:block; font-size:12px; color: var(--muted);
-      margin-bottom:6px; font-weight:800;
-    }
-    .field input, .field select{
-      width:100%;
-      background: rgba(255,255,255,.03);
-      border:1px solid rgba(255,255,255,.12);
-      border-radius: 10px;
-      padding: 10px 10px;
-      color: var(--txt);
-      outline:none;
-    }
-    .field input::placeholder{ color: rgba(255,255,255,.35); }
-
-    .filter-actions{ display:flex; gap:10px; margin-top: 10px; flex-wrap:wrap; }
-
     .grid{
       display:grid;
       grid-template-columns: repeat(12, 1fr);
@@ -143,13 +133,49 @@
       padding: 14px;
       min-height: 92px;
     }
-    .card h3{
-      margin:0 0 8px;
-      font-size: 12px; color: var(--muted);
-      font-weight:900; letter-spacing:.3px; text-transform:uppercase;
-    }
-    .card .big{ font-size: 22px; font-weight: 950; }
+    .card h3{ margin:0 0 8px; font-size: 12px; color: var(--muted); font-weight:700; letter-spacing:.3px; text-transform:uppercase;}
+    .card .big{ font-size: 22px; font-weight: 900; }
     .card .sub{ margin-top:6px; color: var(--muted); font-size: 12px; }
+    .filters{
+      display:grid;
+      grid-template-columns: 1.2fr 1.2fr 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .field{
+      border:1px solid var(--stroke);
+      border-radius: var(--radius2);
+      background: rgba(0,0,0,.14);
+      padding: 10px 12px;
+    }
+    .field label{
+      display:block; font-size:12px; color: var(--muted); margin-bottom:6px; font-weight:700;
+    }
+    .field input, .field select{
+      width:100%;
+      background: rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: 10px;
+      padding: 10px 10px;
+      color: var(--txt);
+    }
+    .field input::placeholder{ color: rgba(255,255,255,.35); }
+    .filter-actions{ display:flex; gap:10px; margin-top: 10px; flex-wrap:wrap; }
+    .legend{
+      display:flex; gap:10px; flex-wrap:wrap;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 10px;
+    }
+    .tag{
+      padding: 6px 10px;
+      border-radius: 999px;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.04);
+    }
+    .tag.good{ border-color: rgba(52,211,153,.5); background: rgba(52,211,153,.12); color: rgba(167,243,208,.95); }
+    .tag.warn{ border-color: rgba(245,158,11,.55); background: rgba(245,158,11,.12); color: rgba(253,230,138,.95); }
+    .tag.bad{ border-color: rgba(251,113,133,.55); background: rgba(251,113,133,.12); color: rgba(254,202,202,.95); }
 
     .tableWrap{
       overflow:auto;
@@ -160,7 +186,7 @@
     table{
       width:100%;
       border-collapse: collapse;
-      min-width: 980px;
+      min-width: 920px;
       font-size: 13px;
     }
     th, td{
@@ -175,7 +201,7 @@
       backdrop-filter: blur(8px);
       z-index: 2;
       color: rgba(255,255,255,.86);
-      font-weight:950;
+      font-weight:900;
       user-select:none;
     }
     th[data-sort]{ cursor:pointer; }
@@ -188,753 +214,871 @@
     .mono{ font-family: var(--mono); }
     .hide{ display:none !important; }
 
-    @media (max-width: 1100px){
+    @media (max-width: 980px){
       .filters{ grid-template-columns: 1fr 1fr; }
       .card{ grid-column: span 6; }
-      table{ min-width: 920px; }
+      table{ min-width: 860px; }
     }
     @media (max-width: 560px){
       .card{ grid-column: span 12; }
-      input[type="file"]{ max-width: 200px; }
     }
   </style>
 </head>
-
 <body>
-  <div class="wrap">
-    <div class="topbar">
-      <div class="title">
-        <h1>Leitura de <span class="mono">./dados.csv</span> via GitHub Pages (sem backend)</h1>
-        <small id="statusLine" class="muted">Carregando…</small>
+<div class="wrap">
+  <div class="topbar">
+    <div class="title">
+      <h1>Leitura de <span class="mono">./dados.csv</span> via GitHub Pages</h1>
+      <small id="statusLine" class="muted">Carregando…</small>
+    </div>
+    <div class="top-actions">
+      <div class="pill" id="rowsPill">Registros: <b id="rowsCount">0</b></div>
+      <div class="file">
+        <input id="fileInput" type="file" accept=".csv,text/csv" />
       </div>
-
-      <div class="top-actions">
-        <div class="pill">Linhas: <b id="rowsCount">0</b></div>
-
-        <div class="file">
-          <input id="fileInput" type="file" accept=".csv,text/csv" />
+      <button class="btn good" id="reloadBtn" type="button">Recarregar dados</button>
+      <button class="btn primary" id="applyBtn" type="button">Aplicar filtros</button>
+      <button class="btn" id="clearBtn" type="button">Limpar</button>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" data-tab="resumo">Resumo</div>
+    <div class="tab" data-tab="ranking">Ranking</div>
+    <div class="tab" data-tab="profissionais">Profissionais (ativo/inativo)</div>
+    <div class="tab" data-tab="renda">Resultado por renda</div>
+  </div>
+  <div class="panel">
+    <div class="inner">
+      <div class="filters">
+        <div class="field">
+          <label>Dimensão</label>
+          <select id="dimensaoSelect">
+            <option value="consultor">Consultor</option>
+            <option value="liner">Liner</option>
+            <option value="closer">Closer</option>
+            <option value="todos" selected>Todos</option>
+          </select>
         </div>
-
-        <button class="btn good" id="reloadBtn" type="button">Recarregar</button>
-        <button class="btn primary" id="applyBtn" type="button">Aplicar filtros</button>
-        <button class="btn" id="clearBtn" type="button">Limpar</button>
+        <div class="field">
+          <label>Busca (nome contém)</label>
+          <input id="buscaInput" placeholder="Ex.: JOÃO" />
+        </div>
+        <div class="field">
+          <label>Somente ativos?</label>
+          <select id="ativosSelect">
+            <option value="sim" selected>Sim</option>
+            <option value="nao">Não</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Período (início)</label>
+          <input id="dataIni" type="date" />
+        </div>
+        <div class="field">
+          <label>Período (fim)</label>
+          <input id="dataFim" type="date" />
+        </div>
+        <div class="field">
+          <label>Coluna de data (auto)</label>
+          <input id="dateColHint" placeholder="(detectado automaticamente)" disabled />
+        </div>
+        <div class="field">
+          <label>Coluna de status (auto)</label>
+          <input id="statusColHint" placeholder="(detectado automaticamente)" disabled />
+        </div>
+        <div class="field">
+          <label>Coluna de colaborador (auto)</label>
+          <input id="colabColHint" placeholder="(detectado automaticamente)" disabled />
+        </div>
+      </div>
+      <div class="filter-actions">
+        <button class="btn primary" id="applyBtn2" type="button">Aplicar filtros</button>
+        <button class="btn" id="clearBtn2" type="button">Limpar</button>
+      </div>
+      <div class="legend">
+        <span class="muted">Eficiência:</span>
+        <span class="tag good">&ge; 25%</span>
+        <span class="tag warn">20% a 24,9%</span>
+        <span class="tag bad">&lt; 20%</span>
       </div>
     </div>
-
-    <div class="tabs">
-      <div class="tab active" data-tab="resumo">Resumo</div>
-      <div class="tab" data-tab="ranking">Ranking</div>
-      <div class="tab" data-tab="profissionais">Profissionais (ativo/inativo)</div>
-      <div class="tab" data-tab="renda">Resultado por renda</div>
-      <div class="tab" data-tab="dados">Dados (amostra)</div>
-    </div>
-
-    <div class="panel">
-      <div class="inner">
-        <div class="filters">
-          <div class="field">
-            <label>Dimensão (não filtra o Ranking)</label>
-            <select id="dimensaoSelect">
-              <option value="promotor" selected>Promotor de marketing</option>
-              <option value="liner">Liner</option>
-              <option value="closer">Closer</option>
-              <option value="todos">Todos (papéis)</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label>Busca (nome contém)</label>
-            <input id="buscaInput" placeholder="Ex.: GABRIELLA" />
-          </div>
-
-          <div class="field">
-            <label>Somente ATIVOS? (Status do contrato)</label>
-            <select id="ativosSelect">
-              <option value="sim" selected>Sim</option>
-              <option value="nao">Não</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label>Período (início)</label>
-            <input id="dataIni" type="date" />
-          </div>
-
-          <div class="field">
-            <label>Período (fim)</label>
-            <input id="dataFim" type="date" />
-          </div>
-        </div>
-
-        <div class="filter-actions">
-          <button class="btn primary" id="applyBtn2" type="button">Aplicar filtros</button>
-          <button class="btn" id="clearBtn2" type="button">Limpar</button>
-        </div>
-
-        <div class="muted" style="margin-top:10px;font-size:12px;">
-          Observação: no seu CSV, “Ativo” vem em <span class="mono">Status do contrato</span>.
-          A coluna <span class="mono">Status atendimento</span> (Encerrado/NoTour) é separada.
-        </div>
-      </div>
-    </div>
-
-    <div style="height:14px"></div>
-
-    <!-- RESUMO -->
-    <section id="tab-resumo" class="panel">
-      <div class="inner">
-        <div class="grid" id="resumoCards"></div>
-      </div>
-    </section>
-
-    <!-- RANKING -->
-    <section id="tab-ranking" class="panel hide">
-      <div class="inner">
-        <div class="tableWrap" id="rankingTable"></div>
-      </div>
-    </section>
-
-    <!-- PROFISSIONAIS -->
-    <section id="tab-profissionais" class="panel hide">
-      <div class="inner">
-        <div class="tableWrap" id="profTable"></div>
-      </div>
-    </section>
-
-    <!-- RENDA -->
-    <section id="tab-renda" class="panel hide">
-      <div class="inner">
-        <div class="grid" id="rendaCards"></div>
-        <div style="height:12px"></div>
-        <div class="tableWrap" id="rendaTable"></div>
-      </div>
-    </section>
-
-    <!-- DADOS -->
-    <section id="tab-dados" class="panel hide">
-      <div class="inner">
-        <div class="tableWrap" id="dadosTable"></div>
-      </div>
-    </section>
   </div>
 
-  <script>
-    // =========================
-    // CSV do Marcel: colunas conhecidas
-    // =========================
-    const COL = {
-      data: "data",
-      statusAtendimento: "Status atendimento",
-      nome1: "Nome 1",
-      nome2: "Nome 2",
-      promotor: "Promotor de marketing",
-      valor: "Valor vendido",
-      liner: "Liner",
-      closer: "Closer",
-      qualificacao: "Qualificação",
-      renda: "Renda",
-      local: "Local Captação",
-      statusContrato: "Status do contrato",
-      uf: "UF",
-      cidade: "Cidade"
-    };
+  <!-- Resumo -->
+  <section id="tab-resumo" class="panel">
+    <div class="inner"><div class="grid" id="resumoCards"></div></div>
+  </section>
+  <!-- Ranking (sem filtro de dimensão) -->
+  <section id="tab-ranking" class="panel hide">
+    <div class="inner"><div class="tableWrap" id="rankingTable"></div></div>
+  </section>
+  <!-- Profissionais -->
+  <section id="tab-profissionais" class="panel hide">
+    <div class="inner"><div class="tableWrap" id="profTable"></div></div>
+  </section>
+  <!-- Resultado por renda -->
+  <section id="tab-renda" class="panel hide">
+    <div class="inner">
+      <div class="grid" id="rendaCards"></div>
+      <div style="height:12px"></div>
+      <div class="tableWrap" id="rendaTable"></div>
+    </div>
+  </section>
+</div>
 
-    // =========================
-    // Estado
-    // =========================
-    const app = {
-      raw: [],
-      filtered: [],
-      sortState: {}, // `${tab}_${field}` => asc|desc
-    };
+<script>
+  // =========================
+  // Utilitários
+  // =========================
+  function normStr(v){
+    return String(v ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
+  }
+  function parseNumberBR(v){
+    if (typeof v==='number') return v;
+    const s=String(v??'').trim();
+    if (!s) return 0;
+    const c=s.replace(/[R$\s]/g,'').replace(/\./g,'').replace(',', '.');
+    const n=Number(c);
+    return Number.isFinite(n)? n : 0;
+  }
+  function toBRL(n){ return Number(n||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
+  function toPct(n){ return Number(n||0).toFixed(1)+'%'; }
+  function parseDateLoose(s){
+    const str=String(s??'').trim(); if (!str) return null;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(str)){ const d=new Date(str+'T00:00:00'); return isNaN(d.getTime())?null:d; }
+    const m1=str.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (m1){ const [_, dd, mm, yyyy]=m1; const d=new Date(`${yyyy}-${mm}-${dd}T00:00:00`); return isNaN(d.getTime())?null:d; }
+    const m2=str.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+    if (m2){ const [_, dd, mm, yyyy]=m2; const d=new Date(`${yyyy}-${mm}-${dd}T00:00:00`); return isNaN(d.getTime())?null:d; }
+    const d=new Date(str); return isNaN(d.getTime())?null:d;
+  }
 
-    // =========================
-    // Utils
-    // =========================
-    function normStr(v){
-      return String(v ?? "")
-        .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
-        .trim().toLowerCase();
+  // =========================
+  // CSV parser robusto
+  // =========================
+  function splitCSVLine(line, sep){
+    const out=[]; let cur=''; let inQuotes=false;
+    for (let i=0; i<line.length; i++){
+      const ch=line[i];
+      if (ch==='\"'){
+        if (inQuotes && line[i+1]==='\"'){ cur+='\"'; i++; }
+        else inQuotes=!inQuotes;
+      } else if (ch===sep && !inQuotes){
+        out.push(cur); cur='';
+      } else {
+        cur+=ch;
+      }
     }
+    out.push(cur);
+    return out;
+  }
 
-    function parseNumberBR(v){
-      if (typeof v === "number") return v;
-      const s0 = String(v ?? "").trim();
-      if (!s0) return 0;
-
-      const s = s0
-        .replace(/\uFEFF/g, "") // BOM
-        .replace(/[R$\s]/g,"")
-        .replace(/\./g,"")
-        .replace(/,/g,".");
-
-      const n = Number(s);
-      return Number.isFinite(n) ? n : 0;
+  function parseCSV(csvText) {
+    if (!csvText.trim()) return [];
+    
+    // Remove BOM se presente
+    csvText = csvText.replace(/^\uFEFF/, '');
+    
+    // Detecta separador (prioriza ; depois ,)
+    const firstLine = csvText.split(/\r?\n/)[0] || '';
+    const sep = firstLine.includes(';') ? ';' : ',';
+    
+    const lines = csvText.split(/\r?\n/).filter(l => l.trim().length);
+    if (lines.length < 2) return [];
+    
+    // Parse headers
+    const headers = splitCSVLine(lines[0], sep).map(h => 
+      h.trim().replace(/^"|"$/g, '')
+    );
+    
+    // Parse data rows
+    const rows = [];
+    for (let i = 1; i < lines.length; i++) {
+      const values = splitCSVLine(lines[i], sep);
+      const row = {};
+      for (let j = 0; j < headers.length; j++) {
+        row[headers[j]] = (values[j] || '').trim().replace(/^"|"$/g, '');
+      }
+      rows.push(row);
     }
+    
+    return rows;
+  }
 
-    function toBRL(n){
-      const x = Number(n || 0);
-      return x.toLocaleString("pt-BR", { style:"currency", currency:"BRL" });
-    }
+  // =========================
+  // Estado global
+  // =========================
+  let csvData = [];
+  let filteredData = [];
+  let sortState = {};
+  let columnMappings = {
+    dateColumn: null,
+    statusColumn: null,
+    collaboratorColumn: null,
+    revenueColumn: null,
+    qualificationColumn: null
+  };
 
-    function toPct(n){
-      const x = Number(n || 0);
-      return x.toFixed(1) + "%";
-    }
-
-    function parseDateBR(v){
-      const s = String(v ?? "").trim();
-      const m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-      if (!m) return null;
-      const dd = m[1], mm = m[2], yyyy = m[3];
-      const d = new Date(`${yyyy}-${mm}-${dd}T00:00:00`);
-      return Number.isNaN(d.getTime()) ? null : d;
-    }
-
-    function splitCSVLine(line, sep=";"){
-      const out = [];
-      let cur = "";
-      let inQuotes = false;
-      for (let i=0; i<line.length; i++){
-        const ch = line[i];
-        if (ch === '"'){
-          if (inQuotes && line[i+1] === '"'){ cur += '"'; i++; }
-          else inQuotes = !inQuotes;
-        } else if (ch === sep && !inQuotes){
-          out.push(cur);
-          cur = "";
-        } else {
-          cur += ch;
+  // =========================
+  // Detecção automática de colunas
+  // =========================
+  function detectColumns(headers) {
+    const mappings = { dateColumn: null, statusColumn: null, collaboratorColumn: null, revenueColumn: null, qualificationColumn: null };
+    
+    for (const header of headers) {
+      const norm = normStr(header);
+      
+      // Data
+      if (!mappings.dateColumn && (norm.includes('data') || norm === 'date')) {
+        mappings.dateColumn = header;
+      }
+      
+      // Status (prioriza "Status do contrato" para ativo/cancelado)
+      if (norm.includes('status') && norm.includes('contrato')) {
+        mappings.statusColumn = header;
+      } else if (!mappings.statusColumn && norm.includes('status')) {
+        mappings.statusColumn = header;
+      }
+      
+      // Colaborador (busca Promotor primeiro, depois Liner, depois Closer)
+      if (!mappings.collaboratorColumn) {
+        if (norm.includes('promotor') && norm.includes('marketing')) {
+          mappings.collaboratorColumn = header;
+        } else if (norm.includes('liner')) {
+          mappings.collaboratorColumn = header;
+        } else if (norm.includes('closer')) {
+          mappings.collaboratorColumn = header;
+        } else if (norm.includes('colaborador') || norm.includes('consultor') || norm.includes('vendedor')) {
+          mappings.collaboratorColumn = header;
         }
       }
-      out.push(cur);
-      return out;
-    }
-
-    function parseCSV(text){
-      const cleaned = text.replace(/\r/g,"");
-      const lines = cleaned.split("\n").filter(l => l.trim().length);
-      if (!lines.length) return [];
-
-      const headerLine = lines[0].replace(/\uFEFF/g,""); // remove BOM
-      const headers = splitCSVLine(headerLine, ";").map(h => h.trim().replace(/^"|"$/g,""));
-
-      const rows = [];
-      for (let i=1; i<lines.length; i++){
-        const parts = splitCSVLine(lines[i], ";");
-        if (!parts.length) continue;
-        const row = {};
-        for (let c=0; c<headers.length; c++){
-          row[headers[c]] = (parts[c] ?? "").trim().replace(/^"|"$/g,"");
-        }
-        rows.push(row);
+      
+      // Receita/Valor
+      if (!mappings.revenueColumn && (norm.includes('valor') || norm.includes('receita') || norm.includes('venda'))) {
+        mappings.revenueColumn = header;
       }
-      return rows;
+      
+      // Qualificação
+      if (!mappings.qualificationColumn && (norm.includes('qualificacao') || norm.includes('qualifica'))) {
+        mappings.qualificationColumn = header;
+      }
     }
+    
+    return mappings;
+  }
 
-    function isContratoAtivo(v){
-      const s = normStr(v);
-      if (!s) return false;
-      // exemplos: "ATIVO", "ATIVO # ATIVO"
-      if (s.includes("ativo")) return true;
-      if (s.includes("cancel")) return false;
-      return false;
+  // =========================
+  // Função para obter colaborador baseado na dimensão
+  // =========================
+  function getCollaboratorByDimension(row, dimension) {
+    const headers = Object.keys(row);
+    
+    if (dimension === 'consultor' || dimension === 'todos') {
+      // Busca Promotor de marketing primeiro
+      const promotor = headers.find(h => normStr(h).includes('promotor') && normStr(h).includes('marketing'));
+      if (promotor && row[promotor]) return row[promotor];
+      
+      // Se não encontrou, usa a coluna mapeada
+      return row[columnMappings.collaboratorColumn] || '';
     }
-
-    // ranking: juntar todos colaboradores das 3 colunas
-    function getAllCollaboratorsFromRow(r){
-      const out = [];
-      const p = String(r[COL.promotor] ?? "").trim();
-      const l = String(r[COL.liner] ?? "").trim();
-      const c = String(r[COL.closer] ?? "").trim();
-      if (p) out.push({ nome: p, papel: "Promotor" });
-      if (l) out.push({ nome: l, papel: "Liner" });
-      if (c) out.push({ nome: c, papel: "Closer" });
-      return out;
+    
+    if (dimension === 'liner') {
+      const liner = headers.find(h => normStr(h) === 'liner');
+      return liner ? row[liner] || '' : '';
     }
-
-    function rendaFaixa(valor){
-      const v = Number(valor || 0);
-      if (v < 12000) return "Até R$ 11,9k";
-      if (v < 15000) return "R$ 12k - R$ 14,9k";
-      if (v < 20000) return "R$ 15k - R$ 19,9k";
-      if (v < 40000) return "R$ 20k - R$ 39,9k";
-      return "Acima de R$ 40k";
+    
+    if (dimension === 'closer') {
+      const closer = headers.find(h => normStr(h) === 'closer');
+      return closer ? row[closer] || '' : '';
     }
+    
+    return '';
+  }
 
-    function getActiveTab(){
-      return document.querySelector(".tab.active")?.dataset?.tab || "resumo";
-    }
-
-    function sortByField(arr, field, dir){
-      const mult = dir === "asc" ? 1 : -1;
-      return [...arr].sort((a,b)=>{
-        const va = a[field], vb = b[field];
-        // números
-        const na = (typeof va === "number") ? va : parseNumberBR(va);
-        const nb = (typeof vb === "number") ? vb : parseNumberBR(vb);
-        const bothNum = Number.isFinite(na) && Number.isFinite(nb) && !Number.isNaN(na) && !Number.isNaN(nb);
-        if (bothNum && field !== "nome" && field !== "papel"){
-          return (na - nb) * mult;
-        }
-        // strings
-        const sa = String(va ?? "");
-        const sb = String(vb ?? "");
-        return sa.localeCompare(sb, "pt-BR", { numeric:true, sensitivity:"base" }) * mult;
-      });
-    }
-
-    document.addEventListener("click", (e)=>{
-      const th = e.target.closest("th[data-sort]");
-      if (!th) return;
-
-      const tab = getActiveTab();
-      const field = th.dataset.sort;
-      const key = `${tab}_${field}`;
-      const current = app.sortState[key] || "desc";
-      const next = current === "desc" ? "asc" : "desc";
-      app.sortState[key] = next;
-
-      // limpa classes só da tabela do tab atual
-      const container = document.querySelector(`#tab-${tab}`);
-      container?.querySelectorAll("th[data-sort]").forEach(x=>x.classList.remove("asc","desc"));
-      th.classList.add(next);
-
-      renderActiveTab(field, next);
+  // =========================
+  // Função especial para Ranking (ignora dimensão)
+  // =========================
+  function getFilteredRowsIgnoringDimensao() {
+    const busca = normStr(document.getElementById('buscaInput').value);
+    const onlyAtivos = document.getElementById('ativosSelect').value === 'sim';
+    const dataIni = document.getElementById('dataIni').value ? new Date(document.getElementById('dataIni').value + 'T00:00:00') : null;
+    const dataFim = document.getElementById('dataFim').value ? new Date(document.getElementById('dataFim').value + 'T23:59:59') : null;
+    
+    return csvData.filter(row => {
+      // Filtro de período
+      if (dataIni || dataFim) {
+        const dateValue = row[columnMappings.dateColumn];
+        const rowDate = parseDateLoose(dateValue);
+        if (!rowDate) return false;
+        if (dataIni && rowDate < dataIni) return false;
+        if (dataFim && rowDate > dataFim) return false;
+      }
+      
+      // Filtro de ativos
+      if (onlyAtivos) {
+        const status = normStr(row[columnMappings.statusColumn] || '');
+        if (!status.includes('ativo')) return false;
+      }
+      
+      // Filtro de busca (procura em todas as colunas de colaborador)
+      if (busca) {
+        const headers = Object.keys(row);
+        const promotor = headers.find(h => normStr(h).includes('promotor'));
+        const liner = headers.find(h => normStr(h) === 'liner');
+        const closer = headers.find(h => normStr(h) === 'closer');
+        
+        const promotorMatch = promotor && normStr(row[promotor]).includes(busca);
+        const linerMatch = liner && normStr(row[liner]).includes(busca);
+        const closerMatch = closer && normStr(row[closer]).includes(busca);
+        
+        if (!promotorMatch && !linerMatch && !closerMatch) return false;
+      }
+      
+      return true;
     });
+  }
 
-    // =========================
-    // Filtros
-    // =========================
-    function applyFiltersBase(){
-      const dim = document.getElementById("dimensaoSelect").value; // promotor/liner/closer/todos
-      const busca = normStr(document.getElementById("buscaInput").value);
-      const onlyAtivos = document.getElementById("ativosSelect").value === "sim";
-      const ini = document.getElementById("dataIni").value ? new Date(document.getElementById("dataIni").value + "T00:00:00") : null;
-      const fim = document.getElementById("dataFim").value ? new Date(document.getElementById("dataFim").value + "T23:59:59") : null;
+  // =========================
+  // Aplicar filtros (usado por outras abas, exceto Ranking)
+  // =========================
+  function applyFilters() {
+    const dimensao = document.getElementById('dimensaoSelect').value;
+    const busca = normStr(document.getElementById('buscaInput').value);
+    const onlyAtivos = document.getElementById('ativosSelect').value === 'sim';
+    const dataIni = document.getElementById('dataIni').value ? new Date(document.getElementById('dataIni').value + 'T00:00:00') : null;
+    const dataFim = document.getElementById('dataFim').value ? new Date(document.getElementById('dataFim').value + 'T23:59:59') : null;
+    
+    filteredData = csvData.filter(row => {
+      // Filtro de período
+      if (dataIni || dataFim) {
+        const dateValue = row[columnMappings.dateColumn];
+        const rowDate = parseDateLoose(dateValue);
+        if (!rowDate) return false;
+        if (dataIni && rowDate < dataIni) return false;
+        if (dataFim && rowDate > dataFim) return false;
+      }
+      
+      // Filtro de ativos
+      if (onlyAtivos) {
+        const status = normStr(row[columnMappings.statusColumn] || '');
+        if (!status.includes('ativo')) return false;
+      }
+      
+      // Filtro de colaborador baseado na dimensão
+      const collaborator = getCollaboratorByDimension(row, dimensao);
+      if (!collaborator.trim()) return false;
+      
+      // Filtro de busca
+      if (busca && !normStr(collaborator).includes(busca)) return false;
+      
+      return true;
+    });
+    
+    document.getElementById('rowsCount').textContent = filteredData.length;
+  }
 
-      // OBS: essa base é usada por Resumo/Profissionais/Renda.
-      // Ela pode respeitar dimensão (papel selecionado).
-      const out = app.raw.filter(r=>{
-        // período
-        if (ini || fim){
-          const d = parseDateBR(r[COL.data]);
-          if (!d) return false;
-          if (ini && d < ini) return false;
-          if (fim && d > fim) return false;
+  // =========================
+  // Agregações para Ranking (usando função especial)
+  // =========================
+  function buildRankingData() {
+    const rankingRows = getFilteredRowsIgnoringDimensao(); // ← CORREÇÃO AQUI
+    const collaboratorStats = new Map();
+    
+    // Processa todas as colunas de colaboradores
+    rankingRows.forEach(row => {
+      const headers = Object.keys(row);
+      const promotor = headers.find(h => normStr(h).includes('promotor') && normStr(h).includes('marketing'));
+      const liner = headers.find(h => normStr(h) === 'liner');
+      const closer = headers.find(h => normStr(h) === 'closer');
+      
+      const collaborators = [];
+      if (promotor && row[promotor]?.trim()) collaborators.push({ name: row[promotor].trim(), role: 'Promotor' });
+      if (liner && row[liner]?.trim()) collaborators.push({ name: row[liner].trim(), role: 'Liner' });
+      if (closer && row[closer]?.trim()) collaborators.push({ name: row[closer].trim(), role: 'Closer' });
+      
+      collaborators.forEach(collab => {
+        if (!collaboratorStats.has(collab.name)) {
+          collaboratorStats.set(collab.name, {
+            nome: collab.name,
+            aparicoes: 0,
+            ativos: 0,
+            vgv: 0,
+            roles: new Set()
+          });
         }
-
-        // ativos
-        if (onlyAtivos){
-          if (!isContratoAtivo(r[COL.statusContrato])) return false;
-        }
-
-        // busca (procura no papel selecionado; se "todos", procura em qualquer um)
-        if (busca){
-          if (dim === "promotor"){
-            if (!normStr(r[COL.promotor]).includes(busca)) return false;
-          } else if (dim === "liner"){
-            if (!normStr(r[COL.liner]).includes(busca)) return false;
-          } else if (dim === "closer"){
-            if (!normStr(r[COL.closer]).includes(busca)) return false;
-          } else {
-            const any = [r[COL.promotor], r[COL.liner], r[COL.closer]].some(v => normStr(v).includes(busca));
-            if (!any) return false;
-          }
-        }
-
-        // dimensão: aqui SIM filtra linhas (para Resumo/Profissionais/Renda)
-        if (dim === "promotor" && !String(r[COL.promotor] ?? "").trim()) return false;
-        if (dim === "liner" && !String(r[COL.liner] ?? "").trim()) return false;
-        if (dim === "closer" && !String(r[COL.closer] ?? "").trim()) return false;
-
-        return true;
+        
+        const stats = collaboratorStats.get(collab.name);
+        stats.aparicoes += 1;
+        stats.roles.add(collab.role);
+        
+        const isAtivo = normStr(row[columnMappings.statusColumn] || '').includes('ativo');
+        if (isAtivo) stats.ativos += 1;
+        
+        const valor = parseNumberBR(row[columnMappings.revenueColumn] || 0);
+        stats.vgv += valor;
       });
+    });
+    
+    return Array.from(collaboratorStats.values()).map(stats => ({
+      nome: stats.nome,
+      papel: Array.from(stats.roles).join(', '),
+      aparicoes: stats.aparicoes,
+      ativos: stats.ativos,
+      eficiencia: stats.aparicoes > 0 ? (stats.ativos / stats.aparicoes) * 100 : 0,
+      vgv: stats.vgv
+    }));
+  }
 
-      app.filtered = out;
-      document.getElementById("rowsCount").textContent = String(out.length);
+  // =========================
+  // Renderização
+  // =========================
+  function renderResumo() {
+    const total = filteredData.length;
+    const ativos = filteredData.filter(row => {
+      const status = normStr(row[columnMappings.statusColumn] || '');
+      return status.includes('ativo');
+    }).length;
+    
+    const vgv = filteredData.reduce((sum, row) => {
+      return sum + parseNumberBR(row[columnMappings.revenueColumn] || 0);
+    }, 0);
+    
+    const ticketMedio = ativos > 0 ? vgv / ativos : 0;
+    const eficienciaGeral = total > 0 ? (ativos / total) * 100 : 0;
+    
+    const cards = [
+      { title: 'Total de registros', value: total.toLocaleString('pt-BR'), subtitle: 'após aplicar filtros' },
+      { title: 'Contratos ativos', value: ativos.toLocaleString('pt-BR'), subtitle: `${toPct(eficienciaGeral)} de eficiência` },
+      { title: 'VGV Total', value: toBRL(vgv), subtitle: 'valor bruto de vendas' },
+      { title: 'Ticket Médio', value: toBRL(ticketMedio), subtitle: 'VGV / contratos ativos' }
+    ];
+    
+    document.getElementById('resumoCards').innerHTML = cards.map(card => `
+      <div class="card">
+        <h3>${card.title}</h3>
+        <div class="big">${card.value}</div>
+        <div class="sub">${card.subtitle}</div>
+      </div>
+    `).join('');
+  }
+
+  function renderRanking(sortField = null, sortDir = 'desc') {
+    let data = buildRankingData();
+    
+    if (sortField) {
+      data = sortByField(data, sortField, sortDir);
+    } else {
+      data = sortByField(data, 'vgv', 'desc');
     }
+    
+    const html = `
+      <table>
+        <thead>
+          <tr>
+            <th data-sort="nome">Colaborador</th>
+            <th data-sort="papel">Papel(s)</th>
+            <th data-sort="aparicoes" class="right">Aparições</th>
+            <th data-sort="ativos" class="right">Ativos</th>
+            <th data-sort="eficiencia" class="right">Eficiência</th>
+            <th data-sort="vgv" class="right">VGV</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${data.map(row => `
+            <tr>
+              <td>${row.nome}</td>
+              <td class="muted">${row.papel}</td>
+              <td class="right mono">${row.aparicoes.toLocaleString('pt-BR')}</td>
+              <td class="right mono">${row.ativos.toLocaleString('pt-BR')}</td>
+              <td class="right mono">${toPct(row.eficiencia)}</td>
+              <td class="right mono">${toBRL(row.vgv)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+    
+    document.getElementById('rankingTable').innerHTML = html;
+  }
 
-    // Ranking deve mostrar TODOS colaboradores SEM filtrar por dimensão
-    function getRowsForRanking(){
-      const busca = normStr(document.getElementById("buscaInput").value);
-      const onlyAtivos = document.getElementById("ativosSelect").value === "sim";
-      const ini = document.getElementById("dataIni").value ? new Date(document.getElementById("dataIni").value + "T00:00:00") : null;
-      const fim = document.getElementById("dataFim").value ? new Date(document.getElementById("dataFim").value + "T23:59:59") : null;
-
-      return app.raw.filter(r=>{
-        if (ini || fim){
-          const d = parseDateBR(r[COL.data]);
-          if (!d) return false;
-          if (ini && d < ini) return false;
-          if (fim && d > fim) return false;
-        }
-        if (onlyAtivos){
-          if (!isContratoAtivo(r[COL.statusContrato])) return false;
-        }
-        if (busca){
-          const any = [r[COL.promotor], r[COL.liner], r[COL.closer]].some(v => normStr(v).includes(busca));
-          if (!any) return false;
-        }
-        return true;
-      });
+  function renderProfissionais(sortField = null, sortDir = 'desc') {
+    const dimensao = document.getElementById('dimensaoSelect').value;
+    const collaboratorStats = new Map();
+    
+    filteredData.forEach(row => {
+      const collaborator = getCollaboratorByDimension(row, dimensao);
+      if (!collaborator.trim()) return;
+      
+      if (!collaboratorStats.has(collaborator)) {
+        collaboratorStats.set(collaborator, { nome: collaborator, registros: 0, ativos: 0, vgv: 0 });
+      }
+      
+      const stats = collaboratorStats.get(collaborator);
+      stats.registros += 1;
+      
+      const isAtivo = normStr(row[columnMappings.statusColumn] || '').includes('ativo');
+      if (isAtivo) stats.ativos += 1;
+      
+      const valor = parseNumberBR(row[columnMappings.revenueColumn] || 0);
+      stats.vgv += valor;
+    });
+    
+    let data = Array.from(collaboratorStats.values()).map(stats => ({
+      nome: stats.nome,
+      registros: stats.registros,
+      ativos: stats.ativos,
+      eficiencia: stats.registros > 0 ? (stats.ativos / stats.registros) * 100 : 0,
+      vgv: stats.vgv
+    }));
+    
+    if (sortField) {
+      data = sortByField(data, sortField, sortDir);
+    } else {
+      data = sortByField(data, 'nome', 'asc');
     }
+    
+    const html = `
+      <table>
+        <thead>
+          <tr>
+            <th data-sort="nome">Profissional</th>
+            <th data-sort="registros" class="right">Registros</th>
+            <th data-sort="ativos" class="right">Ativos</th>
+            <th data-sort="eficiencia" class="right">Eficiência</th>
+            <th data-sort="vgv" class="right">VGV</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${data.map(row => {
+            const efClass = row.eficiencia >= 25 ? 'good' : row.eficiencia >= 20 ? 'warn' : 'bad';
+            return `
+              <tr>
+                <td>${row.nome}</td>
+                <td class="right mono">${row.registros.toLocaleString('pt-BR')}</td>
+                <td class="right mono">${row.ativos.toLocaleString('pt-BR')}</td>
+                <td class="right mono tag ${efClass}">${toPct(row.eficiencia)}</td>
+                <td class="right mono">${toBRL(row.vgv)}</td>
+              </tr>
+            `;
+          }).join('')}
+        </tbody>
+      </table>
+    `;
+    
+    document.getElementById('profTable').innerHTML = html;
+  }
 
-    // =========================
-    // Agregações e Render
-    // =========================
-    function renderResumo(){
-      const rows = app.filtered;
-
-      const total = rows.length;
-      const ativos = rows.filter(r=>isContratoAtivo(r[COL.statusContrato])).length;
-      const cancelados = rows.filter(r=>normStr(r[COL.statusContrato]).includes("cancel")).length;
-      const vgv = rows.reduce((s,r)=>s + parseNumberBR(r[COL.valor]), 0);
-      const ticket = ativos ? (vgv / ativos) : 0;
-
-      const dim = document.getElementById("dimensaoSelect").value;
-
-      const cards = [
-        { title:"Registros", big: total.toLocaleString("pt-BR"), sub:"linhas após filtros (base)" },
-        { title:"Ativos", big: ativos.toLocaleString("pt-BR"), sub:"Status do contrato contém 'ATIVO'" },
-        { title:"Cancelados", big: cancelados.toLocaleString("pt-BR"), sub:"Status do contrato contém 'CANCEL'" },
-        { title:"VGV", big: toBRL(vgv), sub:"soma de Valor vendido" },
-        { title:"Ticket médio (Ativos)", big: toBRL(ticket), sub:"VGV / ativos" },
-        { title:"Dimensão (base)", big: dim.toUpperCase(), sub:"Ranking ignora dimensão" },
-      ];
-
-      const el = document.getElementById("resumoCards");
-      el.innerHTML = cards.map(c=>`
+  function renderRenda(sortField = null, sortDir = 'desc') {
+    const headers = csvData.length > 0 ? Object.keys(csvData[0]) : [];
+    const rendaColumn = headers.find(h => normStr(h).includes('renda')) || columnMappings.revenueColumn;
+    
+    if (!rendaColumn) {
+      document.getElementById('rendaCards').innerHTML = '<div class="card"><h3>Aviso</h3><div class="big">N/A</div><div class="sub">Coluna de renda não encontrada</div></div>';
+      document.getElementById('rendaTable').innerHTML = '<p class="muted">Coluna de renda não disponível nos dados.</p>';
+      return;
+    }
+    
+    const faixas = new Map();
+    
+    filteredData.forEach(row => {
+      const rendaValue = parseNumberBR(row[rendaColumn] || 0);
+      if (rendaValue <= 0) return;
+      
+      let faixa;
+      if (rendaValue < 12000) faixa = 'Até R$ 11,9k';
+      else if (rendaValue < 15000) faixa = 'R$ 12k - R$ 14,9k';
+      else if (rendaValue < 20000) faixa = 'R$ 15k - R$ 19,9k';
+      else if (rendaValue < 40000) faixa = 'R$ 20k - R$ 39,9k';
+      else faixa = 'Acima de R$ 40k';
+      
+      if (!faixas.has(faixa)) {
+        faixas.set(faixa, { faixa, leads: 0, ativos: 0, vgv: 0 });
+      }
+      
+      const stats = faixas.get(faixa);
+      stats.leads += 1;
+      
+      const isAtivo = normStr(row[columnMappings.statusColumn] || '').includes('ativo');
+      if (isAtivo) stats.ativos += 1;
+      
+      const valor = parseNumberBR(row[columnMappings.revenueColumn] || 0);
+      stats.vgv += valor;
+    });
+    
+    let data = Array.from(faixas.values()).map(stats => ({
+      faixa: stats.faixa,
+      leads: stats.leads,
+      ativos: stats.ativos,
+      conversao: stats.leads > 0 ? (stats.ativos / stats.leads) * 100 : 0,
+      vgv: stats.vgv,
+      ticket: stats.ativos > 0 ? stats.vgv / stats.ativos : 0
+    }));
+    
+    // Cards
+    const totalLeads = data.reduce((sum, item) => sum + item.leads, 0);
+    document.getElementById('rendaCards').innerHTML = data.map(item => {
+      const percentage = totalLeads > 0 ? (item.leads / totalLeads) * 100 : 0;
+      return `
         <div class="card">
-          <h3>${c.title}</h3>
-          <div class="big">${c.big}</div>
-          <div class="sub">${c.sub}</div>
+          <h3>${item.faixa}</h3>
+          <div class="big">${item.leads.toLocaleString('pt-BR')}</div>
+          <div class="sub">${percentage.toFixed(1)}% do total • Conv: ${toPct(item.conversao)}</div>
         </div>
-      `).join("");
+      `;
+    }).join('');
+    
+    if (sortField) {
+      data = sortByField(data, sortField, sortDir);
     }
+    
+    const html = `
+      <table>
+        <thead>
+          <tr>
+            <th data-sort="faixa">Faixa de Renda</th>
+            <th data-sort="leads" class="right">Leads</th>
+            <th data-sort="ativos" class="right">Ativos</th>
+            <th data-sort="conversao" class="right">Conversão</th>
+            <th data-sort="vgv" class="right">VGV</th>
+            <th data-sort="ticket" class="right">Ticket</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${data.map(row => `
+            <tr>
+              <td>${row.faixa}</td>
+              <td class="right mono">${row.leads.toLocaleString('pt-BR')}</td>
+              <td class="right mono">${row.ativos.toLocaleString('pt-BR')}</td>
+              <td class="right mono">${toPct(row.conversao)}</td>
+              <td class="right mono">${toBRL(row.vgv)}</td>
+              <td class="right mono">${toBRL(row.ticket)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+    
+    document.getElementById('rendaTable').innerHTML = html;
+  }
 
-    function buildRankingAgg(rows){
-      // Cada linha contribui para até 3 pessoas (Promotor/Liner/Closer)
-      const map = new Map();
-
-      for (const r of rows){
-        const valor = parseNumberBR(r[COL.valor]);
-        const ativo = isContratoAtivo(r[COL.statusContrato]);
-
-        for (const p of getAllCollaboratorsFromRow(r)){
-          if (!map.has(p.nome)){
-            map.set(p.nome, {
-              nome: p.nome,
-              aparicoes: 0,
-              ativos: 0,
-              vgv: 0,
-              papeis: new Set()
-            });
-          }
-          const it = map.get(p.nome);
-          it.aparicoes += 1;
-          if (ativo) it.ativos += 1;
-          it.vgv += valor;
-          it.papeis.add(p.papel);
-        }
+  // =========================
+  // Ordenação
+  // =========================
+  function sortByField(data, field, direction) {
+    const multiplier = direction === 'asc' ? 1 : -1;
+    
+    return [...data].sort((a, b) => {
+      let valueA = a[field];
+      let valueB = b[field];
+      
+      // Verifica se são números
+      const numA = typeof valueA === 'number' ? valueA : parseNumberBR(valueA);
+      const numB = typeof valueB === 'number' ? valueB : parseNumberBR(valueB);
+      
+      if (typeof valueA === 'number' || typeof valueB === 'number' || 
+          (!isNaN(numA) && !isNaN(numB) && field !== 'nome')) {
+        return (numA - numB) * multiplier;
       }
-
-      return [...map.values()].map(it=>{
-        const eficiencia = it.aparicoes ? (it.ativos / it.aparicoes) * 100 : 0;
-        return {
-          nome: it.nome,
-          papel: [...it.papeis].sort().join(", "),
-          aparicoes: it.aparicoes,
-          ativos: it.ativos,
-          eficiencia,
-          vgv: it.vgv
-        };
-      });
-    }
-
-    function renderRanking(sortField=null, sortDir="desc"){
-      // >>> CORREÇÃO: ignora dimensão aqui <<<
-      const base = getRowsForRanking();
-      let rows = buildRankingAgg(base);
-
-      if (sortField) rows = sortByField(rows, sortField, sortDir);
-      else rows = sortByField(rows, "vgv", "desc");
-
-      const el = document.getElementById("rankingTable");
-      el.innerHTML = `
-        <table>
-          <thead>
-            <tr>
-              <th data-sort="nome">Colaborador</th>
-              <th data-sort="papel">Papéis</th>
-              <th class="right" data-sort="aparicoes">Registros</th>
-              <th class="right" data-sort="ativos">Ativos</th>
-              <th class="right" data-sort="eficiencia">Eficiência</th>
-              <th class="right" data-sort="vgv">VGV</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rows.map(r=>{
-              return `
-                <tr>
-                  <td>${r.nome}</td>
-                  <td class="muted">${r.papel || "-"}</td>
-                  <td class="right mono">${r.aparicoes.toLocaleString("pt-BR")}</td>
-                  <td class="right mono">${r.ativos.toLocaleString("pt-BR")}</td>
-                  <td class="right mono">${toPct(r.eficiencia)}</td>
-                  <td class="right mono">${toBRL(r.vgv)}</td>
-                </tr>
-              `;
-            }).join("")}
-          </tbody>
-        </table>
-      `;
-    }
-
-    function buildProfissionaisAgg(rows){
-      const dim = document.getElementById("dimensaoSelect").value;
-      const getName = (r)=>{
-        if (dim === "promotor") return String(r[COL.promotor] ?? "").trim();
-        if (dim === "liner") return String(r[COL.liner] ?? "").trim();
-        if (dim === "closer") return String(r[COL.closer] ?? "").trim();
-        // todos: concat / pega "principal" como promotor se existir
-        return String(r[COL.promotor] ?? r[COL.liner] ?? r[COL.closer] ?? "").trim();
-      };
-
-      const map = new Map();
-      for (const r of rows){
-        const nome = getName(r) || "Não informado";
-        if (!map.has(nome)){
-          map.set(nome, { nome, registros:0, ativos:0, vgv:0 });
-        }
-        const it = map.get(nome);
-        it.registros += 1;
-        if (isContratoAtivo(r[COL.statusContrato])) it.ativos += 1;
-        it.vgv += parseNumberBR(r[COL.valor]);
-      }
-      return [...map.values()].map(it=>{
-        const eficiencia = it.registros ? (it.ativos/it.registros)*100 : 0;
-        return { ...it, eficiencia };
-      });
-    }
-
-    function renderProfissionais(sortField=null, sortDir="desc"){
-      let rows = buildProfissionaisAgg(app.filtered);
-      if (sortField) rows = sortByField(rows, sortField, sortDir);
-      else rows = sortByField(rows, "nome", "asc");
-
-      const el = document.getElementById("profTable");
-      el.innerHTML = `
-        <table>
-          <thead>
-            <tr>
-              <th data-sort="nome">Profissional (pela Dimensão)</th>
-              <th class="right" data-sort="registros">Registros</th>
-              <th class="right" data-sort="ativos">Ativos</th>
-              <th class="right" data-sort="eficiencia">Eficiência</th>
-              <th class="right" data-sort="vgv">VGV</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rows.map(r=>`
-              <tr>
-                <td>${r.nome}</td>
-                <td class="right mono">${r.registros.toLocaleString("pt-BR")}</td>
-                <td class="right mono">${r.ativos.toLocaleString("pt-BR")}</td>
-                <td class="right mono">${toPct(r.eficiencia)}</td>
-                <td class="right mono">${toBRL(r.vgv)}</td>
-              </tr>
-            `).join("")}
-          </tbody>
-        </table>
-      `;
-    }
-
-    function buildRendaAgg(rows){
-      const map = new Map();
-      for (const r of rows){
-        const renda = parseNumberBR(r[COL.renda]);
-        if (!renda) continue;
-        const faixa = rendaFaixa(renda);
-        if (!map.has(faixa)){
-          map.set(faixa, { faixa, leads:0, ativos:0, vgv:0 });
-        }
-        const it = map.get(faixa);
-        it.leads += 1;
-        if (isContratoAtivo(r[COL.statusContrato])) it.ativos += 1;
-        it.vgv += parseNumberBR(r[COL.valor]);
-      }
-      const order = ["Até R$ 11,9k","R$ 12k - R$ 14,9k","R$ 15k - R$ 19,9k","R$ 20k - R$ 39,9k","Acima de R$ 40k"];
-      const out = [...map.values()].map(it=>{
-        const conv = it.leads ? (it.ativos/it.leads)*100 : 0;
-        const ticket = it.ativos ? (it.vgv/it.ativos) : 0;
-        return { ...it, conversao: conv, ticket };
-      });
-      out.sort((a,b)=>order.indexOf(a.faixa)-order.indexOf(b.faixa));
-      return out;
-    }
-
-    function renderRenda(sortField=null, sortDir="desc"){
-      let rows = buildRendaAgg(app.filtered);
-
-      // cards
-      const total = rows.reduce((s,r)=>s + r.leads, 0);
-      document.getElementById("rendaCards").innerHTML = rows.map(r=>{
-        const pct = total ? (r.leads/total)*100 : 0;
-        return `
-          <div class="card">
-            <h3>${r.faixa}</h3>
-            <div class="big">${r.leads.toLocaleString("pt-BR")}</div>
-            <div class="sub">${pct.toFixed(1)}% • conv: ${toPct(r.conversao)} • ticket: ${toBRL(r.ticket)}</div>
-          </div>
-        `;
-      }).join("");
-
-      if (sortField) rows = sortByField(rows, sortField, sortDir);
-
-      document.getElementById("rendaTable").innerHTML = `
-        <table>
-          <thead>
-            <tr>
-              <th data-sort="faixa">Faixa</th>
-              <th class="right" data-sort="leads">Leads</th>
-              <th class="right" data-sort="ativos">Ativos</th>
-              <th class="right" data-sort="conversao">Conversão</th>
-              <th class="right" data-sort="vgv">VGV</th>
-              <th class="right" data-sort="ticket">Ticket</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rows.map(r=>`
-              <tr>
-                <td>${r.faixa}</td>
-                <td class="right mono">${r.leads.toLocaleString("pt-BR")}</td>
-                <td class="right mono">${r.ativos.toLocaleString("pt-BR")}</td>
-                <td class="right mono">${toPct(r.conversao)}</td>
-                <td class="right mono">${toBRL(r.vgv)}</td>
-                <td class="right mono">${toBRL(r.ticket)}</td>
-              </tr>
-            `).join("")}
-          </tbody>
-        </table>
-      `;
-    }
-
-    function renderDados(){
-      const sample = app.filtered.slice(0, 80);
-      const headers = app.raw.length ? Object.keys(app.raw[0]) : [];
-      document.getElementById("dadosTable").innerHTML = `
-        <table>
-          <thead>
-            <tr>
-              ${headers.map(h=>`<th>${h}</th>`).join("")}
-            </tr>
-          </thead>
-          <tbody>
-            ${sample.map(r=>`
-              <tr>
-                ${headers.map(h=>`<td>${String(r[h] ?? "")}</td>`).join("")}
-              </tr>
-            `).join("")}
-            ${app.filtered.length > 80 ? `<tr><td colspan="${headers.length}"><span class="muted">Mostrando 80 de ${app.filtered.length} linhas filtradas.</span></td></tr>` : ""}
-          </tbody>
-        </table>
-      `;
-    }
-
-    function renderActiveTab(sortField=null, sortDir="desc"){
-      const tab = getActiveTab();
-      if (tab === "resumo") renderResumo();
-      if (tab === "ranking") renderRanking(sortField, sortDir);
-      if (tab === "profissionais") renderProfissionais(sortField, sortDir);
-      if (tab === "renda") renderRenda(sortField, sortDir);
-      if (tab === "dados") renderDados();
-    }
-
-    // =========================
-    // Tabs
-    // =========================
-    function setActiveTab(tab){
-      document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active", x.dataset.tab === tab));
-      document.querySelectorAll("section[id^='tab-']").forEach(sec=>sec.classList.add("hide"));
-      document.getElementById(`tab-${tab}`)?.classList.remove("hide");
-      renderActiveTab();
-    }
-    document.querySelectorAll(".tab").forEach(t=>{
-      t.addEventListener("click", ()=>setActiveTab(t.dataset.tab));
+      
+      // Comparação de strings
+      return String(valueA).localeCompare(String(valueB), 'pt-BR', {
+        numeric: true,
+        sensitivity: 'base'
+      }) * multiplier;
     });
+  }
 
-    // =========================
-    // Load
-    // =========================
-    function setDefaultDates(){
-      const hoje = new Date();
-      const yyyy = hoje.getFullYear();
-      const mm = String(hoje.getMonth()+1).padStart(2,"0");
-      const dd = String(hoje.getDate()).padStart(2,"0");
-      if (!document.getElementById("dataFim").value){
-        document.getElementById("dataFim").value = `${yyyy}-${mm}-${dd}`;
-      }
+  // =========================
+  // Controle de tabs e ordenação
+  // =========================
+  function getActiveTab() {
+    return document.querySelector('.tab.active')?.dataset?.tab || 'resumo';
+  }
+
+  function renderActiveTab(sortField = null, sortDir = 'desc') {
+    const activeTab = getActiveTab();
+    
+    switch (activeTab) {
+      case 'resumo':
+        renderResumo();
+        break;
+      case 'ranking':
+        renderRanking(sortField, sortDir);
+        break;
+      case 'profissionais':
+        renderProfissionais(sortField, sortDir);
+        break;
+      case 'renda':
+        renderRenda(sortField, sortDir);
+        break;
     }
+  }
 
-    async function loadFromUrl(){
-      const status = document.getElementById("statusLine");
-      status.textContent = "Tentando ler ./dados.csv …";
-      try{
-        const res = await fetch("./dados.csv", { cache:"no-store" });
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        const text = await res.text();
-        const rows = parseCSV(text);
-        if (!rows.length) throw new Error("CSV vazio ou inválido");
-        app.raw = rows;
-        setDefaultDates();
-        applyFiltersBase();
-        status.textContent = `OK: ./dados.csv carregado. Linhas: ${rows.length}.`;
-        renderActiveTab();
-      } catch(err){
-        status.textContent = "Não consegui ler ./dados.csv automaticamente. Use o seletor de arquivo para carregar manualmente.";
-        console.warn(err);
-        app.raw = [];
-        app.filtered = [];
-        document.getElementById("rowsCount").textContent = "0";
-        renderActiveTab();
+  // =========================
+  // Event Listeners
+  // =========================
+  
+  // Mudança de tabs
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      
+      document.querySelectorAll('section[id^="tab-"]').forEach(section => {
+        section.classList.add('hide');
+      });
+      
+      const targetTab = document.getElementById(`tab-${tab.dataset.tab}`);
+      if (targetTab) {
+        targetTab.classList.remove('hide');
       }
-    }
-
-    document.getElementById("fileInput").addEventListener("change", async (e)=>{
-      const f = e.target.files?.[0];
-      if (!f) return;
-      const text = await f.text();
-      const rows = parseCSV(text);
-      app.raw = rows;
-      setDefaultDates();
-      applyFiltersBase();
-      document.getElementById("statusLine").textContent = `OK: arquivo carregado (${f.name}). Linhas: ${rows.length}.`;
+      
       renderActiveTab();
     });
+  });
 
-    function doApply(){
-      applyFiltersBase();
+  // Ordenação por clique no cabeçalho
+  document.addEventListener('click', (e) => {
+    const th = e.target.closest('th[data-sort]');
+    if (!th) return;
+    
+    const activeTab = getActiveTab();
+    const field = th.dataset.sort;
+    const key = `${activeTab}_${field}`;
+    const currentSort = sortState[key] || 'desc';
+    const newSort = currentSort === 'desc' ? 'asc' : 'desc';
+    
+    sortState[key] = newSort;
+    
+    // Atualiza indicadores visuais
+    const container = document.querySelector(`#tab-${activeTab}`);
+    if (container) {
+      container.querySelectorAll('th[data-sort]').forEach(header => {
+        header.classList.remove('asc', 'desc');
+      });
+      th.classList.add(newSort);
+    }
+    
+    renderActiveTab(field, newSort);
+  });
+
+  // Aplicar filtros
+  document.getElementById('applyBtn').addEventListener('click', () => {
+    applyFilters();
+    renderActiveTab();
+  });
+
+  document.getElementById('applyBtn2').addEventListener('click', () => {
+    applyFilters();
+    renderActiveTab();
+  });
+
+  // Limpar filtros
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    document.getElementById('dimensaoSelect').value = 'todos';
+    document.getElementById('buscaInput').value = '';
+    document.getElementById('ativosSelect').value = 'sim';
+    document.getElementById('dataIni').value = '';
+    document.getElementById('dataFim').value = '';
+    applyFilters();
+    renderActiveTab();
+  });
+
+  document.getElementById('clearBtn2').addEventListener('click', () => {
+    document.getElementById('dimensaoSelect').value = 'todos';
+    document.getElementById('buscaInput').value = '';
+    document.getElementById('ativosSelect').value = 'sim';
+    document.getElementById('dataIni').value = '';
+    document.getElementById('dataFim').value = '';
+    applyFilters();
+    renderActiveTab();
+  });
+
+  // Upload de arquivo
+  document.getElementById('fileInput').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const data = parseCSV(event.target.result);
+        if (data.length === 0) {
+          document.getElementById('statusLine').textContent = 'Erro: Arquivo CSV vazio ou inválido';
+          return;
+        }
+        
+        csvData = data;
+        const headers = Object.keys(data[0]);
+        columnMappings = detectColumns(headers);
+        
+        // Atualiza hints dos campos detectados
+        document.getElementById('dateColHint').placeholder = columnMappings.dateColumn || '(não detectado)';
+        document.getElementById('statusColHint').placeholder = columnMappings.statusColumn || '(não detectado)';
+        document.getElementById('colabColHint').placeholder = columnMappings.collaboratorColumn || '(não detectado)';
+        
+        applyFilters();
+        renderActiveTab();
+        
+        document.getElementById('statusLine').textContent = `Arquivo carregado: ${data.length} registros`;
+      } catch (error) {
+        console.error('Erro ao processar CSV:', error);
+        document.getElementById('statusLine').textContent = 'Erro ao processar arquivo CSV';
+      }
+    };
+    
+    reader.readAsText(file);
+  });
+
+  // Recarregar dados
+  document.getElementById('reloadBtn').addEventListener('click', async () => {
+    try {
+      document.getElementById('statusLine').textContent = 'Carregando dados.csv...';
+      
+      const response = await fetch('./dados.csv', { 
+        cache: 'no-cache',
+        headers: {
+          'Cache-Control': 'no-cache'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      
+      const csvText = await response.text();
+      const data = parseCSV(csvText);
+      
+      if (data.length === 0) {
+        throw new Error('CSV vazio ou inválido');
+      }
+      
+      csvData = data;
+      const headers = Object.keys(data[0]);
+      columnMappings = detectColumns(headers);
+      
+      // Atualiza hints dos campos detectados
+      document.getElementById('dateColHint').placeholder = columnMappings.dateColumn || '(não detectado)';
+      document.getElementById('statusColHint').placeholder = columnMappings.statusColumn || '(não detectado)';
+      document.getElementById('colabColHint').placeholder = columnMappings.collaboratorColumn || '(não detectado)';
+      
+      applyFilters();
       renderActiveTab();
+      
+      document.getElementById('statusLine').textContent = `Dados carregados: ${data.length} registros`;
+    } catch (error) {
+      console.error('Erro ao carregar CSV:', error);
+      document.getElementById('statusLine').textContent = 'Erro: não foi possível carregar ./dados.csv';
     }
-    function doClear(){
-      document.getElementById("buscaInput").value = "";
-      document.getElementById("ativosSelect").value = "sim";
-      document.getElementById("dimensaoSelect").value = "promotor";
-      document.getElementById("dataIni").value = "";
-      // mantém data fim
-      doApply();
-    }
+  });
 
-    document.getElementById("applyBtn").addEventListener("click", doApply);
-    document.getElementById("applyBtn2").addEventListener("click", doApply);
-    document.getElementById("clearBtn").addEventListener("click", doClear);
-    document.getElementById("clearBtn2").addEventListener("click", doClear);
-
-    document.getElementById("reloadBtn").addEventListener("click", ()=>loadFromUrl());
-
-    // Boot
-    loadFromUrl();
-  </script>
+  // =========================
+  // Inicialização
+  // =========================
+  document.addEventListener('DOMContentLoaded', () => {
+    // Tenta carregar automaticamente
+    document.getElementById('reloadBtn').click();
+  });
+</script>
 </body>
 </html>
