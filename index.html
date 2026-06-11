@@ -1,1230 +1,1004 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Painel de Atendimentos</title>
-  <meta name="color-scheme" content="dark light" />
-  <style>
-    :root{
-      --bg0:#070A12;
-      --bg1:#0B1222;
-      --card: rgba(255,255,255,.06);
-      --stroke: rgba(255,255,255,.12);
-      --text:#EAF0FF;
-      --muted: rgba(234,240,255,.72);
-      --good:#5CFFB0;
-      --med:#FFDF6C;
-      --bad:#FF6B8B;
-      --accent:#7C5CFF;
-      --shadow: 0 20px 60px rgba(0,0,0,.55);
-      --radius: 18px;
-      --radius2: 12px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family:var(--sans);
-      color:var(--text);
-      background:
-        radial-gradient(1200px 700px at 10% 10%, rgba(124,92,255,.25), transparent 55%),
-        radial-gradient(900px 600px at 90% 20%, rgba(124,92,255,.14), transparent 55%),
-        radial-gradient(800px 600px at 40% 90%, rgba(92,255,176,.10), transparent 55%),
-        linear-gradient(180deg, var(--bg0), var(--bg1));
-      overflow-x:hidden;
-    }
-    .wrap{max-width:1400px; margin:0 auto; padding:28px 16px 60px}
-    header{
-      display:flex; align-items:flex-end; justify-content:space-between; gap:16px;
-      padding:18px 18px;
-      background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
-      border:1px solid var(--stroke);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
-    }
-    h1{margin:0; font-size:20px; letter-spacing:.2px}
-    .sub{margin:6px 0 0; color:var(--muted); font-size:13px}
-    .pill{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:8px 10px;
-      border-radius: 999px;
-      border:1px solid var(--stroke);
-      background: rgba(0,0,0,.18);
-      font-family: var(--mono);
-      font-size:12px;
-      color:var(--muted);
-      white-space:nowrap;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Vendas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    .tabs{
-      margin-top:14px;
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-    }
-    .tabbtn{
-      padding:10px 12px;
-      border-radius: 999px;
-      border:1px solid var(--stroke);
-      background: rgba(0,0,0,.18);
-      color: var(--text);
-      cursor:pointer;
-      font-size:13px;
-    }
-    .tabbtn.active{
-      background: linear-gradient(180deg, rgba(124,92,255,.25), rgba(124,92,255,.10));
-      border-color: rgba(124,92,255,.35);
-    }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
 
-    .grid{display:grid; grid-template-columns: repeat(12, 1fr); gap:14px; margin-top:14px;}
-    .card{
-      grid-column: span 12;
-      padding:16px;
-      background: var(--card);
-      border: 1px solid var(--stroke);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
-    }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
 
-    /* KPIs */
-    .kpis{display:grid; grid-template-columns: repeat(2, 1fr); gap:12px;}
-    @media (min-width: 640px){ .kpis{grid-template-columns: repeat(3, 1fr);} }
-    @media (min-width: 900px){ .kpis{grid-template-columns: repeat(4, 1fr);} }
-    @media (min-width: 1200px){ .kpis{grid-template-columns: repeat(9, 1fr);} }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
 
-    .kpi{
-      padding:14px;
-      border-radius: var(--radius2);
-      border:1px solid var(--stroke);
-      background: rgba(0,0,0,.15);
-      min-height:92px;
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-    }
-    .kpi .label{font-size:11px;color:var(--muted);line-height:1.3;margin-bottom:8px}
-    .kpi .value{font-size:16px;font-weight:700;letter-spacing:.2px;flex-grow:1;display:flex;align-items:center;gap:8px}
-    @media (min-width: 640px){ .kpi .label{font-size:12px} .kpi .value{font-size:18px} }
-    @media (min-width: 1024px){ .kpi .value{font-size:20px} }
-    .kpi .hint{margin-top:6px;font-size:10px;color:var(--muted);opacity:.7}
+        .header h1 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
 
-    /* Filters */
-    .filters .row{
-      display:grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap:10px;
-      align-items:end;
-    }
-    @media (max-width: 700px){
-      .filters .row{grid-template-columns:1fr}
-    }
-    label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
-    select, input{
-      width:100%;
-      padding:10px 10px;
-      border-radius: 12px;
-      border:1px solid var(--stroke);
-      background: rgba(10,12,20,.55);
-      color: var(--text);
-      outline:none;
-    }
-    input::placeholder{color: rgba(234,240,255,.42)}
-    .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-    button{
-      padding:10px 12px;
-      border-radius: 12px;
-      border:1px solid var(--stroke);
-      background: linear-gradient(180deg, rgba(124,92,255,.25), rgba(124,92,255,.10));
-      color: var(--text);
-      cursor:pointer;
-    }
-    button.secondary{background: rgba(0,0,0,.18)}
+        .upload-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
 
-    .err{
-      margin-top:12px;
-      padding:12px 14px;
-      border-radius: 14px;
-      border:1px solid rgba(255,107,139,.35);
-      background: rgba(255,107,139,.10);
-      color: rgba(255,220,230,.95);
-      display:none;
-      white-space:pre-wrap;
-    }
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
 
-    /* Table */
-    .tableWrap{overflow:auto; border-radius:14px; border:1px solid var(--stroke);}
-    table{width:100%; border-collapse:collapse; min-width: 980px; background: rgba(0,0,0,.10);}
-    th,td{padding:10px 10px; border-bottom:1px solid rgba(255,255,255,.08); text-align:left; font-size:13px; white-space:nowrap;}
-    th{
-      position:sticky; top:0;
-      background: rgba(10,12,20,.85);
-      backdrop-filter: blur(8px);
-      z-index:2;
-      color: rgba(234,240,255,.85);
-      font-weight:600;
-      cursor:pointer;
-      user-select:none;
-    }
-    th .sort{
-      margin-left:6px;
-      font-size:11px;
-      opacity:.7;
-    }
-    tr:hover td{background: rgba(255,255,255,.03);}
-    .right{text-align:right}
-    .center{text-align:center}
-    .muted{color:var(--muted)}
-    .badge{
-      display:inline-flex; align-items:center; justify-content:center;
-      padding:2px 8px; border-radius:999px; font-size:12px;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.18);
-    }
-    .b-good{border-color: rgba(92,255,176,.35); color: rgba(92,255,176,.95); background: rgba(92,255,176,.10);}
-    .b-med{border-color: rgba(255,223,108,.35); color: rgba(255,223,108,.95); background: rgba(255,223,108,.10);}
-    .b-bad{border-color: rgba(255,107,139,.35); color: rgba(255,107,139,.95); background: rgba(255,107,139,.10);}
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
 
-    .tabPanel{display:none}
-    .tabPanel.active{display:block}
-    .twoCols{display:grid; grid-template-columns: 1fr 1fr; gap:14px;}
-    @media (max-width: 980px){ .twoCols{grid-template-columns:1fr} }
-    .smallNote{font-size:12px; color:var(--muted); margin-top:8px; line-height:1.4}
-  </style>
+        .file-input-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .file-input-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .process-button {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 20px;
+        }
+
+        .process-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .process-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .file-info {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            color: #666;
+        }
+
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 15px 15px 0 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 0;
+            overflow-x: auto;
+        }
+
+        .tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .tab:hover {
+            background: #f8f9fa;
+        }
+
+        .tab.active {
+            border-bottom-color: #667eea;
+            background: #f8f9fa;
+            color: #667eea;
+        }
+
+        .content {
+            background: white;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            min-height: 500px;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .metric-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .metric-card .value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .metric-card .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .data-table {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        .data-table table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+
+        .data-table th:hover {
+            background: #e9ecef;
+        }
+
+        .data-table th[data-sort]::after {
+            content: " ⇅";
+            opacity: 0.5;
+            margin-left: 5px;
+        }
+
+        .data-table th[data-sort].asc::after {
+            content: " ↑";
+            opacity: 1;
+            color: #667eea;
+        }
+
+        .data-table th[data-sort].desc::after {
+            content: " ↓";
+            opacity: 1;
+            color: #667eea;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+
+        .loading::before {
+            content: "⏳";
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .error {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c66;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .success {
+            background: #efe;
+            border: 1px solid #cfc;
+            color: #6c6;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        /* Estilos específicos para diferentes tipos de cards */
+        .metric-card.vendas { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .metric-card.faturamento { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .metric-card.conversao { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .metric-card.cancelamento { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .metric-card.ticket { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #333; }
+        .metric-card.renda { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); color: #333; }
+
+        .chart-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .renda-grupos {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .renda-grupo {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .renda-grupo h4 {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .renda-grupo .count {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .renda-grupo .percentage {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-wrap: wrap;
+            }
+            
+            .tab {
+                flex: 1;
+                text-align: center;
+                min-width: 120px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div>
-        <h1>Painel de Atendimentos (CSV)</h1>
-        <div class="sub">Leitura de <span class="pill" id="csvPath">dados.csv</span> via GitHub Pages (sem backend).</div>
-      </div>
-      <div class="pill" id="statusPill">Carregando…</div>
-    </header>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Dashboard de Vendas</h1>
+            <p style="color: white; opacity: 0.9;">Análise completa dos dados de vendas</p>
+        </div>
 
-    <nav class="tabs" aria-label="Abas do painel">
-      <button class="tabbtn active" data-tab="tab-resumo">Resumo</button>
-      <button class="tabbtn" data-tab="tab-ranking">Ranking</button>
-      <button class="tabbtn" data-tab="tab-profissionais">Profissionais (ativo/inativo)</button>
-      <button class="tabbtn" data-tab="tab-renda">Resultado por renda</button>
-    </nav>
-
-    <!-- RESUMO -->
-    <section id="tab-resumo" class="tabPanel active">
-      <div class="grid">
-        <section class="card">
-          <div class="kpis" id="kpis"></div>
-          <div class="smallNote" id="kpiNote"></div>
-        </section>
-
-        <section class="card">
-          <div class="smallNote"><b>Índice de TurnOver</b> (por área): total, ativos, inativos e % de inativos.</div>
-          <div class="tableWrap" style="margin-top:10px;">
-            <table style="min-width: 720px;">
-              <thead>
-                <tr>
-                  <th data-table="turnover" data-key="area">Área <span class="sort"></span></th>
-                  <th class="right" data-table="turnover" data-key="total">Total <span class="sort"></span></th>
-                  <th class="right" data-table="turnover" data-key="ativos">Ativos <span class="sort"></span></th>
-                  <th class="right" data-table="turnover" data-key="inativos">Inativos <span class="sort"></span></th>
-                  <th class="right" data-table="turnover" data-key="pctInativo">% Inativo <span class="sort"></span></th>
-                </tr>
-              </thead>
-              <tbody id="turnoverBody"></tbody>
-            </table>
-          </div>
-        </section>
-
-        <section class="card filters">
-          <div class="row">
-            <div>
-              <label>Período (início)</label>
-              <input id="dtIni_resumo" placeholder="dd/mm/aaaa" />
+        <div class="upload-section">
+            <h2 style="margin-bottom: 20px;">📁 Upload do Arquivo CSV</h2>
+            <div class="file-input-wrapper">
+                <input type="file" id="csvFile" class="file-input" accept=".csv" />
+                <label for="csvFile" class="file-input-button">
+                    Escolher Arquivo CSV
+                </label>
             </div>
-            <div>
-              <label>Período (fim)</label>
-              <input id="dtFim_resumo" placeholder="dd/mm/aaaa" />
-            </div>
-          </div>
+            <button id="processBtn" class="process-button" disabled>
+                🚀 Processar Dados
+            </button>
+            <div id="fileInfo" class="file-info" style="display: none;"></div>
+        </div>
 
-          <div class="btns">
-            <button data-action="aplicar" data-scope="resumo">Aplicar filtros</button>
-            <button class="secondary" data-action="limpar" data-scope="resumo">Limpar</button>
-          </div>
-
-          <div class="err" id="errBox"></div>
-        </section>
-      </div>
-    </section>
-
-    <!-- RANKING -->
-    <section id="tab-ranking" class="tabPanel">
-      <div class="grid">
-        <section class="card">
-          <div class="filters">
-            <div class="row" style="grid-template-columns: repeat(3, 1fr);">
-              <div>
-                <label>Dimensão</label>
-                <select id="rankDim">
-                  <option value="promotor de marketing">Promotor de marketing</option>
-                  <option value="linner">Linner</option>
-                  <option value="consultor">Consultor</option>
-                </select>
-              </div>
-              <div>
-                <label>Busca (nome contém)</label>
-                <input id="rankSearch" placeholder="Ex.: JOÃO" />
-              </div>
-              <div>
-                <label>Somente ativos?</label>
-                <select id="rankOnlyActive">
-                  <option value="nao">Não</option>
-                  <option value="sim">Sim</option>
-                </select>
-              </div>
+        <div id="dashboard" style="display: none;">
+            <div class="tabs">
+                <div class="tab active" data-tab="resumo">📈 Resumo Geral</div>
+                <div class="tab" data-tab="funil">🔄 Funil de Vendas</div>
+                <div class="tab" data-tab="promotores">👥 Promotores</div>
+                <div class="tab" data-tab="renda">💰 Análise por Renda</div>
+                <div class="tab" data-tab="dados">📋 Dados Brutos</div>
             </div>
 
-            <div class="row" style="margin-top:10px;">
-              <div>
-                <label>Período (início)</label>
-                <input id="dtIni_ranking" placeholder="dd/mm/aaaa" />
-              </div>
-              <div>
-                <label>Período (fim)</label>
-                <input id="dtFim_ranking" placeholder="dd/mm/aaaa" />
-              </div>
-            </div>
-
-            <div class="btns">
-              <button data-action="aplicar" data-scope="ranking">Aplicar filtros</button>
-              <button class="secondary" data-action="limpar" data-scope="ranking">Limpar</button>
-            </div>
-          </div>
-        </section>
-
-        <section class="card">
-          <div class="tableWrap">
-            <table>
-              <thead>
-                <tr>
-                  <th data-table="ranking" data-key="nome">Profissional <span class="sort"></span></th>
-                  <th class="center" data-table="ranking" data-key="active">Status <span class="sort"></span></th>
-                  <th class="right" data-table="ranking" data-key="casais">Casais <span class="sort"></span></th>
-                  <th class="right" data-table="ranking" data-key="vendas">Vendas <span class="sort"></span></th>
-                  <th class="right" data-table="ranking" data-key="vgv">VGV <span class="sort"></span></th>
-                  <th class="right" data-table="ranking" data-key="eficiencia">Eficiência <span class="sort"></span></th>
-                  <th class="right" data-table="ranking" data-key="cancelamentos">Cancelamentos <span class="sort"></span></th>
-                  <th class="right" data-table="ranking" data-key="pctCancel">% Cancel. <span class="sort"></span></th>
-                </tr>
-              </thead>
-              <tbody id="rankBody"></tbody>
-            </table>
-          </div>
-          <div class="smallNote">
-            Eficiência: <span class="badge b-good">&ge; 25%</span>,
-            <span class="badge b-med">20% a 24,9%</span>,
-            <span class="badge b-bad">&lt; 20%</span>.
-          </div>
-        </section>
-      </div>
-    </section>
-
-    <!-- PROFISSIONAIS -->
-    <section id="tab-profissionais" class="tabPanel">
-      <div class="grid">
-        <section class="card">
-          <div class="twoCols">
-            <div>
-              <div class="kpis" id="kpisProf"></div>
-              <div class="smallNote">
-                Marcação de ativo/inativo e equipe do promotor são salvas no navegador (localStorage).
-              </div>
-            </div>
-            <div>
-              <div class="filters">
-                <div class="row" style="grid-template-columns: repeat(3, 1fr);">
-                  <div>
-                    <label>Tipo</label>
-                    <select id="profTipo">
-                      <option value="">(todos)</option>
-                      <option value="promotor de marketing">Promotor de marketing</option>
-                      <option value="linner">Linner</option>
-                      <option value="consultor">Closer/Consultor</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label>Equipe (promotor)</label>
-                    <select id="profEquipe">
-                      <option value="">(todas)</option>
-                      <option value="EQUIPE PARQUE">EQUIPE PARQUE</option>
-                      <option value="EQUIPE EXTERNA">EQUIPE EXTERNA</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label>Busca</label>
-                    <input id="profBusca" placeholder="Nome contém..." />
-                  </div>
+            <div class="content">
+                <!-- Aba Resumo Geral -->
+                <div class="tab-content active" id="tab-resumo">
+                    <h2>📊 Resumo Geral das Vendas</h2>
+                    <div class="metrics-grid" id="resumoMetrics"></div>
+                    <div class="chart-container">
+                        <h3>📈 Principais Indicadores</h3>
+                        <p>Visão geral do desempenho de vendas e conversão.</p>
+                    </div>
                 </div>
 
-                <div class="row" style="margin-top:10px;">
-                  <div>
-                    <label>Período (início)</label>
-                    <input id="dtIni_prof" placeholder="dd/mm/aaaa" />
-                  </div>
-                  <div>
-                    <label>Período (fim)</label>
-                    <input id="dtFim_prof" placeholder="dd/mm/aaaa" />
-                  </div>
+                <!-- Aba Funil de Vendas -->
+                <div class="tab-content" id="tab-funil">
+                    <h2>🔄 Funil de Vendas</h2>
+                    <div class="metrics-grid" id="funilMetrics"></div>
+                    <div class="data-table" id="funilTable"></div>
                 </div>
 
-                <div class="btns">
-                  <button data-action="aplicar" data-scope="prof">Aplicar filtros</button>
-                  <button class="secondary" data-action="limpar" data-scope="prof">Limpar</button>
+                <!-- Aba Promotores -->
+                <div class="tab-content" id="tab-promotores">
+                    <h2>👥 Análise por Promotores</h2>
+                    <div class="metrics-grid" id="promotoresMetrics"></div>
+                    <div class="data-table" id="promotoresTable"></div>
                 </div>
-              </div>
+
+                <!-- Aba Análise por Renda -->
+                <div class="tab-content" id="tab-renda">
+                    <h2>💰 Análise por Faixa de Renda</h2>
+                    <div class="renda-grupos" id="rendaGrupos"></div>
+                    <div class="data-table" id="rendaTable"></div>
+                </div>
+
+                <!-- Aba Dados Brutos -->
+                <div class="tab-content" id="tab-dados">
+                    <h2>📋 Dados Brutos</h2>
+                    <div class="data-table" id="dadosTable"></div>
+                </div>
             </div>
-          </div>
-        </section>
+        </div>
+    </div>
 
-        <section class="card">
-          <div class="tableWrap">
-            <table style="min-width: 980px;">
-              <thead>
-                <tr>
-                  <th data-table="prof" data-key="nome">Profissional <span class="sort"></span></th>
-                  <th data-table="prof" data-key="tipo">Tipo <span class="sort"></span></th>
-                  <th data-table="prof" data-key="equipe">Equipe (PM) <span class="sort"></span></th>
-                  <th class="center" data-table="prof" data-key="active">Ativo? <span class="sort"></span></th>
-                </tr>
-              </thead>
-              <tbody id="profBody"></tbody>
-            </table>
-          </div>
-        </section>
-      </div>
-    </section>
+    <script>
+        // Estado global da aplicação
+        window.appState = {
+            rawData: [],
+            processedData: {},
+            sortState: {}
+        };
 
-    <!-- RENDA -->
-    <section id="tab-renda" class="tabPanel">
-      <div class="grid">
-        <section class="card">
-          <div class="filters">
-            <div class="row">
-              <div>
-                <label>Período (início)</label>
-                <input id="dtIni_renda" placeholder="dd/mm/aaaa" />
-              </div>
-              <div>
-                <label>Período (fim)</label>
-                <input id="dtFim_renda" placeholder="dd/mm/aaaa" />
-              </div>
-            </div>
-            <div class="btns">
-              <button data-action="aplicar" data-scope="renda">Aplicar filtros</button>
-              <button class="secondary" data-action="limpar" data-scope="renda">Limpar</button>
-            </div>
-          </div>
-
-          <div class="smallNote" style="margin-top:10px;">
-            Tabela 1: faixas de <b>R$ 1.000</b>. Tabela 2: agrupamento (até 11,9; 12-14,9; 15-19,9; 20-39,9; 40+).
-            Precisa da coluna <span class="pill">renda</span> (ou equivalente). Se estiver vazia, as linhas ficam fora das tabelas.
-          </div>
-        </section>
-
-        <section class="card">
-          <div class="smallNote"><b>Renda por mil</b></div>
-          <div class="tableWrap" style="margin-top:10px;">
-            <table style="min-width: 980px;">
-              <thead>
-                <tr>
-                  <th data-table="rendaMil" data-key="bucketNum">Faixa renda (R$ mil) <span class="sort"></span></th>
-                  <th class="right" data-table="rendaMil" data-key="casais">Casais <span class="sort"></span></th>
-                  <th class="right" data-table="rendaMil" data-key="vendas">Vendas <span class="sort"></span></th>
-                  <th class="right" data-table="rendaMil" data-key="vgv">VGV <span class="sort"></span></th>
-                  <th class="right" data-table="rendaMil" data-key="cancelamentos">Cancelamentos <span class="sort"></span></th>
-                  <th class="right" data-table="rendaMil" data-key="pctCancel">% Cancel. <span class="sort"></span></th>
-                </tr>
-              </thead>
-              <tbody id="rendaBody"></tbody>
-            </table>
-          </div>
-        </section>
-
-        <section class="card">
-          <div class="smallNote"><b>Renda (agrupada)</b></div>
-          <div class="tableWrap" style="margin-top:10px;">
-            <table style="min-width: 980px;">
-              <thead>
-                <tr>
-                  <th data-table="rendaGrupo" data-key="grupo">Grupo <span class="sort"></span></th>
-                  <th class="right" data-table="rendaGrupo" data-key="casais">Casais <span class="sort"></span></th>
-                  <th class="right" data-table="rendaGrupo" data-key="vendas">Vendas <span class="sort"></span></th>
-                  <th class="right" data-table="rendaGrupo" data-key="vgv">VGV <span class="sort"></span></th>
-                  <th class="right" data-table="rendaGrupo" data-key="cancelamentos">Cancelamentos <span class="sort"></span></th>
-                  <th class="right" data-table="rendaGrupo" data-key="pctCancel">% Cancel. <span class="sort"></span></th>
-                </tr>
-              </thead>
-              <tbody id="rendaGrupoBody"></tbody>
-            </table>
-          </div>
-        </section>
-      </div>
-    </section>
-  </div>
-
-<script>
-  const CSV_URL = "./dados.csv";
-
-  const el = (id) => document.getElementById(id);
-
-  const state = {
-    rows: [],
-    filters: {
-      resumo: { ini:null, fim:null },
-      ranking: { ini:null, fim:null },
-      prof: { ini:null, fim:null },
-      renda: { ini:null, fim:null },
-    },
-    sort: {
-      ranking: { key:"vendas", dir:"desc" },
-      prof: { key:"nome", dir:"asc" },
-      rendaMil: { key:"bucketNum", dir:"asc" },
-      rendaGrupo: { key:"grupo", dir:"asc" },
-      turnover: { key:"area", dir:"asc" },
-    },
-    dataViews: {
-      ranking: [],
-      prof: [],
-      rendaMil: [],
-      rendaGrupo: [],
-      turnover: [],
-    },
-    profActive: {},   // key -> bool
-    profEquipe: {},   // key -> "EQUIPE PARQUE" | "EQUIPE EXTERNA" | ""
-  };
-
-  // ========= Utils =========
-  function showError(msg){
-    const box = el("errBox");
-    box.style.display = "block";
-    box.textContent = msg;
-  }
-  function clearError(){
-    const box = el("errBox");
-    box.style.display = "none";
-    box.textContent = "";
-  }
-  function stripBOM(s){ return (s ? s.replace(/^\uFEFF/,"") : s); }
-  function normalizeHeader(h){ return stripBOM(String(h ?? "")).trim().toLowerCase(); }
-  function escapeHtml(s){
-    return String(s ?? "")
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;")
-      .replaceAll("'","&#039;");
-  }
-  function normName(s){
-    return String(s ?? "").trim().replace(/\s+/g," ").toUpperCase();
-  }
-
-  function parseBRDate(str){
-    if (!str) return null;
-    const s = String(str).trim();
-    const m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-    if (!m) return null;
-    const d = Number(m[1]), mo = Number(m[2])-1, y = Number(m[3]);
-    const dt = new Date(y, mo, d);
-    if (dt.getFullYear() !== y || dt.getMonth() !== mo || dt.getDate() !== d) return null;
-    return dt;
-  }
-
-  function parseMoneyBR(value){
-    if (value == null) return 0;
-    let s = String(value).trim();
-    if (!s) return 0;
-    s = s.replace(/\s/g,"").replace(/^R\$/i,"");
-    if (s.includes(",")){
-      s = s.replace(/\./g,"").replace(",",".");
-    } else {
-      s = s.replace(/\./g,"");
-    }
-    const n = Number(s);
-    return Number.isFinite(n) ? n : 0;
-  }
-  function formatMoneyBR(n){
-    return (n || 0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
-  }
-  function formatPercent(n){
-    return (n || 0).toLocaleString("pt-BR",{style:"percent",minimumFractionDigits:1,maximumFractionDigits:1});
-  }
-
-  function parseCSV(text, delimiter=";"){
-    const rows = [];
-    let i=0, field="", row=[], inQuotes=false;
-    while (i<text.length){
-      const c=text[i];
-      if (inQuotes){
-        if (c==='"'){
-          if (text[i+1]==='"'){ field+='"'; i+=2; continue; }
-          inQuotes=false; i++; continue;
+        // Mapeamento de alias para colunas
+        function headerAliasKey(header) {
+            const h = header.toLowerCase().trim();
+            
+            if (h.includes('status') || h.includes('situacao') || h.includes('situação')) return 'status';
+            if (h.includes('valor') && (h.includes('vendido') || h.includes('venda'))) return 'valor_vendido';
+            if (h.includes('promotor') || h.includes('vendedor')) return 'promotor';
+            if (h.includes('renda')) return 'renda';
+            if (h.includes('nome') && !h.includes('promotor')) return 'nome_cliente';
+            if (h.includes('email')) return 'email';
+            if (h.includes('telefone') || h.includes('celular')) return 'telefone';
+            if (h.includes('data') && h.includes('venda')) return 'data_venda';
+            if (h.includes('produto')) return 'produto';
+            
+            return h.replace(/\s+/g, '_');
         }
-        field+=c; i++; continue;
-      } else {
-        if (c==='"'){ inQuotes=true; i++; continue; }
-        if (c===delimiter){ row.push(field); field=""; i++; continue; }
-        if (c==='\n'){ row.push(field); rows.push(row); row=[]; field=""; i++; continue; }
-        if (c==='\r'){ i++; continue; }
-        field+=c; i++; continue;
-      }
-    }
-    row.push(field);
-    if (row.length>1 || (row.length===1 && row[0].trim()!=='')) rows.push(row);
-    return rows;
-  }
 
-  function buildObjects(csvText){
-    const matrix = parseCSV(csvText, ";");
-    if (!matrix.length) return [];
-    const headersRaw = matrix[0];
-    const headers = headersRaw.map(normalizeHeader);
-
-    if (headers.indexOf("data") === -1){
-      throw new Error(`Cabeçalho "data" não encontrado. Cabeçalhos lidos: ${headersRaw.join(" | ")}`);
-    }
-
-    const rows = [];
-    for (let r=1; r<matrix.length; r++){
-      const line = matrix[r];
-      const obj = {};
-      for (let c=0; c<headers.length; c++){
-        const key = headers[c] || `col_${c}`;
-        obj[key] = (line[c] ?? "").trim();
-      }
-      obj._date = parseBRDate(obj["data"]);
-      obj._valor = parseMoneyBR(obj["valor vendido"]);
-      obj._renda = parseMoneyBR(obj["renda"] ?? obj["renda do casal"] ?? obj["renda familiar"]);
-      rows.push(obj);
-    }
-    return rows;
-  }
-
-  function splitStatusList(statusString){
-    if (!statusString || String(statusString).trim() === "") return [];
-    return String(statusString).split("#").map(s => s.trim().toUpperCase()).filter(Boolean);
-  }
-  function countInStatus(statusString, wanted){
-    const list = splitStatusList(statusString);
-    const w = String(wanted).trim().toUpperCase();
-    return list.filter(x => x === w).length;
-  }
-
-  function effBadge(eff){
-    if (eff >= 0.25) return `<span class="badge b-good">OK</span>`;
-    if (eff >= 0.20) return `<span class="badge b-med">MÉDIO</span>`;
-    return `<span class="badge b-bad">RUIM</span>`;
-  }
-
-  // ========= localStorage (ativos/equipe) =========
-  const LS_ACTIVE = "painel_prof_active_v2";
-  const LS_EQUIPE = "painel_prof_equipe_v2";
-
-  function loadProfMeta(){
-    try{ state.profActive = JSON.parse(localStorage.getItem(LS_ACTIVE) || "{}"); }catch{ state.profActive = {}; }
-    try{ state.profEquipe = JSON.parse(localStorage.getItem(LS_EQUIPE) || "{}"); }catch{ state.profEquipe = {}; }
-  }
-  function saveProfMeta(){
-    localStorage.setItem(LS_ACTIVE, JSON.stringify(state.profActive||{}));
-    localStorage.setItem(LS_EQUIPE, JSON.stringify(state.profEquipe||{}));
-  }
-  function makeProfKey(tipo, nome){
-    return `${normName(tipo)}|${normName(nome)}`;
-  }
-  function isProfActive(tipo, nome){
-    const k = makeProfKey(tipo, nome);
-    const v = state.profActive[k];
-    return (v === undefined) ? true : !!v;
-  }
-  function setProfActive(tipo, nome, active){
-    state.profActive[makeProfKey(tipo,nome)] = !!active;
-    saveProfMeta();
-  }
-  function getProfEquipe(nome){
-    const k = makeProfKey("promotor de marketing", nome);
-    return state.profEquipe[k] || "";
-  }
-  function setProfEquipe(nome, equipe){
-    const k = makeProfKey("promotor de marketing", nome);
-    state.profEquipe[k] = equipe || "";
-    saveProfMeta();
-  }
-
-  // ========= Filtros por escopo =========
-  function filterByScope(scope){
-    const f = state.filters[scope];
-    const ini = f?.ini || null;
-    const fim = f?.fim || null;
-    return state.rows.filter(r=>{
-      if (ini && (!r._date || r._date < ini)) return false;
-      if (fim && (!r._date || r._date > fim)) return false;
-      return true;
-    });
-  }
-
-  function readScopeDates(scope){
-    const ini = parseBRDate(el(`dtIni_${scope}`).value.trim());
-    const fim = parseBRDate(el(`dtFim_${scope}`).value.trim());
-    state.filters[scope] = { ini, fim };
-  }
-  function clearScopeDates(scope){
-    el(`dtIni_${scope}`).value = "";
-    el(`dtFim_${scope}`).value = "";
-    state.filters[scope] = { ini:null, fim:null };
-  }
-
-  // ========= Sorting infra (clicar no TH) =========
-  function getSort(tableName){ return state.sort[tableName] || {key:null, dir:"asc"}; }
-  function setSort(tableName, key){
-    const cur = getSort(tableName);
-    if (cur.key === key){
-      cur.dir = (cur.dir === "desc") ? "asc" : "desc";
-    } else {
-      cur.key = key;
-      cur.dir = "desc"; // padrão: maior -> menor
-      // algumas tabelas fazem mais sentido asc por padrão:
-      if (tableName === "rendaMil" && key === "bucketNum") cur.dir = "asc";
-      if (tableName === "rendaGrupo" && key === "grupo") cur.dir = "asc";
-      if (tableName === "prof" && (key === "nome" || key === "tipo" || key === "equipe")) cur.dir = "asc";
-      if (tableName === "turnover" && key === "area") cur.dir = "asc";
-    }
-    state.sort[tableName] = cur;
-  }
-
-  function sortList(list, tableName){
-    const {key, dir} = getSort(tableName);
-    if (!key) return list;
-
-    const mul = (dir === "desc") ? -1 : 1;
-    const val = (x)=> x[key];
-
-    // strings/booleans/numbers
-    return list.slice().sort((a,b)=>{
-      const av = val(a);
-      const bv = val(b);
-
-      const aNull = (av === null || av === undefined);
-      const bNull = (bv === null || bv === undefined);
-      if (aNull && bNull) return 0;
-      if (aNull) return 1;
-      if (bNull) return -1;
-
-      if (typeof av === "number" && typeof bv === "number"){
-        return (av - bv) * mul;
-      }
-      if (typeof av === "boolean" && typeof bv === "boolean"){
-        return ((av === bv) ? 0 : (av ? 1 : -1)) * mul;
-      }
-      return String(av).localeCompare(String(bv), "pt-BR") * mul;
-    });
-  }
-
-  function updateSortIndicators(){
-    document.querySelectorAll("th[data-table][data-key]").forEach(th=>{
-      const table = th.getAttribute("data-table");
-      const key = th.getAttribute("data-key");
-      const cur = getSort(table);
-      const s = th.querySelector(".sort");
-      if (!s) return;
-      if (cur.key !== key){ s.textContent = ""; return; }
-      s.textContent = (cur.dir === "desc") ? "▼" : "▲";
-    });
-  }
-
-  // ========= KPIs (Resumo) =========
-  function computeKPIs(rows){
-    const casais = rows.length;
-    const vgv = rows.reduce((acc, r)=>acc + (r._valor||0), 0);
-
-    let vendas = 0;
-    let cancelamentos = 0;
-
-    for (const r of rows){
-      const s = r["status do contrato"];
-      const ativos = countInStatus(s, "ATIVO");
-      const cancelados = countInStatus(s, "CANCELADO");
-      vendas += (ativos + cancelados);
-      cancelamentos += cancelados;
-    }
-
-    const eficiencia = casais > 0 ? (vendas / casais) : 0; // corrigida
-    const pctCancel = vendas > 0 ? (cancelamentos / vendas) : 0;
-    const rendaMedia = casais > 0 ? (vgv / casais) : 0;
-    const ticketMedioVendido = vendas > 0 ? (vgv / vendas) : 0;
-
-    return { casais, vgv, vendas, cancelamentos, pctCancel, eficiencia, rendaMedia, ticketMedioVendido };
-  }
-
-  function renderKPIs(){
-    const rows = filterByScope("resumo");
-    const k = computeKPIs(rows);
-
-    const cards = [
-      { label:"Casais", value: k.casais.toLocaleString("pt-BR"), hint:"Total de registros" },
-      { label:"Vendas (cotas)", value: k.vendas.toLocaleString("pt-BR"), hint:"ATIVO + CANCELADO" },
-      { label:"VGV", value: formatMoneyBR(k.vgv), hint:"Soma total" },
-      { label:"Eficiência", value: formatPercent(k.eficiencia), hint:"Vendas / casais" },
-      { label:"Cancelamentos", value: k.cancelamentos.toLocaleString("pt-BR"), hint:"Qtd. CANCELADO" },
-      { label:"% Cancelamento", value: formatPercent(k.pctCancel), hint:"Canceladas / vendidas" },
-      { label:"Renda média", value: formatMoneyBR(k.rendaMedia), hint:"VGV / casais" },
-      { label:"Ticket médio vendido", value: formatMoneyBR(k.ticketMedioVendido), hint:"VGV / vendas" },
-    ];
-
-    el("kpis").innerHTML = cards.map(c=>`
-      <div class="kpi">
-        <div class="label">${escapeHtml(c.label)}</div>
-        <div class="value">${escapeHtml(c.value)}</div>
-        <div class="hint">${escapeHtml(c.hint)}</div>
-      </div>
-    `).join("");
-
-    el("kpiNote").textContent = `Eficiência calculada como vendas/casais (ex.: ${k.vendas}/${k.casais} = ${formatPercent(k.eficiencia)}).`;
-    el("statusPill").textContent = `OK • ${rows.length.toLocaleString("pt-BR")} casais`;
-  }
-
-  // ========= Ranking =========
-  function groupRanking(rows, dim){
-    const map = new Map();
-    for (const r of rows){
-      const nome = normName(r[dim]);
-      if (!nome) continue;
-
-      const s = r["status do contrato"];
-      const ativos = countInStatus(s, "ATIVO");
-      const cancelados = countInStatus(s, "CANCELADO");
-      const vendas = ativos + cancelados;
-
-      const cur = map.get(nome) || { nome, active: isProfActive(dim, nome), casais:0, vendas:0, vgv:0, cancelamentos:0, eficiencia:0, pctCancel:0 };
-      cur.casais += 1;
-      cur.vendas += vendas;
-      cur.vgv += (r._valor||0);
-      cur.cancelamentos += cancelados;
-      map.set(nome, cur);
-    }
-    const out = [];
-    for (const x of map.values()){
-      x.active = isProfActive(dim, x.nome);
-      x.eficiencia = x.casais > 0 ? (x.vendas / x.casais) : 0;
-      x.pctCancel = x.vendas > 0 ? (x.cancelamentos / x.vendas) : 0;
-      out.push(x);
-    }
-    return out;
-  }
-
-  function renderRanking(){
-    const rows = filterByScope("ranking");
-    const dim = el("rankDim").value;
-    const q = normName(el("rankSearch").value);
-    const onlyActive = (el("rankOnlyActive").value === "sim");
-
-    let list = groupRanking(rows, dim);
-    if (q) list = list.filter(x=>x.nome.includes(q));
-    if (onlyActive) list = list.filter(x=>x.active);
-
-    // sort
-    list = sortList(list, "ranking");
-    state.dataViews.ranking = list;
-
-    el("rankBody").innerHTML = list.map(x=>`
-      <tr>
-        <td>${escapeHtml(x.nome)}</td>
-        <td class="center">${x.active ? `<span class="badge b-good">ATIVO</span>` : `<span class="badge b-bad">INATIVO</span>`}</td>
-        <td class="right">${x.casais.toLocaleString("pt-BR")}</td>
-        <td class="right">${x.vendas.toLocaleString("pt-BR")}</td>
-        <td class="right">${escapeHtml(formatMoneyBR(x.vgv))}</td>
-        <td class="right">${escapeHtml(formatPercent(x.eficiencia))} &nbsp; ${effBadge(x.eficiencia)}</td>
-        <td class="right">${x.cancelamentos.toLocaleString("pt-BR")}</td>
-        <td class="right">${escapeHtml(formatPercent(x.pctCancel))}</td>
-      </tr>
-    `).join("");
-
-    updateSortIndicators();
-  }
-
-  // ========= Profissionais =========
-  function collectProfessionals(allRows){
-    const set = new Map(); // key -> {nome,tipo,equipe,active}
-    for (const r of allRows){
-      const pm = normName(r["promotor de marketing"]);
-      if (pm){
-        const k = makeProfKey("promotor de marketing", pm);
-        if (!set.has(k)) set.set(k, { nome: pm, tipo:"promotor de marketing", equipe: getProfEquipe(pm), active: isProfActive("promotor de marketing", pm) });
-      }
-      const li = normName(r["linner"]);
-      if (li){
-        const k = makeProfKey("linner", li);
-        if (!set.has(k)) set.set(k, { nome: li, tipo:"linner", equipe: "", active: isProfActive("linner", li) });
-      }
-      const co = normName(r["consultor"]);
-      if (co){
-        const k = makeProfKey("consultor", co);
-        if (!set.has(k)) set.set(k, { nome: co, tipo:"consultor", equipe: "", active: isProfActive("consultor", co) });
-      }
-    }
-    return Array.from(set.values());
-  }
-
-  function renderProfKPIs(){
-    const profs = collectProfessionals(state.rows);
-
-    const counts = (tipo)=>{
-      const list = profs.filter(p=>p.tipo===tipo);
-      const ativos = list.filter(p=>isProfActive(tipo, p.nome)).length;
-      const total = list.length;
-      const inativos = total - ativos;
-      return { total, ativos, inativos, pctInativo: total>0 ? (inativos/total) : 0 };
-    };
-
-    const pm = counts("promotor de marketing");
-    const li = counts("linner");
-    const cl = counts("consultor");
-
-    const pmParque = profs.filter(p=>p.tipo==="promotor de marketing" && (getProfEquipe(p.nome)==="EQUIPE PARQUE") && isProfActive(p.tipo,p.nome)).length;
-    const pmExterna = profs.filter(p=>p.tipo==="promotor de marketing" && (getProfEquipe(p.nome)==="EQUIPE EXTERNA") && isProfActive(p.tipo,p.nome)).length;
-
-    const cards = [
-      { label:"PM ativos", value: pm.ativos.toLocaleString("pt-BR"), hint:`Total: ${pm.total}` },
-      { label:"PM • Parque", value: pmParque.toLocaleString("pt-BR"), hint:"Ativos" },
-      { label:"PM • Externa", value: pmExterna.toLocaleString("pt-BR"), hint:"Ativos" },
-      { label:"Linner ativos", value: li.ativos.toLocaleString("pt-BR"), hint:`Total: ${li.total}` },
-      { label:"Closer ativos", value: cl.ativos.toLocaleString("pt-BR"), hint:`Total: ${cl.total}` },
-    ];
-
-    el("kpisProf").innerHTML = cards.map(c=>`
-      <div class="kpi">
-        <div class="label">${escapeHtml(c.label)}</div>
-        <div class="value">${escapeHtml(c.value)}</div>
-        <div class="hint">${escapeHtml(c.hint)}</div>
-      </div>
-    `).join("");
-  }
-
-  function renderProfessionals(){
-    const rows = filterByScope("prof"); // (filtro de período aqui não muda lista de profissionais se nomes não aparecem no período; mas você pediu, então aplicamos no "universo" do período)
-    let profs = collectProfessionals(rows);
-
-    const tipo = el("profTipo").value;
-    const equipe = el("profEquipe").value;
-    const busca = normName(el("profBusca").value);
-
-    if (tipo) profs = profs.filter(p=>p.tipo===tipo);
-    if (equipe) profs = profs.filter(p=> p.tipo==="promotor de marketing" && getProfEquipe(p.nome)===equipe);
-    if (busca) profs = profs.filter(p=>p.nome.includes(busca));
-
-    // refresh computed fields from storage
-    profs = profs.map(p=>({
-      ...p,
-      equipe: (p.tipo==="promotor de marketing") ? (getProfEquipe(p.nome) || "") : "",
-      active: isProfActive(p.tipo, p.nome)
-    }));
-
-    // sort
-    profs = sortList(profs, "prof");
-    state.dataViews.prof = profs;
-
-    el("profBody").innerHTML = profs.map(p=>{
-      const key = makeProfKey(p.tipo, p.nome);
-      const idActive = `act_${btoa(unescape(encodeURIComponent(key))).replaceAll("=","")}`;
-      const idEq = `eq_${btoa(unescape(encodeURIComponent(key))).replaceAll("=","")}`;
-
-      const equipeSelect = (p.tipo === "promotor de marketing")
-        ? `
-          <select id="${idEq}">
-            <option value="" ${(!p.equipe ? "selected" : "")}>(não definido)</option>
-            <option value="EQUIPE PARQUE" ${(p.equipe==="EQUIPE PARQUE" ? "selected" : "")}>EQUIPE PARQUE</option>
-            <option value="EQUIPE EXTERNA" ${(p.equipe==="EQUIPE EXTERNA" ? "selected" : "")}>EQUIPE EXTERNA</option>
-          </select>
-        `
-        : `<span class="muted">-</span>`;
-
-      return `
-        <tr>
-          <td>${escapeHtml(p.nome)}</td>
-          <td>${escapeHtml(p.tipo)}</td>
-          <td>${equipeSelect}</td>
-          <td class="center"><input type="checkbox" id="${idActive}" ${p.active ? "checked" : ""} /></td>
-        </tr>
-      `;
-    }).join("");
-
-    // bind events
-    profs.forEach(p=>{
-      const key = makeProfKey(p.tipo, p.nome);
-      const idActive = `act_${btoa(unescape(encodeURIComponent(key))).replaceAll("=","")}`;
-      const chk = document.getElementById(idActive);
-      if (chk){
-        chk.addEventListener("change", ()=>{
-          setProfActive(p.tipo, p.nome, chk.checked);
-          renderProfKPIs();
-          renderTurnover();
-          renderRanking(); // status na tabela
-          renderProfessionals(); // para resort/atualizar coluna
-        });
-      }
-      if (p.tipo === "promotor de marketing"){
-        const idEq = `eq_${btoa(unescape(encodeURIComponent(key))).replaceAll("=","")}`;
-        const sel = document.getElementById(idEq);
-        if (sel){
-          sel.addEventListener("change", ()=>{
-            setProfEquipe(p.nome, sel.value);
-            renderProfKPIs();
-            renderProfessionals();
-          });
+        // Parser CSV melhorado
+        function parseCSV(csvText) {
+            const lines = csvText.trim().split('\n');
+            if (lines.length === 0) return [];
+            
+            const headers = lines[0].split(';').map(h => h.replace(/"/g, '').trim());
+            const mappedHeaders = headers.map(headerAliasKey);
+            
+            const data = [];
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(';').map(v => v.replace(/"/g, '').trim());
+                if (values.length === headers.length) {
+                    const row = {};
+                    mappedHeaders.forEach((header, index) => {
+                        let value = values[index];
+                        
+                        // Conversão de valores
+                        if (header === 'valor_vendido' || header === 'renda') {
+                            value = parseFloat(value.replace(/\./g, '').replace(',', '.')) || 0;
+                        }
+                        
+                        row[header] = value;
+                    });
+                    data.push(row);
+                }
+            }
+            
+            return data;
         }
-      }
-    });
 
-    updateSortIndicators();
-  }
+        // Função para classificar faixa de renda
+        function classificarRenda(valor) {
+            if (valor < 12000) return 'Até R$ 11,9k';
+            if (valor < 15000) return 'R$ 12k - R$ 14,9k';
+            if (valor < 20000) return 'R$ 15k - R$ 19,9k';
+            if (valor < 40000) return 'R$ 20k - R$ 39,9k';
+            return 'Acima de R$ 40k';
+        }
 
-  // ========= Turnover (Resumo) =========
-  function renderTurnover(){
-    const profs = collectProfessionals(state.rows);
+        // Sistema de ordenação global
+        function getActiveTabId() {
+            const active = document.querySelector('.tab.active');
+            return active?.dataset?.tab || 'resumo';
+        }
 
-    const byTipo = (tipo, label)=>{
-      const list = profs.filter(p=>p.tipo===tipo);
-      const total = list.length;
-      const ativos = list.filter(p=>isProfActive(tipo, p.nome)).length;
-      const inativos = total - ativos;
-      const pctInativo = total>0 ? (inativos/total) : 0;
-      return { area: label, total, ativos, inativos, pctInativo };
-    };
+        function sortDataByField(arr, field, dir = 'desc') {
+            const mult = dir === 'asc' ? 1 : -1;
+            
+            return [...arr].sort((a, b) => {
+                const va = a[field];
+                const vb = b[field];
+                
+                // Tratamento para números
+                const na = typeof va === 'number' ? va : parseFloat(String(va || '0').replace(/\./g, '').replace(',', '.'));
+                const nb = typeof vb === 'number' ? vb : parseFloat(String(vb || '0').replace(/\./g, '').replace(',', '.'));
+                
+                if (Number.isFinite(na) && Number.isFinite(nb)) {
+                    return (na - nb) * mult;
+                }
+                
+                // Fallback para strings
+                const sa = String(va || '');
+                const sb = String(vb || '');
+                return sa.localeCompare(sb, 'pt-BR', { numeric: true }) * mult;
+            });
+        }
 
-    let list = [
-      byTipo("promotor de marketing","Promotor"),
-      byTipo("linner","Linner"),
-      byTipo("consultor","Closer"),
-    ];
-
-    list = sortList(list, "turnover");
-    state.dataViews.turnover = list;
-
-    el("turnoverBody").innerHTML = list.map(x=>`
-      <tr>
-        <td>${escapeHtml(x.area)}</td>
-        <td class="right">${x.total.toLocaleString("pt-BR")}</td>
-        <td class="right">${x.ativos.toLocaleString("pt-BR")}</td>
-        <td class="right">${x.inativos.toLocaleString("pt-BR")}</td>
-        <td class="right">${escapeHtml(formatPercent(x.pctInativo))}</td>
-      </tr>
-    `).join("");
-
-    updateSortIndicators();
-  }
-
-  // ========= Renda =========
-  function rendaBucketMil(value){
-    if (!Number.isFinite(value) || value <= 0) return null;
-    return Math.floor(value / 1000); // 10 => 10 mil
-  }
-  function rendaGrupo(value){
-    if (!Number.isFinite(value) || value <= 0) return null;
-    if (value <= 11999.99) return "Até 11,9 mil";
-    if (value >= 12000 && value <= 14999.99) return "12,0 a 14,9 mil";
-    if (value >= 15000 && value <= 19999.99) return "15,0 a 19,9 mil";
-    if (value >= 20000 && value <= 39999.99) return "20,0 a 39,9 mil";
-    if (value >= 40000) return "40+ mil";
-    return null;
-  }
-
-  function renderRenda(){
-    const rows = filterByScope("renda");
-
-    // por mil
-    const mapMil = new Map();
-    // agrupada
-    const mapGrp = new Map();
-
-    for (const r of rows){
-      const renda = r._renda;
-      if (!Number.isFinite(renda) || renda <= 0) continue;
-
-      const s = r["status do contrato"];
-      const ativos = countInStatus(s, "ATIVO");
-      const cancelados = countInStatus(s, "CANCELADO");
-      const vendas = ativos + cancelados;
-
-      const b = rendaBucketMil(renda);
-      if (b != null){
-        const cur = mapMil.get(b) || { bucketNum:b, bucketLabel:`${b} mil`, casais:0, vendas:0, vgv:0, cancelamentos:0, pctCancel:0 };
-        cur.casais += 1;
-        cur.vendas += vendas;
-        cur.vgv += (r._valor||0);
-        cur.cancelamentos += cancelados;
-        mapMil.set(b, cur);
-      }
-
-      const g = rendaGrupo(renda);
-      if (g){
-        const cur = mapGrp.get(g) || { grupo:g, casais:0, vendas:0, vgv:0, cancelamentos:0, pctCancel:0 };
-        cur.casais += 1;
-        cur.vendas += vendas;
-        cur.vgv += (r._valor||0);
-        cur.cancelamentos += cancelados;
-        mapGrp.set(g, cur);
-      }
-    }
-
-    let listMil = Array.from(mapMil.values()).map(x=>({ ...x, pctCancel: x.vendas>0 ? x.cancelamentos/x.vendas : 0 }));
-    let listGrp = Array.from(mapGrp.values()).map(x=>({ ...x, pctCancel: x.vendas>0 ? x.cancelamentos/x.vendas : 0 }));
-
-    listMil = sortList(listMil, "rendaMil");
-    listGrp = sortList(listGrp, "rendaGrupo");
-
-    state.dataViews.rendaMil = listMil;
-    state.dataViews.rendaGrupo = listGrp;
-
-    el("rendaBody").innerHTML = listMil.map(x=>`
-      <tr>
-        <td>${escapeHtml(x.bucketLabel)}</td>
-        <td class="right">${x.casais.toLocaleString("pt-BR")}</td>
-        <td class="right">${x.vendas.toLocaleString("pt-BR")}</td>
-        <td class="right">${escapeHtml(formatMoneyBR(x.vgv))}</td>
-        <td class="right">${x.cancelamentos.toLocaleString("pt-BR")}</td>
-        <td class="right">${escapeHtml(formatPercent(x.pctCancel))}</td>
-      </tr>
-    `).join("");
-
-    el("rendaGrupoBody").innerHTML = listGrp.map(x=>`
-      <tr>
-        <td>${escapeHtml(x.grupo)}</td>
-        <td class="right">${x.casais.toLocaleString("pt-BR")}</td>
-        <td class="right">${x.vendas.toLocaleString("pt-BR")}</td>
-        <td class="right">${escapeHtml(formatMoneyBR(x.vgv))}</td>
-        <td class="right">${x.cancelamentos.toLocaleString("pt-BR")}</td>
-        <td class="right">${escapeHtml(formatPercent(x.pctCancel))}</td>
-      </tr>
-    `).join("");
-
-    updateSortIndicators();
-  }
-
-  // ========= Tabs =========
-  function setupTabs(){
-    document.querySelectorAll(".tabbtn").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
-        document.querySelectorAll(".tabbtn").forEach(b=>b.classList.remove("active"));
-        btn.classList.add("active");
-        const tab = btn.getAttribute("data-tab");
-        document.querySelectorAll(".tabPanel").forEach(p=>p.classList.remove("active"));
-        document.getElementById(tab).classList.add("active");
-      });
-    });
-  }
-
-  // ========= Bind sort clicks =========
-  function bindSortClicks(){
-    document.querySelectorAll("th[data-table][data-key]").forEach(th=>{
-      th.addEventListener("click", ()=>{
-        const table = th.getAttribute("data-table");
-        const key = th.getAttribute("data-key");
-        setSort(table, key);
-
-        // re-render only the affected area
-        if (table === "ranking") renderRanking();
-        else if (table === "prof") renderProfessionals();
-        else if (table === "rendaMil" || table === "rendaGrupo") renderRenda();
-        else if (table === "turnover") renderTurnover();
-      });
-    });
-  }
-
-  // ========= Init =========
-  async function init(){
-    setupTabs();
-    bindSortClicks();
-    loadProfMeta();
-
-    el("csvPath").textContent = CSV_URL;
-
-    try{
-      el("statusPill").textContent = "Baixando CSV…";
-      const res = await fetch(CSV_URL, { cache:"no-store" });
-      if (!res.ok) throw new Error(`Falha ao carregar ${CSV_URL} (HTTP ${res.status}).`);
-
-      el("statusPill").textContent = "Processando…";
-      const text = await res.text();
-      state.rows = buildObjects(text);
-
-      // set datas padrão em todos os escopos (mín e máx)
-      const dates = state.rows.map(r=>r._date).filter(Boolean).sort((a,b)=>a-b);
-      if (dates.length){
-        const pad = (n)=> String(n).padStart(2,"0");
-        const fmt = (d)=> `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`;
-        const minD = fmt(dates[0]);
-        const maxD = fmt(dates[dates.length-1]);
-
-        ["resumo","ranking","prof","renda"].forEach(scope=>{
-          el(`dtIni_${scope}`).value = minD;
-          el(`dtFim_${scope}`).value = maxD;
-          state.filters[scope] = { ini: parseBRDate(minD), fim: parseBRDate(maxD) };
+        // Event listener para ordenação
+        document.addEventListener('click', function(e) {
+            const sortElement = e.target.closest('[data-sort]');
+            if (!sortElement) return;
+            
+            const field = sortElement.dataset.sort;
+            const tabId = getActiveTabId();
+            const stateKey = `${tabId}_${field}`;
+            
+            // Toggle sort direction
+            const currentDir = window.appState.sortState[stateKey] || 'desc';
+            const newDir = currentDir === 'desc' ? 'asc' : 'desc';
+            window.appState.sortState[stateKey] = newDir;
+            
+            // Update visual indicators
+            document.querySelectorAll('[data-sort]').forEach(el => {
+                el.classList.remove('asc', 'desc');
+            });
+            sortElement.classList.add(newDir);
+            
+            // Re-render with sorted data
+            renderCurrentTab(field, newDir);
         });
-      }
 
-      // bind aplicar/limpar por escopo
-      document.querySelectorAll("button[data-action][data-scope]").forEach(btn=>{
-        btn.addEventListener("click", ()=>{
-          clearError();
-          const scope = btn.getAttribute("data-scope");
-          const action = btn.getAttribute("data-action");
+        // Função para renderizar tab atual
+        function renderCurrentTab(sortField = null, sortDir = 'desc') {
+            const tabId = getActiveTabId();
+            
+            switch(tabId) {
+                case 'resumo':
+                    renderResumo(sortField, sortDir);
+                    break;
+                case 'funil':
+                    renderFunil(sortField, sortDir);
+                    break;
+                case 'promotores':
+                    renderPromotores(sortField, sortDir);
+                    break;
+                case 'renda':
+                    renderRenda(sortField, sortDir);
+                    break;
+                case 'dados':
+                    renderDados(sortField, sortDir);
+                    break;
+            }
+        }
 
-          if (action === "aplicar"){
-            readScopeDates(scope);
-          } else {
-            clearScopeDates(scope);
-          }
+        // Processamento dos dados
+        function processData(rawData) {
+            const total = rawData.length;
+            const vendas = rawData.filter(row => row.status && row.status.toLowerCase().includes('ativ')).length;
+            const cancelamentos = rawData.filter(row => row.status && (
+                row.status.toLowerCase().includes('cancel') || 
+                row.status.toLowerCase().includes('inativ')
+            )).length;
+            
+            const faturamento = rawData
+                .filter(row => row.status && row.status.toLowerCase().includes('ativ'))
+                .reduce((sum, row) => sum + (row.valor_vendido || 0), 0);
+            
+            const conversao = total > 0 ? (vendas / total) * 100 : 0;
+            const cancelamento = total > 0 ? (cancelamentos / total) * 100 : 0;
+            const ticketMedio = vendas > 0 ? faturamento / vendas : 0;
+            
+            // Análise por promotor
+            const promotores = {};
+            rawData.forEach(row => {
+                const promotor = row.promotor || 'Não informado';
+                if (!promotores[promotor]) {
+                    promotores[promotor] = {
+                        total: 0,
+                        vendas: 0,
+                        cancelamentos: 0,
+                        faturamento: 0
+                    };
+                }
+                
+                promotores[promotor].total++;
+                if (row.status && row.status.toLowerCase().includes('ativ')) {
+                    promotores[promotor].vendas++;
+                    promotores[promotor].faturamento += row.valor_vendido || 0;
+                }
+                if (row.status && (row.status.toLowerCase().includes('cancel') || row.status.toLowerCase().includes('inativ'))) {
+                    promotores[promotor].cancelamentos++;
+                }
+            });
+            
+            // Análise por renda
+            const rendaAnalise = {
+                'Até R$ 11,9k': 0,
+                'R$ 12k - R$ 14,9k': 0,
+                'R$ 15k - R$ 19,9k': 0,
+                'R$ 20k - R$ 39,9k': 0,
+                'Acima de R$ 40k': 0
+            };
+            
+            rawData.forEach(row => {
+                if (row.renda && row.renda > 0) {
+                    const faixa = classificarRenda(row.renda);
+                    rendaAnalise[faixa]++;
+                }
+            });
+            
+            return {
+                resumo: {
+                    total,
+                    vendas,
+                    cancelamentos,
+                    faturamento,
+                    conversao,
+                    cancelamento: cancelamento,
+                    ticketMedio
+                },
+                promotores,
+                rendaAnalise
+            };
+        }
 
-          if (scope === "resumo"){
-            renderKPIs();
-          } else if (scope === "ranking"){
-            renderRanking();
-          } else if (scope === "prof"){
-            renderProfessionals();
-          } else if (scope === "renda"){
-            renderRenda();
-          }
+        // Renderizadores
+        function renderResumo(sortField, sortDir) {
+            const { resumo } = window.appState.processedData;
+            const container = document.getElementById('resumoMetrics');
+            
+            container.innerHTML = `
+                <div class="metric-card vendas" data-sort="vendas">
+                    <h3>Total de Vendas</h3>
+                    <div class="value">${resumo.vendas.toLocaleString('pt-BR')}</div>
+                    <div class="subtitle">contratos ativos</div>
+                </div>
+                
+                <div class="metric-card faturamento" data-sort="faturamento">
+                    <h3>Faturamento Total</h3>
+                    <div class="value">R$ ${resumo.faturamento.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
+                    <div class="subtitle">receita gerada</div>
+                </div>
+                
+                <div class="metric-card conversao" data-sort="conversao">
+                    <h3>% de Conversão</h3>
+                    <div class="value">${resumo.conversao.toFixed(1)}%</div>
+                    <div class="subtitle">taxa de sucesso</div>
+                </div>
+                
+                <div class="metric-card cancelamento" data-sort="cancelamento">
+                    <h3>% de Cancelamento</h3>
+                    <div class="value">${resumo.cancelamento.toFixed(1)}%</div>
+                    <div class="subtitle">taxa de perda</div>
+                </div>
+                
+                <div class="metric-card ticket" data-sort="ticketMedio">
+                    <h3>Ticket Médio</h3>
+                    <div class="value">R$ ${resumo.ticketMedio.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
+                    <div class="subtitle">valor médio por venda</div>
+                </div>
+                
+                <div class="metric-card renda" data-sort="total">
+                    <h3>Total de Leads</h3>
+                    <div class="value">${resumo.total.toLocaleString('pt-BR')}</div>
+                    <div class="subtitle">registros processados</div>
+                </div>
+            `;
+        }
+
+        function renderFunil(sortField, sortDir) {
+            const { resumo } = window.appState.processedData;
+            const container = document.getElementById('funilMetrics');
+            
+            container.innerHTML = `
+                <div class="metric-card" data-sort="leads">
+                    <h3>Leads Totais</h3>
+                    <div class="value">${resumo.total.toLocaleString('pt-BR')}</div>
+                    <div class="subtitle">100% da base</div>
+                </div>
+                
+                <div class="metric-card" data-sort="vendas">
+                    <h3>Vendas Realizadas</h3>
+                    <div class="value">${resumo.vendas.toLocaleString('pt-BR')}</div>
+                    <div class="subtitle">${resumo.conversao.toFixed(1)}% dos leads</div>
+                </div>
+                
+                <div class="metric-card" data-sort="cancelamentos">
+                    <h3>Cancelamentos</h3>
+                    <div class="value">${resumo.cancelamentos.toLocaleString('pt-BR')}</div>
+                    <div class="subtitle">${resumo.cancelamento.toFixed(1)}% dos leads</div>
+                </div>
+            `;
+            
+            // Tabela do funil
+            const tableContainer = document.getElementById('funilTable');
+            tableContainer.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th data-sort="etapa">Etapa do Funil</th>
+                            <th data-sort="quantidade">Quantidade</th>
+                            <th data-sort="percentual">% do Total</th>
+                            <th data-sort="conversao">% de Conversão</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Leads Totais</td>
+                            <td>${resumo.total.toLocaleString('pt-BR')}</td>
+                            <td>100,0%</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>Vendas Ativas</td>
+                            <td>${resumo.vendas.toLocaleString('pt-BR')}</td>
+                            <td>${resumo.conversao.toFixed(1)}%</td>
+                            <td>${resumo.conversao.toFixed(1)}%</td>
+                        </tr>
+                        <tr>
+                            <td>Cancelamentos</td>
+                            <td>${resumo.cancelamentos.toLocaleString('pt-BR')}</td>
+                            <td>${resumo.cancelamento.toFixed(1)}%</td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function renderPromotores(sortField, sortDir) {
+            const { promotores } = window.appState.processedData;
+            const promotoresList = Object.entries(promotores).map(([nome, dados]) => ({
+                nome,
+                ...dados,
+                conversao: dados.total > 0 ? (dados.vendas / dados.total) * 100 : 0,
+                cancelamento: dados.total > 0 ? (dados.cancelamentos / dados.total) * 100 : 0,
+                ticketMedio: dados.vendas > 0 ? dados.faturamento / dados.vendas : 0
+            }));
+            
+            // Ordenar se necessário
+            let sortedPromotores = promotoresList;
+            if (sortField) {
+                sortedPromotores = sortDataByField(promotoresList, sortField, sortDir);
+            }
+            
+            // Métricas dos promotores
+            const topPromotor = promotoresList.reduce((max, p) => p.vendas > max.vendas ? p : max, promotoresList[0] || {});
+            const melhorConversao = promotoresList.reduce((max, p) => p.conversao > max.conversao ? p : max, promotoresList[0] || {});
+            
+            const container = document.getElementById('promotoresMetrics');
+            container.innerHTML = `
+                <div class="metric-card">
+                    <h3>Total de Promotores</h3>
+                    <div class="value">${promotoresList.length}</div>
+                    <div class="subtitle">vendedores ativos</div>
+                </div>
+                
+                <div class="metric-card">
+                    <h3>Top Vendedor</h3>
+                    <div class="value">${topPromotor.vendas || 0}</div>
+                    <div class="subtitle">${topPromotor.nome || 'N/A'}</div>
+                </div>
+                
+                <div class="metric-card">
+                    <h3>Melhor Conversão</h3>
+                    <div class="value">${(melhorConversao.conversao || 0).toFixed(1)}%</div>
+                    <div class="subtitle">${melhorConversao.nome || 'N/A'}</div>
+                </div>
+            `;
+            
+            // Tabela dos promotores
+            const tableContainer = document.getElementById('promotoresTable');
+            tableContainer.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th data-sort="nome">Promotor</th>
+                            <th data-sort="total">Total Leads</th>
+                            <th data-sort="vendas">Vendas</th>
+                            <th data-sort="conversao">% Conversão</th>
+                            <th data-sort="cancelamentos">Cancelamentos</th>
+                            <th data-sort="cancelamento">% Cancelamento</th>
+                            <th data-sort="faturamento">Faturamento</th>
+                            <th data-sort="ticketMedio">Ticket Médio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${sortedPromotores.map(p => `
+                            <tr>
+                                <td>${p.nome}</td>
+                                <td>${p.total.toLocaleString('pt-BR')}</td>
+                                <td>${p.vendas.toLocaleString('pt-BR')}</td>
+                                <td>${p.conversao.toFixed(1)}%</td>
+                                <td>${p.cancelamentos.toLocaleString('pt-BR')}</td>
+                                <td>${p.cancelamento.toFixed(1)}%</td>
+                                <td>R$ ${p.faturamento.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                                <td>R$ ${p.ticketMedio.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function renderRenda(sortField, sortDir) {
+            const { rendaAnalise } = window.appState.processedData;
+            const total = Object.values(rendaAnalise).reduce((sum, count) => sum + count, 0);
+            
+            // Grupos de renda
+            const container = document.getElementById('rendaGrupos');
+            container.innerHTML = Object.entries(rendaAnalise).map(([faixa, count]) => {
+                const percentage = total > 0 ? (count / total) * 100 : 0;
+                return `
+                    <div class="renda-grupo">
+                        <h4>${faixa}</h4>
+                        <div class="count">${count.toLocaleString('pt-BR')}</div>
+                        <div class="percentage">${percentage.toFixed(1)}%</div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Tabela detalhada por renda
+            const rawData = window.appState.rawData.filter(row => row.renda && row.renda > 0);
+            const rendaDetalhes = {};
+            
+            rawData.forEach(row => {
+                const faixa = classificarRenda(row.renda);
+                if (!rendaDetalhes[faixa]) {
+                    rendaDetalhes[faixa] = {
+                        total: 0,
+                        vendas: 0,
+                        faturamento: 0
+                    };
+                }
+                
+                rendaDetalhes[faixa].total++;
+                if (row.status && row.status.toLowerCase().includes('ativ')) {
+                    rendaDetalhes[faixa].vendas++;
+                    rendaDetalhes[faixa].faturamento += row.valor_vendido || 0;
+                }
+            });
+            
+            let rendaList = Object.entries(rendaDetalhes).map(([faixa, dados]) => ({
+                faixa,
+                ...dados,
+                conversao: dados.total > 0 ? (dados.vendas / dados.total) * 100 : 0,
+                ticketMedio: dados.vendas > 0 ? dados.faturamento / dados.vendas : 0
+            }));
+            
+            if (sortField) {
+                rendaList = sortDataByField(rendaList, sortField, sortDir);
+            }
+            
+            const tableContainer = document.getElementById('rendaTable');
+            tableContainer.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th data-sort="faixa">Faixa de Renda</th>
+                            <th data-sort="total">Total Leads</th>
+                            <th data-sort="vendas">Vendas</th>
+                            <th data-sort="conversao">% Conversão</th>
+                            <th data-sort="faturamento">Faturamento</th>
+                            <th data-sort="ticketMedio">Ticket Médio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rendaList.map(item => `
+                            <tr>
+                                <td>${item.faixa}</td>
+                                <td>${item.total.toLocaleString('pt-BR')}</td>
+                                <td>${item.vendas.toLocaleString('pt-BR')}</td>
+                                <td>${item.conversao.toFixed(1)}%</td>
+                                <td>R$ ${item.faturamento.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                                <td>R$ ${item.ticketMedio.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function renderDados(sortField, sortDir) {
+            let data = [...window.appState.rawData];
+            
+            if (sortField) {
+                data = sortDataByField(data, sortField, sortDir);
+            }
+            
+            const container = document.getElementById('dadosTable');
+            const headers = Object.keys(data[0] || {});
+            
+            container.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            ${headers.map(header => `<th data-sort="${header}">${header.replace(/_/g, ' ').toUpperCase()}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.slice(0, 100).map(row => `
+                            <tr>
+                                ${headers.map(header => {
+                                    let value = row[header];
+                                    if (typeof value === 'number' && (header.includes('valor') || header.includes('renda'))) {
+                                        value = 'R$ ' + value.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+                                    }
+                                    return `<td>${value || ''}</td>`;
+                                }).join('')}
+                            </tr>
+                        `).join('')}
+                        ${data.length > 100 ? `<tr><td colspan="${headers.length}"><em>Mostrando apenas os primeiros 100 registros de ${data.length} total</em></td></tr>` : ''}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // Event Listeners
+        document.getElementById('csvFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const processBtn = document.getElementById('processBtn');
+            const fileInfo = document.getElementById('fileInfo');
+            
+            if (file) {
+                processBtn.disabled = false;
+                fileInfo.style.display = 'block';
+                fileInfo.innerHTML = `
+                    <strong>Arquivo selecionado:</strong> ${file.name}<br>
+                    <strong>Tamanho:</strong> ${(file.size / 1024).toFixed(1)} KB<br>
+                    <strong>Tipo:</strong> ${file.type || 'text/csv'}
+                `;
+            } else {
+                processBtn.disabled = true;
+                fileInfo.style.display = 'none';
+            }
         });
-      });
 
-      // other bindings
-      el("rankDim").addEventListener("change", renderRanking);
-      el("rankOnlyActive").addEventListener("change", renderRanking);
-      el("rankSearch").addEventListener("input", ()=>{ window.clearTimeout(window.__rsT); window.__rsT=setTimeout(renderRanking, 200); });
+        document.getElementById('processBtn').addEventListener('click', function() {
+            const fileInput = document.getElementById('csvFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Por favor, selecione um arquivo CSV primeiro.');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const csvText = e.target.result;
+                    const rawData = parseCSV(csvText);
+                    
+                    if (rawData.length === 0) {
+                        throw new Error('Nenhum dado válido foi encontrado no arquivo.');
+                    }
+                    
+                    // Salvar no estado global
+                    window.appState.rawData = rawData;
+                    window.appState.processedData = processData(rawData);
+                    
+                    // Mostrar dashboard
+                    document.getElementById('dashboard').style.display = 'block';
+                    
+                    // Renderizar aba ativa
+                    renderCurrentTab();
+                    
+                    // Scroll para o dashboard
+                    document.getElementById('dashboard').scrollIntoView({ behavior: 'smooth' });
+                    
+                } catch (error) {
+                    alert('Erro ao processar o arquivo: ' + error.message);
+                    console.error(error);
+                }
+            };
+            
+            reader.readAsText(file);
+        });
 
-      el("profTipo").addEventListener("change", renderProfessionals);
-      el("profEquipe").addEventListener("change", renderProfessionals);
-      el("profBusca").addEventListener("input", ()=>{ window.clearTimeout(window.__psT); window.__psT=setTimeout(renderProfessionals, 200); });
-
-      // first render
-      renderKPIs();
-      renderTurnover();
-      renderRanking();
-      renderProfKPIs();
-      renderProfessionals();
-      renderRenda();
-      updateSortIndicators();
-      el("statusPill").textContent = `OK • ${filterByScope("resumo").length.toLocaleString("pt-BR")} casais`;
-    }catch(err){
-      el("statusPill").textContent = "Erro";
-      showError(String(err && err.message ? err.message : err));
-    }
-  }
-
-  init();
-</script>
+        // Navegação entre abas
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabId = this.dataset.tab;
+                
+                // Atualizar abas ativas
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                this.classList.add('active');
+                document.getElementById(`tab-${tabId}`).classList.add('active');
+                
+                // Renderizar conteúdo da aba
+                renderCurrentTab();
+            });
+        });
+    </script>
 </body>
 </html>
