@@ -4,8 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dashboard — Cotas Negociadas</title>
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
   <style>
     :root{
       --bg:#050810;--surface:rgba(255,255,255,.04);--border:rgba(255,255,255,.08);
@@ -106,37 +108,37 @@
     footer strong{color:var(--accent1)}
   </style>
 </head>
+
 <body>
 <div class="page">
-
   <header>
     <div class="logo">
       <div class="logo-icon">📊</div>
       <div>
         <h1>Cotas Dashboard</h1>
-        <span>Relatório de Negociações — Report1.xlsx</span>
+        <span>Relatório de Negociações — dados.xlsx</span>
       </div>
     </div>
 
     <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-end">
       <span class="badge">● LIVE VIEW</span>
       <div class="filter-bar">
-        <span class="filter-label">Período (coluna Z):</span>
+        <span class="filter-label">Período:</span>
         <button class="periodo-btn active" onclick="setPeriodo('TODOS')" id="btn-TODOS">Todos</button>
-        <button class="periodo-btn" onclick="setPeriodo('JANEIRO')"   id="btn-JANEIRO">Janeiro</button>
-        <button class="periodo-btn" onclick="setPeriodo('FEVEREIRO')" id="btn-FEVEREIRO">Fevereiro</button>
-        <button class="periodo-btn" onclick="setPeriodo('MARÇO')"     id="btn-MARÇO">Março</button>
-        <button class="periodo-btn" onclick="setPeriodo('ABRIL')"     id="btn-ABRIL">Abril</button>
-        <button class="periodo-btn" onclick="setPeriodo('MAIO')"      id="btn-MAIO">Maio</button>
-        <button class="periodo-btn" onclick="setPeriodo('JUNHO')"     id="btn-JUNHO">Junho</button>
-        <button class="periodo-btn" onclick="setPeriodo('JULHO')"     id="btn-JULHO">Julho</button>
-        <button class="periodo-btn" onclick="setPeriodo('AGOSTO')"    id="btn-AGOSTO">Agosto</button>
-        <button class="periodo-btn" onclick="setPeriodo('SETEMBRO')"  id="btn-SETEMBRO">Setembro</button>
-        <button class="periodo-btn" onclick="setPeriodo('OUTUBRO')"   id="btn-OUTUBRO">Outubro</button>
-        <button class="periodo-btn" onclick="setPeriodo('NOVEMBRO')"  id="btn-NOVEMBRO">Novembro</button>
-        <button class="periodo-btn" onclick="setPeriodo('DEZEMBRO')"  id="btn-DEZEMBRO">Dezembro</button>
+        <button class="periodo-btn" onclick="setPeriodo('JAN')" id="btn-JAN">Jan</button>
+        <button class="periodo-btn" onclick="setPeriodo('FEV')" id="btn-FEV">Fev</button>
+        <button class="periodo-btn" onclick="setPeriodo('MAR')" id="btn-MAR">Mar</button>
+        <button class="periodo-btn" onclick="setPeriodo('ABR')" id="btn-ABR">Abr</button>
+        <button class="periodo-btn" onclick="setPeriodo('MAI')" id="btn-MAI">Mai</button>
+        <button class="periodo-btn" onclick="setPeriodo('JUN')" id="btn-JUN">Jun</button>
+        <button class="periodo-btn" onclick="setPeriodo('JUL')" id="btn-JUL">Jul</button>
+        <button class="periodo-btn" onclick="setPeriodo('AGO')" id="btn-AGO">Ago</button>
+        <button class="periodo-btn" onclick="setPeriodo('SET')" id="btn-SET">Set</button>
+        <button class="periodo-btn" onclick="setPeriodo('OUT')" id="btn-OUT">Out</button>
+        <button class="periodo-btn" onclick="setPeriodo('NOV')" id="btn-NOV">Nov</button>
+        <button class="periodo-btn" onclick="setPeriodo('DEZ')" id="btn-DEZ">Dez</button>
       </div>
-      <div class="range-hint" id="rangeHint">Exibindo: <strong>todos os meses</strong></div>
+      <div class="range-hint" id="rangeHint">Exibindo: <strong>todos os períodos</strong></div>
     </div>
   </header>
 
@@ -144,15 +146,15 @@
 
   <div class="charts-grid">
     <div class="card wide">
-      <div class="card-title"><span>📈</span> Valor Negociado por Cessionário — Top 15 (Coluna B)</div>
+      <div class="card-title"><span>📈</span> Valor Negociado por Cessionário — Top 15</div>
       <canvas id="chartBar"></canvas>
     </div>
     <div class="card">
-      <div class="card-title"><span>🍩</span> Distribuição % Entrada (Col. E)</div>
+      <div class="card-title"><span>🍩</span> Distribuição % Entrada</div>
       <canvas id="chartDist"></canvas>
     </div>
     <div class="card">
-      <div class="card-title"><span>🗓️</span> Média Parcelas Entrada (F) por Mês</div>
+      <div class="card-title"><span>🗓️</span> Média Parcelas Entrada (F) por Período</div>
       <canvas id="chartF"></canvas>
     </div>
   </div>
@@ -167,20 +169,22 @@
         <input type="text" id="searchInput" placeholder="Filtrar cessionário…" oninput="renderTable()"/>
       </div>
     </div>
+
     <div class="table-wrap">
       <table>
         <thead>
           <tr>
             <th onclick="sortTable('_idx')">#</th>
-            <th onclick="sortTable('periodo')">Período (Z) ↕</th>
+            <th onclick="sortTable('periodo')">Período ↕</th>
             <th onclick="sortTable('nome')">Cessionário ↕</th>
             <th onclick="sortTable('B')">Valor Neg. (B) ↕</th>
             <th onclick="sortTable('C')">Tot. Parc (C) ↕</th>
+            <th onclick="sortTable('D')">Valor Entrada (D) ↕</th>
             <th onclick="sortTable('E')">% Entrada (E) ↕</th>
             <th onclick="sortTable('F')">Qtd. Entrada (F) ↕</th>
             <th onclick="sortTable('H')">Entrada Efetiva (H) ↕</th>
-            <th>U (Parc. Saldo)</th>
-            <th>O (Parc. Entr. Efetiva)</th>
+            <th onclick="sortTable('O')">Parc. Entrada Efetiva (O) ↕</th>
+            <th onclick="sortTable('U')">Parc. Saldo (U) ↕</th>
           </tr>
         </thead>
         <tbody id="tableBody"></tbody>
@@ -189,108 +193,155 @@
   </div>
 
   <footer>
-    Dashboard — <strong>Report1.xlsx</strong> · Observação: colunas <strong>U</strong> e <strong>O</strong> não estão disponíveis no arquivo enviado (extract).
+    Dashboard publicado no GitHub Pages · Métricas: B, C, D, E, F, H, <strong>O</strong>, <strong>U</strong> e Período.
   </footer>
 </div>
 
 <script>
+/**
+ * IMPORTANTE (mapeamento das colunas O e U a partir do seu Excel extraído):
+ * - Coluna O (Parcelamento Entrada Efetiva): na extração aparece como "Cartão (Qtd.)" dentro de "Formas de Pagamento Entrada".
+ *   No arquivo mostrado, os valores (Qtd.) de Cartão que batem com a entrada efetiva (ex.: 13, 12, 10...) serão usados como O.
+ * - Coluna U (Parcelamento Saldo): na extração aparece como "Boleto (Qtd.)" dentro de "Formas de Pagamento Saldo".
+ *   No arquivo mostrado, isso aparece claramente como 120 / 240 etc. (parcelas do saldo).
+ *
+ * Se em algum registro O ou U estiver vazio, o card usa apenas os valores válidos (numéricos > 0).
+ */
+
+// ===== Parser helpers =====
+function parseBRL(v){
+  if(v===null||v===undefined) return 0;
+  const s=String(v).trim();
+  if(!s) return 0;
+  // "R$ 88,000.00" -> 88000.00
+  const cleaned = s.replace(/R\$\s?/g,'').replace(/,/g,'');
+  const n = Number(cleaned);
+  return Number.isFinite(n) ? n : 0;
+}
+function parsePct(v){
+  if(v===null||v===undefined) return 0;
+  const s=String(v).trim().replace('%','');
+  const n=Number(s);
+  return Number.isFinite(n) ? n : 0;
+}
+function parseIntSafe(v){
+  if(v===null||v===undefined||v==='') return 0;
+  const n = Number(String(v).replace(/[^\d.-]/g,''));
+  return Number.isFinite(n) ? n : 0;
+}
+function periodoKeyFromExcel(v){
+  // Ex.: "Jun-26" -> "JUN"
+  const s=String(v||'').trim();
+  if(!s) return 'OUTROS';
+  const m = s.slice(0,3).toUpperCase(); // Jun
+  const map = {JAN:'JAN',FEB:'FEV',FEV:'FEV',MAR:'MAR',APR:'ABR',ABR:'ABR',MAY:'MAI',MAI:'MAI',JUN:'JUN',JUL:'JUL',AUG:'AGO',AGO:'AGO',SEP:'SET',SET:'SET',OCT:'OUT',OUT:'OUT',NOV:'NOV',DEC:'DEZ',DEZ:'DEZ'};
+  return map[m] || m;
+}
+function periodoLabel(k){
+  const map = {JAN:'Janeiro',FEV:'Fevereiro',MAR:'Março',ABR:'Abril',MAI:'Maio',JUN:'Junho',JUL:'Julho',AGO:'Agosto',SET:'Setembro',OUT:'Outubro',NOV:'Novembro',DEZ:'Dezembro',TODOS:'todos os períodos'};
+  return map[k] || k;
+}
+
+// ===== Dados (a partir do arquivo extraído) =====
+// Campos que usaremos no dashboard:
+// nome, B, C, D, E, F, H, O, U, periodo
 const DATASET = [
-  {nome:"GUSTAVO TALLES DA SILVA",B:88000,C:130,E:21.59,F:10,H:1900,periodo:"JUNHO"},
-  {nome:"GUSTAVO TALLES DA SILVA",B:88000,C:130,E:21.59,F:10,H:1900,periodo:"JUNHO"},
-  {nome:"FRANCISCO DE ASSIS AMARO DE SOUZA",B:90000,C:139,E:20.00,F:18,H:1000,periodo:"JUNHO"},
-  {nome:"ROSILEY DO CARMO NASCIMENTO",B:90000,C:270,E:20.00,F:30,H:600,periodo:"JUNHO"},
-  {nome:"ALLAN NONATO RODRIGUES DE SOUSA",B:90000,C:132,E:20.00,F:12,H:1500,periodo:"JUNHO"},
-  {nome:"ALLAN NONATO RODRIGUES DE SOUSA",B:90000,C:132,E:20.00,F:12,H:1500,periodo:"JUNHO"},
-  {nome:"EDSON MARQUES DOS SANTOS JUNIOR",B:89000,C:151,E:20.00,F:30,H:600,periodo:"JUNHO"},
-  {nome:"EDSON MARQUES DOS SANTOS JUNIOR",B:89000,C:151,E:20.00,F:30,H:600,periodo:"JUNHO"},
-  {nome:"ROBERTO MAURO DA SILVA",B:98000,C:150,E:20.00,F:30,H:653.33,periodo:"JUNHO"},
-  {nome:"VITOR DANIEL SILVA CASTANHEIRA",B:90000,C:137,E:20.00,F:17,H:1000,periodo:"JUNHO"},
-  {nome:"VITOR DANIEL SILVA CASTANHEIRA",B:90000,C:137,E:20.00,F:17,H:1000,periodo:"JUNHO"},
-  {nome:"CELINA MARIA ALVES BASTOS",B:91830,C:140,E:20.68,F:19,H:1800,periodo:"JUNHO"},
-  {nome:"LEONARDO RODRIGUES GALHARDE",B:90000,C:144,E:20.00,F:24,H:300,periodo:"JUNHO"},
-  {nome:"LEONARDO RODRIGUES GALHARDE",B:90000,C:144,E:20.00,F:24,H:300,periodo:"JUNHO"},
-  {nome:"LUCIANO VALERAS DOS SANTOS",B:82000,C:151,E:20.00,F:31,H:1640,periodo:"JUNHO"},
-  {nome:"LUCIANO VALERAS DOS SANTOS",B:82000,C:151,E:20.00,F:31,H:1640,periodo:"JUNHO"},
-  {nome:"LUCIANO VALERAS DOS SANTOS",B:82000,C:151,E:20.00,F:31,H:1640,periodo:"JUNHO"},
-  {nome:"LUCIANO VALERAS DOS SANTOS",B:82000,C:151,E:20.00,F:31,H:1640,periodo:"JUNHO"},
-  {nome:"GABRIELLY SANTOS MUNHOZ GIMENES",B:98000,C:152,E:20.00,F:30,H:9259.24,periodo:"JUNHO"},
-  {nome:"FABIO JUNQUEIRA ESTEVES",B:92000,C:150,E:20.00,F:30,H:7500,periodo:"JUNHO"},
-  {nome:"FABIO JUNQUEIRA ESTEVES",B:92000,C:150,E:20.00,F:30,H:7500,periodo:"JUNHO"},
-  {nome:"MAXI EMILIANO OLIVEIRA MOREIRA",B:85000,C:131,E:20.00,F:10,H:1800,periodo:"JUNHO"},
-  {nome:"MAXI EMILIANO OLIVEIRA MOREIRA",B:85000,C:131,E:20.00,F:10,H:1800,periodo:"JUNHO"},
-  {nome:"MAXI EMILIANO OLIVEIRA MOREIRA",B:85000,C:131,E:20.00,F:10,H:1800,periodo:"JUNHO"},
-  {nome:"MAXI EMILIANO OLIVEIRA MOREIRA",B:85000,C:131,E:20.00,F:10,H:1800,periodo:"JUNHO"},
-  {nome:"LEONARDO TIMOTE",B:90000,C:138,E:20.00,F:17,H:2000,periodo:"JUNHO"},
-  {nome:"LAURA GODOY DA SILVA",B:88000,C:141,E:20.00,F:21,H:1760,periodo:"JUNHO"},
-  {nome:"LAURA GODOY DA SILVA",B:88000,C:141,E:20.00,F:21,H:1760,periodo:"JUNHO"},
-  {nome:"VALMIR BENTO DA SILVA",B:90000,C:151,E:20.00,F:30,H:1500,periodo:"JUNHO"},
-  {nome:"CARLA TATIANE AMORIM CORREIA DE CARVALHO",B:90000,C:147,E:20.00,F:26,H:1000,periodo:"JUNHO"},
-  {nome:"NARAIANE LETICIA FERREIRA",B:98000,C:145,E:20.00,F:25,H:1000,periodo:"JUNHO"},
-  {nome:"NARAIANE LETICIA FERREIRA",B:98000,C:145,E:20.00,F:25,H:1000,periodo:"JUNHO"},
-  {nome:"KEITY MIRANDA DOS SANTOS",B:90000,C:151,E:20.00,F:30,H:1800,periodo:"JUNHO"},
-  {nome:"MARCELO GAMA CORREA MARTINS",B:87000,C:150,E:20.00,F:30,H:1740,periodo:"JUNHO"},
-  {nome:"MARCELO GAMA CORREA MARTINS",B:87000,C:150,E:20.00,F:30,H:1740,periodo:"JUNHO"},
-  {nome:"MARCELO DE AZEVEDO MARQUES",B:90000,C:139,E:20.00,F:19,H:1800,periodo:"JUNHO"},
-  {nome:"ALEXSANDRO FREITAS DA SILVA",B:85000,C:150,E:20.00,F:30,H:600,periodo:"JUNHO"},
-  {nome:"ALEXSANDRO FREITAS DA SILVA",B:85000,C:150,E:20.00,F:30,H:600,periodo:"JUNHO"},
-  {nome:"GABRIELA GONCALVES",B:90000,C:151,E:20.00,F:30,H:600,periodo:"JUNHO"},
-  {nome:"CAROLINA GOMES PEREIRA SANTANA",B:87000,C:150,E:20.00,F:30,H:580,periodo:"JUNHO"},
-  {nome:"MIRIAM ALBINO DE OLIVEIRA",B:90000,C:140,E:20.00,F:20,H:3600,periodo:"JUNHO"},
-  {nome:"LETICIA SILVA GONCALVES",B:88000,C:149,E:20.00,F:29,H:2640,periodo:"JUNHO"},
-  {nome:"MARIA RAQUEL FERREIRA",B:95000,C:150,E:20.00,F:30,H:6000,periodo:"JUNHO"},
-  {nome:"ERNANDO DOS SANTOS SOUSA NETO",B:90000,C:150,E:20.00,F:30,H:600,periodo:"JUNHO"},
-  {nome:"ERNANDO DOS SANTOS SOUSA NETO",B:90000,C:150,E:20.00,F:30,H:600,periodo:"JUNHO"},
-  {nome:"FRANCISCO EUGENIO SIQUEIRA LIMA",B:90000,C:150,E:20.00,F:29,H:620,periodo:"JUNHO"},
-  {nome:"JORDANA FERREIRA DA CONCEICAO RIBEIRO",B:98000,C:150,E:20.00,F:30,H:2613.32,periodo:"JUNHO"},
-  {nome:"ALINE SUZANA CAMARGO DA SILVA CRUZ ALFERES",B:92000,C:150,E:20.00,F:30,H:1840,periodo:"JUNHO"},
-  {nome:"MICHELLE EUSTAQUIO BUENO",B:90000,C:150,E:20.00,F:30,H:600,periodo:"JUNHO"},
-  {nome:"MICHELLE EUSTAQUIO BUENO",B:90000,C:150,E:20.00,F:30,H:600,periodo:"JUNHO"},
-  {nome:"JOMECI SANTANA BARBOSA",B:90000,C:151,E:20.00,F:30,H:600,periodo:"JUNHO"},
-  {nome:"ADRIANA MEDEIROS PEREIRA",B:90000,C:131,E:20.00,F:10,H:1800,periodo:"JUNHO"},
-  {nome:"TAINA RAMOS",B:90000,C:130,E:20.00,F:9,H:3600,periodo:"JUNHO"},
-  {nome:"TAINA RAMOS",B:90000,C:130,E:20.00,F:9,H:3600,periodo:"JUNHO"},
-  {nome:"FERNANDO SARGACO DA COSTA E SILVA",B:125000,C:138,E:20.00,F:18,H:2500,periodo:"JUNHO"},
-  {nome:"FERNANDO SARGACO DA COSTA E SILVA",B:125000,C:138,E:20.00,F:18,H:2500,periodo:"JUNHO"},
-  {nome:"ESTER DE CAMARGO OCTAVIANO",B:90000,C:150,E:20.00,F:30,H:400,periodo:"JUNHO"},
-  {nome:"ESTER DE CAMARGO OCTAVIANO",B:90000,C:150,E:20.00,F:30,H:400,periodo:"JUNHO"},
-  {nome:"RITA DE CASSIA ROCHA DE ABREU",B:79000,C:150,E:20.00,F:30,H:1579.99,periodo:"JUNHO"},
-  {nome:"RITA DE CASSIA ROCHA DE ABREU",B:79000,C:150,E:20.00,F:30,H:1579.99,periodo:"JUNHO"},
-  {nome:"MONIQUE PEREIRA SILVA",B:80000,C:150,E:20.00,F:30,H:533.50,periodo:"JUNHO"},
-  {nome:"MONIQUE PEREIRA SILVA",B:80000,C:150,E:20.00,F:30,H:533.50,periodo:"JUNHO"},
-  {nome:"MAYCON PERROTTA MAIA",B:92700,C:150,E:20.00,F:30,H:618,periodo:"JUNHO"},
-  {nome:"IZABEL CARVALHO NICOLAU",B:90000,C:130,E:20.00,F:10,H:18000,periodo:"JUNHO"},
-  {nome:"LUIZ AUGUSTO SILVA DOS SANTOS",B:98000,C:150,E:20.00,F:30,H:3176.55,periodo:"JUNHO"},
-  {nome:"LAIS FASSONI RIBEIRO DESOTTI",B:89000,C:150,E:20.00,F:30,H:8405,periodo:"JUNHO"},
-  {nome:"LAIS FASSONI RIBEIRO DESOTTI",B:89000,C:150,E:20.00,F:30,H:8405,periodo:"JUNHO"},
-  {nome:"LAIS FASSONI RIBEIRO DESOTTI",B:89000,C:258,E:20.00,F:138,H:8405,periodo:"JUNHO"},
-  {nome:"LAIS FASSONI RIBEIRO DESOTTI",B:89000,C:150,E:20.00,F:30,H:8405,periodo:"JUNHO"},
-  {nome:"HELIO FERNANDES",B:81000,C:150,E:20.00,F:30,H:540,periodo:"JUNHO"},
-  {nome:"HELIO FERNANDES",B:81000,C:150,E:20.00,F:30,H:540,periodo:"JUNHO"},
-  {nome:"GABRIELE RAYA",B:98000,C:150,E:20.00,F:30,H:1553.33,periodo:"JUNHO"},
-  {nome:"MARCOS VINICIUS HERRERA",B:90000,C:142,E:20.00,F:22,H:5000,periodo:"JUNHO"},
-  {nome:"MARCOS VINICIUS HERRERA",B:90000,C:142,E:20.00,F:22,H:5000,periodo:"JUNHO"},
-  {nome:"JEFERSON SOUSA FREITAS DOS SANTOS",B:81000,C:144,E:20.00,F:24,H:675,periodo:"JUNHO"},
-  {nome:"JEFERSON SOUSA FREITAS DOS SANTOS",B:81000,C:144,E:20.00,F:24,H:675,periodo:"JUNHO"},
-  {nome:"GUILHERME FERREIRA BIGATE",B:92100,C:150,E:20.00,F:30,H:614,periodo:"JUNHO"},
-  {nome:"ROGERIO APARECIDO SA RAMALHO",B:90000,C:148,E:20.00,F:28,H:1800,periodo:"JUNHO"},
-  {nome:"DOUGLAS NICORO",B:90000,C:130,E:20.00,F:10,H:18000,periodo:"JUNHO"},
-  {nome:"DOUGLAS NICORO",B:90000,C:130,E:20.00,F:10,H:18000,periodo:"JUNHO"},
-  {nome:"MARX DE SENA RODRIGUES",B:90000,C:150,E:20.00,F:30,H:600,periodo:"JUNHO"},
-  {nome:"GUILHERME AUGUSTO ABRUNHOZA",B:79000,C:151,E:20.00,F:31,H:526.88,periodo:"JUNHO"},
-  {nome:"GUILHERME AUGUSTO ABRUNHOZA",B:79000,C:151,E:20.00,F:31,H:526.88,periodo:"JUNHO"},
-  {nome:"GUILHERME AUGUSTO ABRUNHOZA",B:79000,C:151,E:20.00,F:31,H:526.89,periodo:"JUNHO"},
-  {nome:"HENRIQUE MOREIRA MAGALHAES",B:90000,C:150,E:20.00,F:30,H:1800,periodo:"JUNHO"},
-  {nome:"KAREN RAMOS FUKUDA SILVA",B:90000,C:150,E:20.00,F:30,H:600,periodo:"JUNHO"},
-  {nome:"GISELE SANTANA PEDREIRA",B:125000,C:150,E:20.00,F:30,H:3333.33,periodo:"JUNHO"},
-  {nome:"GISELE SANTANA PEDREIRA",B:125000,C:150,E:20.00,F:30,H:3333.33,periodo:"JUNHO"},
-  {nome:"VIVIANE ROBERTA DE SOUSA",B:80000,C:150,E:20.00,F:30,H:1662.06,periodo:"JUNHO"},
-  {nome:"EDUARDO TAVARES FERREIRA",B:80000,C:150,E:20.00,F:30,H:1662.06,periodo:"JUNHO"},
-  {nome:"LETICIA GARCIA MATOS",B:90000,C:150,E:20.00,F:30,H:600,periodo:"JUNHO"},
-  {nome:"ANDERSON RODRIGUES SANTANA JUNIOR",B:90000,C:149,E:20.00,F:29,H:2000,periodo:"JUNHO"},
-  {nome:"VITORIA MACHADO PINTO",B:90990,C:139,E:20.00,F:19,H:988.88,periodo:"JUNHO"},
+  // nome, Valor Negociado(B), Tot Parc(C), Valor Entrada(D), %E, Qtd Entrada(F), Valor Entrada Efetiva(H), O, U, Periodo
+  {nome:"GUSTAVO TALLES DA SILVA", B:parseBRL("R$ 88,000.00"), C:130, D:parseBRL("R$ 19,000.00"), E:parsePct("21.59%"), F:10, H:parseBRL("R$ 1,900.00"), O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"GUSTAVO TALLES DA SILVA", B:parseBRL("R$ 88,000.00"), C:130, D:parseBRL("R$ 19,000.00"), E:parsePct("21.59%"), F:10, H:parseBRL("R$ 1,900.00"), O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"FRANCISCO DE ASSIS AMARO DE SOUZA", B:parseBRL("R$ 90,000.00"), C:139, D:parseBRL("R$ 18,000.00"), E:parsePct("20.00%"), F:18, H:parseBRL("R$ 1,000.00"), O:1,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"ROSILEY DO CARMO NASCIMENTO", B:parseBRL("R$ 90,000.00"), C:135, D:parseBRL("R$ 18,000.00"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 600.00"),  O:0,  U:240, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"ALLAN NONATO RODRIGUES DE SOUSA", B:parseBRL("R$ 90,000.00"), C:132, D:parseBRL("R$ 18,000.00"), E:parsePct("20.00%"), F:12, H:parseBRL("R$ 1,500.00"), O:1,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"ALLAN NONATO RODRIGUES DE SOUSA", B:parseBRL("R$ 90,000.00"), C:132, D:parseBRL("R$ 18,000.00"), E:parsePct("20.00%"), F:12, H:parseBRL("R$ 1,500.00"), O:1,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"EDSON MARQUES DOS SANTOS JUNIOR", B:parseBRL("R$ 89,000.00"), C:151, D:parseBRL("R$ 17,800.00"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 600.00"),  O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"EDSON MARQUES DOS SANTOS JUNIOR", B:parseBRL("R$ 89,000.00"), C:151, D:parseBRL("R$ 17,800.00"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 600.00"),  O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"ROBERTO MAURO DA SILVA", B:parseBRL("R$ 98,000.00"), C:150, D:parseBRL("R$ 19,600.00"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 653.33"), O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"VITOR DANIEL SILVA CASTANHEIRA", B:parseBRL("R$ 90,000.00"), C:137, D:parseBRL("R$ 18,000.00"), E:parsePct("20.00%"), F:17, H:parseBRL("R$ 1,000.00"), O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"VITOR DANIEL SILVA CASTANHEIRA", B:parseBRL("R$ 90,000.00"), C:137, D:parseBRL("R$ 18,000.00"), E:parsePct("20.00%"), F:17, H:parseBRL("R$ 1,000.00"), O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"CELINA MARIA ALVES BASTOS", B:parseBRL("R$ 91,830.00"), C:140, D:parseBRL("R$ 18,990.00"), E:parsePct("20.68%"), F:19, H:parseBRL("R$ 1,800.00"), O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"LEONARDO RODRIGUES GALHARDE", B:parseBRL("R$ 90,000.00"), C:144, D:parseBRL("R$ 17,999.82"), E:parsePct("20.00%"), F:24, H:parseBRL("R$ 300.00"),  O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"LEONARDO RODRIGUES GALHARDE", B:parseBRL("R$ 90,000.00"), C:144, D:parseBRL("R$ 17,999.82"), E:parsePct("20.00%"), F:24, H:parseBRL("R$ 300.00"),  O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"LUCIANO VALERAS DOS SANTOS", B:parseBRL("R$ 82,000.00"), C:151, D:parseBRL("R$ 16,400.00"), E:parsePct("20.00%"), F:31, H:parseBRL("R$ 1,640.00"), O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"LUCIANO VALERAS DOS SANTOS", B:parseBRL("R$ 82,000.00"), C:151, D:parseBRL("R$ 16,400.00"), E:parsePct("20.00%"), F:31, H:parseBRL("R$ 1,640.00"), O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"LUCIANO VALERAS DOS SANTOS", B:parseBRL("R$ 82,000.00"), C:151, D:parseBRL("R$ 16,399.84"), E:parsePct("20.00%"), F:31, H:parseBRL("R$ 1,640.00"), O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"LUCIANO VALERAS DOS SANTOS", B:parseBRL("R$ 82,000.00"), C:151, D:parseBRL("R$ 16,399.84"), E:parsePct("20.00%"), F:31, H:parseBRL("R$ 1,640.00"), O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"GABRIELLY SANTOS MUNHOZ GIMENES", B:parseBRL("R$ 98,000.00"), C:152, D:parseBRL("R$ 19,599.93"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 9,259.24"), O:13, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"FABIO JUNQUEIRA ESTEVES", B:parseBRL("R$ 92,000.00"), C:150, D:parseBRL("R$ 18,400.00"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 7,500.00"), O:12, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"FABIO JUNQUEIRA ESTEVES", B:parseBRL("R$ 92,000.00"), C:150, D:parseBRL("R$ 18,400.00"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 7,500.00"), O:12, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"MAXI EMILIANO OLIVEIRA MOREIRA", B:parseBRL("R$ 85,000.00"), C:131, D:parseBRL("R$ 16,999.92"), E:parsePct("20.00%"), F:10, H:parseBRL("R$ 1,800.00"), O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"MAXI EMILIANO OLIVEIRA MOREIRA", B:parseBRL("R$ 85,000.00"), C:131, D:parseBRL("R$ 16,999.92"), E:parsePct("20.00%"), F:10, H:parseBRL("R$ 1,800.00"), O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"MAXI EMILIANO OLIVEIRA MOREIRA", B:parseBRL("R$ 85,000.00"), C:131, D:parseBRL("R$ 16,999.92"), E:parsePct("20.00%"), F:10, H:parseBRL("R$ 1,800.00"), O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"MAXI EMILIANO OLIVEIRA MOREIRA", B:parseBRL("R$ 85,000.00"), C:131, D:parseBRL("R$ 16,999.92"), E:parsePct("20.00%"), F:10, H:parseBRL("R$ 1,800.00"), O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"LEONARDO TIMOTE", B:parseBRL("R$ 90,000.00"), C:138, D:parseBRL("R$ 18,000.00"), E:parsePct("20.00%"), F:17, H:parseBRL("R$ 2,000.00"), O:1,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"LAURA GODOY DA SILVA", B:parseBRL("R$ 88,000.00"), C:141, D:parseBRL("R$ 17,600.00"), E:parsePct("20.00%"), F:21, H:parseBRL("R$ 1,760.00"), O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"LAURA GODOY DA SILVA", B:parseBRL("R$ 88,000.00"), C:141, D:parseBRL("R$ 17,600.00"), E:parsePct("20.00%"), F:21, H:parseBRL("R$ 1,760.00"), O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"VALMIR BENTO DA SILVA", B:parseBRL("R$ 90,000.00"), C:151, D:parseBRL("R$ 17,999.84"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 1,500.00"), O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"CARLA TATIANE AMORIM CORREIA DE CARVALHO", B:parseBRL("R$ 90,000.00"), C:147, D:parseBRL("R$ 18,000.00"), E:parsePct("20.00%"), F:26, H:parseBRL("R$ 1,000.00"), O:1,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"NARAIANE LETICIA FERREIRA", B:parseBRL("R$ 98,000.00"), C:145, D:parseBRL("R$ 19,600.00"), E:parsePct("20.00%"), F:25, H:parseBRL("R$ 1,000.00"), O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"NARAIANE LETICIA FERREIRA", B:parseBRL("R$ 98,000.00"), C:145, D:parseBRL("R$ 19,600.00"), E:parsePct("20.00%"), F:25, H:parseBRL("R$ 1,000.00"), O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"KEITY MIRANDA DOS SANTOS", B:parseBRL("R$ 90,000.00"), C:151, D:parseBRL("R$ 18,000.00"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 1,800.00"), O:3,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"MARCELO GAMA CORREA MARTINS", B:parseBRL("R$ 87,000.00"), C:150, D:parseBRL("R$ 17,400.00"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 1,740.00"), O:1,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"MARCELO GAMA CORREA MARTINS", B:parseBRL("R$ 87,000.00"), C:150, D:parseBRL("R$ 17,400.00"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 1,740.00"), O:1,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"MARCELO DE AZEVEDO MARQUES", B:parseBRL("R$ 90,000.00"), C:139, D:parseBRL("R$ 18,000.00"), E:parsePct("20.00%"), F:19, H:parseBRL("R$ 1,800.00"), O:1,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"ALEXSANDRO FREITAS DA SILVA", B:parseBRL("R$ 85,000.00"), C:150, D:parseBRL("R$ 17,000.08"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 600.00"),  O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"ALEXSANDRO FREITAS DA SILVA", B:parseBRL("R$ 85,000.00"), C:150, D:parseBRL("R$ 17,000.08"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 600.00"),  O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"GABRIELA GONCALVES", B:parseBRL("R$ 90,000.00"), C:151, D:parseBRL("R$ 18,000.00"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 600.00"),  O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"CAROLINA GOMES PEREIRA SANTANA", B:parseBRL("R$ 87,000.00"), C:150, D:parseBRL("R$ 17,400.00"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 580.00"),  O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"MIRIAM ALBINO DE OLIVEIRA", B:parseBRL("R$ 90,000.00"), C:140, D:parseBRL("R$ 17,999.84"), E:parsePct("20.00%"), F:20, H:parseBRL("R$ 3,600.00"), O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"LETICIA SILVA GONCALVES", B:parseBRL("R$ 88,000.00"), C:149, D:parseBRL("R$ 17,599.96"), E:parsePct("20.00%"), F:29, H:parseBRL("R$ 2,640.00"), O:3,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"MARIA RAQUEL FERREIRA", B:parseBRL("R$ 95,000.00"), C:150, D:parseBRL("R$ 19,000.00"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 6,000.00"), O:10, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"ERNANDO DOS SANTOS SOUSA NETO", B:parseBRL("R$ 90,000.00"), C:150, D:parseBRL("R$ 18,000.00"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 600.00"),  O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"ERNANDO DOS SANTOS SOUSA NETO", B:parseBRL("R$ 90,000.00"), C:150, D:parseBRL("R$ 18,000.00"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 600.00"),  O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"FRANCISCO EUGENIO SIQUEIRA LIMA", B:parseBRL("R$ 90,000.00"), C:150, D:parseBRL("R$ 18,000.16"), E:parsePct("20.00%"), F:29, H:parseBRL("R$ 620.00"),  O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"JORDANA FERREIRA DA CONCEICAO RIBEIRO", B:parseBRL("R$ 98,000.00"), C:150, D:parseBRL("R$ 19,599.90"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 2,613.32"), O:4,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"ALINE SUZANA CAMARGO DA SILVA CRUZ ALFERES", B:parseBRL("R$ 92,000.00"), C:150, D:parseBRL("R$ 18,399.91"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 1,840.00"), O:3,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"MICHELLE EUSTAQUIO BUENO", B:parseBRL("R$ 90,000.00"), C:150, D:parseBRL("R$ 18,000.00"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 600.00"),  O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"MICHELLE EUSTAQUIO BUENO", B:parseBRL("R$ 90,000.00"), C:150, D:parseBRL("R$ 18,000.00"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 600.00"),  O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"JOMECI SANTANA BARBOSA", B:parseBRL("R$ 90,000.00"), C:151, D:parseBRL("R$ 18,000.00"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 600.00"),  O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"ADRIANA MEDEIROS PEREIRA", B:parseBRL("R$ 90,000.00"), C:131, D:parseBRL("R$ 18,000.00"), E:parsePct("20.00%"), F:10, H:parseBRL("R$ 1,800.00"), O:1,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"TAINA RAMOS", B:parseBRL("R$ 90,000.00"), C:130, D:parseBRL("R$ 18,000.00"), E:parsePct("20.00%"), F:9,  H:parseBRL("R$ 3,600.00"), O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"TAINA RAMOS", B:parseBRL("R$ 90,000.00"), C:130, D:parseBRL("R$ 18,000.00"), E:parsePct("20.00%"), F:9,  H:parseBRL("R$ 3,600.00"), O:0,  U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"FERNANDO SARGACO DA COSTA E SILVA", B:parseBRL("R$ 125,000.00"), C:138, D:parseBRL("R$ 25,000.00"), E:parsePct("20.00%"), F:18, H:parseBRL("R$ 2,500.00"), O:0, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"FERNANDO SARGACO DA COSTA E SILVA", B:parseBRL("R$ 125,000.00"), C:138, D:parseBRL("R$ 25,000.00"), E:parsePct("20.00%"), F:18, H:parseBRL("R$ 2,500.00"), O:0, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"ESTER DE CAMARGO OCTAVIANO", B:parseBRL("R$ 90,000.00"), C:150, D:parseBRL("R$ 18,000.01"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 400.00"),  O:0, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"ESTER DE CAMARGO OCTAVIANO", B:parseBRL("R$ 90,000.00"), C:150, D:parseBRL("R$ 18,000.01"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 400.00"),  O:0, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"RITA DE CASSIA ROCHA DE ABREU", B:parseBRL("R$ 79,000.00"), C:150, D:parseBRL("R$ 15,799.99"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 1,579.99"), O:2, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"RITA DE CASSIA ROCHA DE ABREU", B:parseBRL("R$ 79,000.00"), C:150, D:parseBRL("R$ 15,799.99"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 1,579.99"), O:2, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"MONIQUE PEREIRA SILVA", B:parseBRL("R$ 80,000.00"), C:150, D:parseBRL("R$ 16,000.00"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 533.50"),  O:0, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"MONIQUE PEREIRA SILVA", B:parseBRL("R$ 80,000.00"), C:150, D:parseBRL("R$ 16,000.00"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 533.50"),  O:0, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"MAYCON PERROTTA MAIA", B:parseBRL("R$ 92,700.00"), C:150, D:parseBRL("R$ 18,540.00"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 618.00"),   O:1, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"IZABEL CARVALHO NICOLAU", B:parseBRL("R$ 90,000.00"), C:130, D:parseBRL("R$ 18,000.00"), E:parsePct("20.00%"), F:10, H:parseBRL("R$ 18,000.00"), O:10, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"LUIZ AUGUSTO SILVA DOS SANTOS", B:parseBRL("R$ 98,000.00"), C:150, D:parseBRL("R$ 19,599.84"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 3,176.55"), O:2, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"LAIS FASSONI RIBEIRO DESOTTI", B:parseBRL("R$ 89,000.00"), C:150, D:parseBRL("R$ 17,799.88"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 8,405.00"), O:12, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"LAIS FASSONI RIBEIRO DESOTTI", B:parseBRL("R$ 89,000.00"), C:150, D:parseBRL("R$ 17,799.88"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 8,405.00"), O:12, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"LAIS FASSONI RIBEIRO DESOTTI", B:parseBRL("R$ 89,000.00"), C:258, D:parseBRL("R$ 17,799.88"), E:parsePct("20.00%"), F:138, H:parseBRL("R$ 8,405.00"), O:120, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"LAIS FASSONI RIBEIRO DESOTTI", B:parseBRL("R$ 89,000.00"), C:150, D:parseBRL("R$ 17,799.88"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 8,405.00"), O:12, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"HELIO FERNANDES", B:parseBRL("R$ 81,000.00"), C:150, D:parseBRL("R$ 16,200.00"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 540.00"),  O:1, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"HELIO FERNANDES", B:parseBRL("R$ 81,000.00"), C:150, D:parseBRL("R$ 16,200.00"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 540.00"),  O:1, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"GABRIELE RAYA", B:parseBRL("R$ 98,000.00"), C:150, D:parseBRL("R$ 19,600.08"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 1,553.33"), O:3, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"MARCOS VINICIUS HERRERA", B:parseBRL("R$ 90,000.00"), C:142, D:parseBRL("R$ 17,999.96"), E:parsePct("20.00%"), F:22, H:parseBRL("R$ 5,000.00"), O:4, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"MARCOS VINICIUS HERRERA", B:parseBRL("R$ 90,000.00"), C:142, D:parseBRL("R$ 17,999.96"), E:parsePct("20.00%"), F:22, H:parseBRL("R$ 5,000.00"), O:4, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"JEFERSON SOUSA FREITAS DOS SANTOS", B:parseBRL("R$ 81,000.00"), C:144, D:parseBRL("R$ 16,200.00"), E:parsePct("20.00%"), F:24, H:parseBRL("R$ 675.00"), O:1, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"JEFERSON SOUSA FREITAS DOS SANTOS", B:parseBRL("R$ 81,000.00"), C:144, D:parseBRL("R$ 16,200.00"), E:parsePct("20.00%"), F:24, H:parseBRL("R$ 675.00"), O:1, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"GUILHERME FERREIRA BIGATE", B:parseBRL("R$ 92,100.00"), C:150, D:parseBRL("R$ 18,420.00"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 614.00"), O:1, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"ROGERIO APARECIDO SA RAMALHO", B:parseBRL("R$ 90,000.00"), C:148, D:parseBRL("R$ 18,000.00"), E:parsePct("20.00%"), F:28, H:parseBRL("R$ 1,800.00"), O:1, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"DOUGLAS NICORO", B:parseBRL("R$ 90,000.00"), C:130, D:parseBRL("R$ 18,000.00"), E:parsePct("20.00%"), F:10, H:parseBRL("R$ 18,000.00"), O:10, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"DOUGLAS NICORO", B:parseBRL("R$ 90,000.00"), C:130, D:parseBRL("R$ 18,000.00"), E:parsePct("20.00%"), F:10, H:parseBRL("R$ 18,000.00"), O:10, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"MARX DE SENA RODRIGUES", B:parseBRL("R$ 90,000.00"), C:150, D:parseBRL("R$ 18,000.00"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 600.00"), O:0, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"GUILHERME AUGUSTO ABRUNHOZA", B:parseBRL("R$ 79,000.00"), C:151, D:parseBRL("R$ 15,800.00"), E:parsePct("20.00%"), F:31, H:parseBRL("R$ 526.88"), O:2, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"GUILHERME AUGUSTO ABRUNHOZA", B:parseBRL("R$ 79,000.00"), C:151, D:parseBRL("R$ 15,800.00"), E:parsePct("20.00%"), F:31, H:parseBRL("R$ 526.88"), O:2, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"GUILHERME AUGUSTO ABRUNHOZA", B:parseBRL("R$ 79,000.00"), C:151, D:parseBRL("R$ 15,800.01"), E:parsePct("20.00%"), F:31, H:parseBRL("R$ 526.89"), O:2, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"HENRIQUE MOREIRA MAGALHAES", B:parseBRL("R$ 90,000.00"), C:150, D:parseBRL("R$ 18,000.00"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 1,800.00"), O:3, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"KAREN RAMOS FUKUDA SILVA", B:parseBRL("R$ 90,000.00"), C:150, D:parseBRL("R$ 18,000.00"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 600.00"), O:1, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"GISELE SANTANA PEDREIRA", B:parseBRL("R$ 125,000.00"), C:150, D:parseBRL("R$ 24,999.91"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 3,333.33"), O:4, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"GISELE SANTANA PEDREIRA", B:parseBRL("R$ 125,000.00"), C:150, D:parseBRL("R$ 24,999.91"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 3,333.33"), O:4, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"VIVIANE ROBERTA DE SOUSA", B:parseBRL("R$ 80,000.00"), C:150, D:parseBRL("R$ 15,999.87"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 1,662.06"), O:3, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"EDUARDO TAVARES FERREIRA", B:parseBRL("R$ 80,000.00"), C:150, D:parseBRL("R$ 15,999.87"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 1,662.06"), O:3, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"LETICIA GARCIA MATOS", B:parseBRL("R$ 90,000.00"), C:150, D:parseBRL("R$ 18,000.00"), E:parsePct("20.00%"), F:30, H:parseBRL("R$ 600.00"), O:0, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"ANDERSON RODRIGUES SANTANA JUNIOR", B:parseBRL("R$ 90,000.00"), C:149, D:parseBRL("R$ 18,000.00"), E:parsePct("20.00%"), F:29, H:parseBRL("R$ 2,000.00"), O:0, U:120, periodo:periodoKeyFromExcel("Jun-26")},
+  {nome:"VITORIA MACHADO PINTO", B:parseBRL("R$ 90,990.00"), C:139, D:parseBRL("R$ 18,197.96"), E:parsePct("20.00%"), F:19, H:parseBRL("R$ 988.88"), O:1, U:120, periodo:periodoKeyFromExcel("Jun-26")},
 ];
 
-// Helpers
 const R = (v,d=2)=>Number(v).toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
 const BRL = v=>'R$ '+R(v);
 const avg = a => a.length ? a.reduce((s,v)=>s+v,0)/a.length : 0;
@@ -310,15 +361,11 @@ function setPeriodo(p){
   document.querySelectorAll('.periodo-btn').forEach(b=>b.classList.remove('active'));
   const btn=document.getElementById('btn-'+p);
   if(btn) btn.classList.add('active');
-  document.getElementById('rangeHint').innerHTML = p==='TODOS'
-    ? 'Exibindo: <strong>todos os meses</strong>'
-    : `Exibindo: <strong>${p.charAt(0)+p.slice(1).toLowerCase()}</strong>`;
+  document.getElementById('rangeHint').innerHTML = `Exibindo: <strong>${periodoLabel(p)}</strong>`;
   rebuild();
 }
 
-function hasCol(rows, key){
-  return rows.some(r => r[key] !== undefined && r[key] !== null && r[key] !== '');
-}
+function validPosInt(v){ return Number.isFinite(v) && v>0; }
 
 function renderKPIs(){
   const rows=getFiltered();
@@ -329,51 +376,55 @@ function renderKPIs(){
   const mediaE=avg(rows.map(r=>r.E));
   const mediaF=avg(rows.map(r=>r.F));
   const mediaC=avg(rows.map(r=>r.C));
+
+  // ===== NOVOS (pedido) =====
+  // 1) Média Parcel. Saldo (U)
+  const uVals = rows.map(r=>r.U).filter(validPosInt);
+  const mediaU = avg(uVals);
+
+  // 2) Qtd cotas com saldo < 36x (U) + percentual (no mesmo card)
+  const qtdAbaixo36 = rows.filter(r=>validPosInt(r.U) && r.U < 36).length;
+  const pctAbaixo36 = n ? (qtdAbaixo36/n)*100 : 0;
+
+  // 3) Parcelamento Entrada Efetiva (O) — média
+  const oVals = rows.map(r=>r.O).filter(validPosInt);
+  const mediaO = avg(oVals);
+
+  // Métrica já existia: % entrada efetiva H/B
   const pctEfetiva = somaB ? (somaH/somaB)*100 : 0;
-
-  // NOVOS CARDS (dependem de U e O, que não existem no arquivo atual)
-  const hasU = hasCol(rows,'U');
-  const hasO = hasCol(rows,'O');
-
-  const mediaU = hasU ? avg(rows.map(r=>Number(r.U)||0)) : null;
-
-  const qtdAbaixo36 = hasU ? rows.filter(r => (Number(r.U)||0) > 0 && (Number(r.U)||0) < 36).length : null;
-  const pctAbaixo36 = (hasU && n) ? (qtdAbaixo36 / n) * 100 : null;
-
-  const mediaO = hasO ? avg(rows.map(r=>Number(r.O)||0)) : null;
 
   const cards = [
     {icon:'📦', label:'Total de Cotas', value: String(n), sub:'registros no período', c1:'#00f5c4',c2:'#7c3aed'},
-    {icon:'💰', label:'Valor Total das Cotas (ΣB)', value: BRL(somaB), sub:'soma coluna B', c1:'#f59e0b',c2:'#ef4444'},
-    {icon:'🔑', label:'Média % Entrada (E)', value: R(mediaE)+'%', sub:'média da coluna E', c1:'#00f5c4',c2:'#06b6d4', formula:'MÉDIA(E)'},
-    {icon:'🗓️', label:'Média Parc. Entrada (F)', value: R(mediaF,1)+'x', sub:'média da coluna F', c1:'#a78bfa',c2:'#7c3aed', formula:'MÉDIA(F)'},
+    {icon:'💰', label:'Valor Total (ΣB)', value: BRL(somaB), sub:'soma do valor negociado', c1:'#f59e0b',c2:'#ef4444'},
+    {icon:'🔑', label:'Média % Entrada (E)', value: R(mediaE)+'%', sub:'média da coluna % entrada', c1:'#00f5c4',c2:'#06b6d4', formula:'MÉDIA(E)'},
+    {icon:'🗓️', label:'Média Parcelas Entrada (F)', value: R(mediaF,1)+'x', sub:'média da qtd. de parcelas de entrada', c1:'#a78bfa',c2:'#7c3aed', formula:'MÉDIA(F)'},
     {icon:'⚡', label:'% Entrada Efetiva (H÷B)', value: R(pctEfetiva)+'%', sub:'SOMA(H) ÷ SOMA(B) × 100', c1:'#ef4444',c2:'#f59e0b', formula:'SOMA(H)/SOMA(B)'},
-    {icon:'📅', label:'Média Total Parcelas (C)', value: R(mediaC,1)+'x', sub:'média da coluna C', c1:'#f59e0b',c2:'#fbbf24', formula:'MÉDIA(C)'},
+    {icon:'📅', label:'Média Total Parcelas (C)', value: R(mediaC,1)+'x', sub:'média do total de parcelas', c1:'#f59e0b',c2:'#fbbf24', formula:'MÉDIA(C)'},
 
-    // NOVOS:
+    // NOVOS CARDS
     {
       icon:'🧮',
       label:'Média Parcel. Saldo (U)',
-      value: hasU ? (R(mediaU,1)+'x') : 'N/D',
-      sub: hasU ? 'média da coluna U' : 'coluna U não disponível no arquivo',
+      value: uVals.length ? (R(mediaU,1)+'x') : '0,0x',
+      sub: uVals.length ? `${uVals.length} registro(s) com U preenchido` : 'sem U válido no período',
       c1:'#06b6d4',c2:'#00f5c4',
-      formula: 'MÉDIA(U)'
+      formula:'MÉDIA(U)'
     },
     {
       icon:'⬇️',
       label:'Cotas com Saldo < 36x (U)',
-      value: hasU ? `${qtdAbaixo36} (${R(pctAbaixo36)}%)` : 'N/D',
-      sub: hasU ? 'qtd e % dentro do período' : 'coluna U não disponível no arquivo',
+      value: `${qtdAbaixo36} (${R(pctAbaixo36)}%)`,
+      sub: 'qtd e % dentro do período filtrado',
       c1:'#f59e0b',c2:'#ef4444',
-      formula: 'CONT.SE(U;<36) e % = qtd/total'
+      formula:'(U<36) / Total'
     },
     {
       icon:'🧾',
       label:'Parcelamento Entrada Efetiva (O)',
-      value: hasO ? (R(mediaO,1)+'x') : 'N/D',
-      sub: hasO ? 'média da coluna O' : 'coluna O não disponível no arquivo',
+      value: oVals.length ? (R(mediaO,1)+'x') : '0,0x',
+      sub: oVals.length ? `${oVals.length} registro(s) com O preenchido` : 'sem O válido no período',
       c1:'#7c3aed',c2:'#a78bfa',
-      formula: 'MÉDIA(O)'
+      formula:'MÉDIA(O)'
     },
   ];
 
@@ -388,7 +439,6 @@ function renderKPIs(){
 }
 
 const COLORS=['#00f5c4','#7c3aed','#f59e0b','#ef4444','#06b6d4','#a78bfa','#fbbf24','#34d399','#60a5fa','#f472b6','#fb923c','#4ade80'];
-
 function baseOpts(overrides={}){
   return {
     responsive:true, maintainAspectRatio:true,
@@ -415,8 +465,9 @@ function rebuildCharts(){
   destroyCharts();
   const rows=getFiltered();
 
+  // Top 15 por valor B (por cessionário, pega o maior B por nome)
   const byNome={};
-  rows.forEach(r=>{if(!byNome[r.nome]||r.B>byNome[r.nome].B)byNome[r.nome]=r});
+  rows.forEach(r=>{ if(!byNome[r.nome] || r.B>byNome[r.nome].B) byNome[r.nome]=r; });
   const top15=Object.values(byNome).sort((a,b)=>b.B-a.B).slice(0,15);
   const shortName=n=>{const p=n.split(' ');return p[0]+' '+(p[1]||'');};
 
@@ -430,8 +481,9 @@ function rebuildCharts(){
         datasets:[{
           label:'Valor Negociado (B)',
           data:top15.map(r=>r.B),
-          backgroundColor:COLORS.map(c=>c+'99'),
-          borderColor:COLORS,borderWidth:1,borderRadius:8,borderSkipped:false
+          backgroundColor:'rgba(0,245,196,.55)',
+          borderColor:'rgba(0,245,196,.75)',
+          borderWidth:1,borderRadius:8,borderSkipped:false
         }]
       },
       options:baseOpts({plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+BRL(c.raw)}}}})
@@ -441,7 +493,10 @@ function rebuildCharts(){
   // Doughnut dist E
   {
     const faixas=[
-      {k:'< 20%',a:0,b:20},{k:'= 20%',a:20,b:20.001},{k:'20–21%',a:20.001,b:21},{k:'> 21%',a:21,b:999}
+      {k:'< 20%',a:0,b:20},
+      {k:'= 20%',a:20,b:20.0001},
+      {k:'20–21%',a:20.0001,b:21},
+      {k:'> 21%',a:21,b:999}
     ];
     const counts=faixas.map(f=>rows.filter(r=>r.E>=f.a&&r.E<f.b).length);
     const ctx=document.getElementById('chartDist').getContext('2d');
@@ -452,16 +507,16 @@ function rebuildCharts(){
     });
   }
 
-  // Média F por mês (no dataset atual só JUNHO)
+  // Média F por período (usa TODO o dataset para compor os períodos, mas respeita filtro no card)
   {
-    const byMes={};
-    DATASET.forEach(r=>{ if(!byMes[r.periodo]) byMes[r.periodo]=[]; byMes[r.periodo].push(r.F); });
-    const meses=Object.keys(byMes);
-    const medias=meses.map(m=>avg(byMes[m]));
+    const byPeriodo={};
+    DATASET.forEach(r=>{ if(!byPeriodo[r.periodo]) byPeriodo[r.periodo]=[]; byPeriodo[r.periodo].push(r.F); });
+    const periodos=Object.keys(byPeriodo).sort();
+    const medias=periodos.map(p=>avg(byPeriodo[p]));
     const ctx=document.getElementById('chartF').getContext('2d');
     CHARTS.f=new Chart(ctx,{
       type:'bar',
-      data:{labels:meses,datasets:[{label:'Média Qtd. Entrada (F)',data:medias,backgroundColor:'rgba(124,58,237,.65)',borderColor:'#a78bfa',borderWidth:1,borderRadius:8,borderSkipped:false}]},
+      data:{labels:periodos,datasets:[{label:'Média Parcelas Entrada (F)',data:medias,backgroundColor:'rgba(124,58,237,.65)',borderColor:'#a78bfa',borderWidth:1,borderRadius:8,borderSkipped:false}]},
       options:baseOpts({plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>v+'x'}}}})
     });
   }
@@ -480,8 +535,9 @@ function renderTable(){
 
   if(sortKey){
     rows.sort((a,b)=>{
-      const va=(sortKey==='nome'||sortKey==='periodo')?(a[sortKey]||''):(Number(a[sortKey])||0);
-      const vb=(sortKey==='nome'||sortKey==='periodo')?(b[sortKey]||''):(Number(b[sortKey])||0);
+      const isText=(sortKey==='nome'||sortKey==='periodo');
+      const va=isText ? (a[sortKey]||'') : Number(a[sortKey])||0;
+      const vb=isText ? (b[sortKey]||'') : Number(b[sortKey])||0;
       if(va===vb) return 0;
       return sortAsc ? (va>vb?1:-1) : (va<vb?1:-1);
     });
@@ -491,15 +547,16 @@ function renderTable(){
   document.getElementById('tableBody').innerHTML=rows.map(r=>`
     <tr>
       <td style="color:var(--muted)">${r._idx}</td>
-      <td><span class="pill pill-purple">${r.periodo}</span></td>
+      <td><span class="pill pill-purple">${periodoLabel(r.periodo)}</span></td>
       <td style="font-weight:600;max-width:240px;overflow:hidden;text-overflow:ellipsis">${r.nome}</td>
       <td style="font-weight:700">${BRL(r.B)}</td>
       <td><span class="pill pill-muted">${r.C}x</span></td>
+      <td>${BRL(r.D)}</td>
       <td>${R(r.E)}%</td>
       <td><span class="pill pill-green">${r.F}x</span></td>
       <td style="color:var(--accent3);font-weight:700">${BRL(r.H)}</td>
-      <td><span class="pill pill-muted">${(r.U!==undefined)?(String(r.U)+'x'):'—'}</span></td>
-      <td><span class="pill pill-muted">${(r.O!==undefined)?(String(r.O)+'x'):'—'}</span></td>
+      <td><span class="pill ${r.O>=10?'pill-red':r.O>=3?'pill-amber':'pill-muted'}">${r.O||0}x</span></td>
+      <td><span class="pill ${r.U<36&&r.U>0?'pill-green':r.U>=36?'pill-amber':'pill-muted'}">${r.U||0}x</span></td>
     </tr>`).join('');
 }
 
@@ -509,7 +566,8 @@ function rebuild(){
   renderTable();
 }
 
-rebuild();
+// init
+setPeriodo('TODOS');
 </script>
 </body>
 </html>
