@@ -7,282 +7,199 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
-    :root {
-      --bg:        #050810;
-      --surface:   rgba(255,255,255,0.04);
-      --border:    rgba(255,255,255,0.08);
-      --accent1:   #00f5c4;
-      --accent2:   #7c3aed;
-      --accent3:   #f59e0b;
-      --accent4:   #ef4444;
-      --text:      #e2e8f0;
-      --muted:     #64748b;
-      --card-glow: rgba(0,245,196,0.07);
+    :root{
+      --bg:#050810;--surface:rgba(255,255,255,.04);--border:rgba(255,255,255,.08);
+      --accent1:#00f5c4;--accent2:#7c3aed;--accent3:#f59e0b;--accent4:#ef4444;
+      --text:#e2e8f0;--muted:#64748b;--card-glow:rgba(0,245,196,.07);
     }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:Inter,sans-serif;min-height:100vh;overflow-x:hidden}
+    body::before,body::after{content:"";position:fixed;border-radius:50%;filter:blur(120px);opacity:.22;pointer-events:none;z-index:0}
+    body::before{width:600px;height:600px;background:var(--accent2);top:-150px;left:-150px}
+    body::after{width:500px;height:500px;background:var(--accent1);bottom:-100px;right:-100px}
+    .page{position:relative;z-index:1;padding:28px 32px 60px;max-width:1700px;margin:auto}
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
+    /* HEADER */
+    header{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;
+      margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+    .logo{display:flex;align-items:center;gap:14px}
+    .logo-icon{width:46px;height:46px;border-radius:13px;
+      background:linear-gradient(135deg,var(--accent1),var(--accent2));
+      display:grid;place-items:center;font-size:24px}
+    .logo h1{font-family:"Space Grotesk",sans-serif;font-size:1.4rem;font-weight:800;
+      background:linear-gradient(90deg,var(--accent1),#a78bfa);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .logo span{font-size:.73rem;color:var(--muted);display:block;margin-top:2px}
 
-    /* ── background orbs ── */
-    body::before, body::after {
-      content: '';
-      position: fixed;
-      border-radius: 50%;
-      filter: blur(120px);
-      opacity: .25;
-      pointer-events: none;
-      z-index: 0;
+    /* FILTER BAR */
+    .filter-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .filter-label{font-size:.72rem;font-weight:700;color:var(--muted);
+      text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
+    .periodo-btn{
+      padding:9px 18px;border-radius:12px;border:1px solid var(--border);
+      background:var(--surface);color:var(--text);font-size:.8rem;font-weight:600;
+      cursor:pointer;transition:all .2s;letter-spacing:.03em;
     }
-    body::before {
-      width: 600px; height: 600px;
-      background: var(--accent2);
-      top: -150px; left: -150px;
+    .periodo-btn:hover{border-color:var(--accent1);color:var(--accent1)}
+    .periodo-btn.active{
+      background:linear-gradient(135deg,rgba(0,245,196,.18),rgba(124,58,237,.18));
+      border-color:var(--accent1);color:var(--accent1);
+      box-shadow:0 0 16px rgba(0,245,196,.15)
     }
-    body::after {
-      width: 500px; height: 500px;
-      background: var(--accent1);
-      bottom: -100px; right: -100px;
-    }
+    .badge{background:rgba(0,245,196,.12);border:1px solid rgba(0,245,196,.3);
+      color:var(--accent1);font-size:.72rem;font-weight:700;
+      padding:5px 14px;border-radius:999px;letter-spacing:.08em;white-space:nowrap;align-self:center}
+    .range-hint{font-size:.72rem;color:var(--muted);margin-top:4px;width:100%}
+    .range-hint strong{color:var(--accent1)}
 
-    .page { position: relative; z-index: 1; padding: 32px 36px 60px; max-width: 1600px; margin: auto; }
+    /* KPI GRID */
+    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px;margin-bottom:24px}
+    .kpi{background:var(--surface);border:1px solid var(--border);border-radius:18px;
+      padding:22px 20px;position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s}
+    .kpi:hover{transform:translateY(-4px);box-shadow:0 8px 40px var(--card-glow)}
+    .kpi::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,var(--c1,#00f5c4),var(--c2,#7c3aed))}
+    .kpi-icon{font-size:1.55rem;margin-bottom:10px}
+    .kpi-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+    .kpi-value{font-family:"Space Grotesk",sans-serif;font-size:1.45rem;font-weight:800;
+      background:linear-gradient(90deg,var(--c1,#00f5c4),#fff);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .kpi-sub{font-size:.7rem;color:var(--muted);margin-top:4px}
+    .kpi-formula{font-size:.67rem;color:rgba(100,116,139,.7);margin-top:3px;font-style:italic}
 
-    /* ── HEADER ── */
-    header {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 40px;
-      padding-bottom: 24px;
-      border-bottom: 1px solid var(--border);
-    }
-    .logo { display: flex; align-items: center; gap: 14px; }
-    .logo-icon {
-      width: 44px; height: 44px; border-radius: 12px;
-      background: linear-gradient(135deg, var(--accent1), var(--accent2));
-      display: grid; place-items: center; font-size: 22px;
-    }
-    .logo h1 {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.35rem; font-weight: 700;
-      background: linear-gradient(90deg, var(--accent1), #a78bfa);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    }
-    .logo span { font-size: .75rem; color: var(--muted); display: block; margin-top: 1px; }
-    .badge {
-      background: rgba(0,245,196,.12); border: 1px solid rgba(0,245,196,.3);
-      color: var(--accent1); font-size: .72rem; font-weight: 600;
-      padding: 4px 12px; border-radius: 999px; letter-spacing: .05em;
-    }
+    /* CHARTS */
+    .charts-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:26px}
+    @media(max-width:1100px){.charts-grid{grid-template-columns:1fr 1fr}}
+    @media(max-width:680px){.charts-grid{grid-template-columns:1fr}}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:22px}
+    .card.wide{grid-column:span 2}
+    @media(max-width:1100px){.card.wide{grid-column:span 1}}
+    .card-title{font-size:.76rem;font-weight:800;color:var(--muted);
+      text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px;
+      display:flex;align-items:center;gap:8px}
+    canvas{max-height:230px}
 
-    /* ── KPI CARDS ── */
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-      gap: 18px;
-      margin-bottom: 32px;
-    }
-    .kpi {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 22px 20px;
-      position: relative; overflow: hidden;
-      transition: transform .25s, box-shadow .25s;
-    }
-    .kpi:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 40px var(--card-glow);
-    }
-    .kpi::before {
-      content: '';
-      position: absolute; top: 0; left: 0; right: 0; height: 2px;
-      background: linear-gradient(90deg, var(--c1,#00f5c4), var(--c2,#7c3aed));
-    }
-    .kpi-icon { font-size: 1.6rem; margin-bottom: 10px; }
-    .kpi-label { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; }
-    .kpi-value {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.5rem; font-weight: 700;
-      background: linear-gradient(90deg, var(--c1,#00f5c4), #fff);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    }
-    .kpi-sub { font-size: .72rem; color: var(--muted); margin-top: 4px; }
+    /* TABLE */
+    .table-section{margin-bottom:40px}
+    .table-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:12px;flex-wrap:wrap}
+    .table-title{font-family:"Space Grotesk",sans-serif;font-size:1rem;font-weight:700}
+    .table-meta{font-size:.73rem;color:var(--muted)}
+    .search-wrap{position:relative}
+    .search-wrap input{background:var(--surface);border:1px solid var(--border);color:var(--text);
+      padding:8px 16px 8px 36px;border-radius:999px;font-size:.8rem;outline:none;width:260px;transition:border-color .2s}
+    .search-wrap input:focus{border-color:var(--accent1)}
+    .search-wrap::before{content:"🔍";position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:.85rem;pointer-events:none}
+    .table-wrap{overflow-x:auto;border-radius:18px;border:1px solid var(--border)}
+    table{width:100%;border-collapse:collapse;font-size:.78rem}
+    thead tr{background:rgba(255,255,255,.04);border-bottom:1px solid var(--border)}
+    th{padding:12px 14px;text-align:left;color:var(--muted);font-weight:700;
+      text-transform:uppercase;letter-spacing:.06em;font-size:.68rem;white-space:nowrap;
+      cursor:pointer;user-select:none;transition:color .15s}
+    th:hover{color:var(--accent1)}
+    td{padding:10px 14px;border-bottom:1px solid var(--border);white-space:nowrap}
+    tbody tr:hover{background:rgba(255,255,255,.04)}
+    tr:last-child td{border-bottom:none}
+    .pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.68rem;font-weight:700}
+    .pill-green{background:rgba(0,245,196,.12);color:var(--accent1)}
+    .pill-purple{background:rgba(124,58,237,.2);color:#a78bfa}
+    .pill-amber{background:rgba(245,158,11,.15);color:var(--accent3)}
+    .pill-red{background:rgba(239,68,68,.15);color:var(--accent4)}
+    .pill-muted{background:rgba(100,116,139,.1);color:var(--muted)}
 
-    /* ── CHARTS GRID ── */
-    .charts-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 20px;
-      margin-bottom: 32px;
-    }
-    @media (max-width: 1100px) { .charts-grid { grid-template-columns: 1fr 1fr; } }
-    @media (max-width: 700px)  { .charts-grid { grid-template-columns: 1fr; } }
-
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 22px;
-      position: relative;
-    }
-    .card.wide { grid-column: span 2; }
-    @media (max-width: 1100px) { .card.wide { grid-column: span 1; } }
-
-    .card-title {
-      font-size: .8rem; font-weight: 600; color: var(--muted);
-      text-transform: uppercase; letter-spacing: .08em; margin-bottom: 18px;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .card-title span { font-size: 1rem; }
-    canvas { max-height: 240px; }
-
-    /* ── TABLE ── */
-    .table-section { margin-bottom: 40px; }
-    .table-header {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 16px;
-    }
-    .table-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1rem; font-weight: 600;
-    }
-    .search-wrap { position: relative; }
-    .search-wrap input {
-      background: var(--surface); border: 1px solid var(--border);
-      color: var(--text); padding: 8px 16px 8px 36px;
-      border-radius: 999px; font-size: .8rem; outline: none; width: 220px;
-      transition: border-color .2s;
-    }
-    .search-wrap input:focus { border-color: var(--accent1); }
-    .search-wrap::before {
-      content: '🔍'; position: absolute; left: 12px; top: 50%;
-      transform: translateY(-50%); font-size: .85rem; pointer-events: none;
-    }
-
-    .table-wrap {
-      overflow-x: auto;
-      border-radius: 18px;
-      border: 1px solid var(--border);
-    }
-    table { width: 100%; border-collapse: collapse; font-size: .8rem; }
-    thead tr {
-      background: rgba(255,255,255,.04);
-      border-bottom: 1px solid var(--border);
-    }
-    th {
-      padding: 12px 16px; text-align: left;
-      color: var(--muted); font-weight: 600;
-      text-transform: uppercase; letter-spacing: .06em;
-      font-size: .7rem; white-space: nowrap;
-      cursor: pointer; user-select: none;
-    }
-    th:hover { color: var(--accent1); }
-    td { padding: 11px 16px; border-bottom: 1px solid var(--border); white-space: nowrap; }
-    tr:last-child td { border-bottom: none; }
-    tbody tr { transition: background .15s; }
-    tbody tr:hover { background: rgba(255,255,255,.04); }
-
-    .pill {
-      display: inline-block; padding: 3px 10px;
-      border-radius: 999px; font-size: .7rem; font-weight: 600;
-    }
-    .pill-green  { background: rgba(0,245,196,.12); color: var(--accent1); }
-    .pill-purple { background: rgba(124,58,237,.2);  color: #a78bfa; }
-    .pill-amber  { background: rgba(245,158,11,.15); color: var(--accent3); }
-    .pill-red    { background: rgba(239,68,68,.15);  color: var(--accent4); }
-
-    .bar-bg {
-      background: rgba(255,255,255,.07);
-      border-radius: 999px; height: 5px; width: 90px;
-    }
-    .bar-fill {
-      height: 100%; border-radius: 999px;
-      background: linear-gradient(90deg, var(--accent1), var(--accent2));
-    }
-
-    /* ── FOOTER ── */
-    footer {
-      text-align: center; font-size: .72rem; color: var(--muted);
-      padding-top: 32px; border-top: 1px solid var(--border);
-    }
-    footer strong { color: var(--accent1); }
-
-    /* ── SCROLL BAR ── */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 999px; }
+    footer{text-align:center;font-size:.7rem;color:var(--muted);
+      padding-top:28px;border-top:1px solid var(--border)}
+    footer strong{color:var(--accent1)}
+    ::-webkit-scrollbar{width:6px;height:6px}
+    ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:999px}
   </style>
 </head>
 <body>
 <div class="page">
 
-  <!-- HEADER -->
+  <!-- ═══ HEADER ═══ -->
   <header>
     <div class="logo">
       <div class="logo-icon">📊</div>
       <div>
         <h1>Cotas Dashboard</h1>
-        <span>Relatório de Negociações — Report1</span>
+        <span>Relatório de Negociações — Report1.xlsx</span>
       </div>
     </div>
-    <span class="badge">● LIVE VIEW</span>
+
+    <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-end">
+      <span class="badge">● LIVE VIEW</span>
+      <div class="filter-bar">
+        <span class="filter-label">Período (coluna Z):</span>
+        <button class="periodo-btn active" onclick="setPeriodo('TODOS')" id="btn-TODOS">Todos</button>
+        <button class="periodo-btn" onclick="setPeriodo('JANEIRO')"   id="btn-JANEIRO">Janeiro</button>
+        <button class="periodo-btn" onclick="setPeriodo('FEVEREIRO')" id="btn-FEVEREIRO">Fevereiro</button>
+        <button class="periodo-btn" onclick="setPeriodo('MARÇO')"     id="btn-MARÇO">Março</button>
+        <button class="periodo-btn" onclick="setPeriodo('ABRIL')"     id="btn-ABRIL">Abril</button>
+        <button class="periodo-btn" onclick="setPeriodo('MAIO')"      id="btn-MAIO">Maio</button>
+        <button class="periodo-btn" onclick="setPeriodo('JUNHO')"     id="btn-JUNHO">Junho</button>
+        <button class="periodo-btn" onclick="setPeriodo('JULHO')"     id="btn-JULHO">Julho</button>
+        <button class="periodo-btn" onclick="setPeriodo('AGOSTO')"    id="btn-AGOSTO">Agosto</button>
+        <button class="periodo-btn" onclick="setPeriodo('SETEMBRO')"  id="btn-SETEMBRO">Setembro</button>
+        <button class="periodo-btn" onclick="setPeriodo('OUTUBRO')"   id="btn-OUTUBRO">Outubro</button>
+        <button class="periodo-btn" onclick="setPeriodo('NOVEMBRO')"  id="btn-NOVEMBRO">Novembro</button>
+        <button class="periodo-btn" onclick="setPeriodo('DEZEMBRO')"  id="btn-DEZEMBRO">Dezembro</button>
+      </div>
+      <div class="range-hint" id="rangeHint">Exibindo: <strong>todos os meses</strong></div>
+    </div>
   </header>
 
-  <!-- KPI CARDS -->
+  <!-- ═══ KPIs ═══ -->
   <div class="kpi-grid" id="kpiGrid"></div>
 
-  <!-- CHARTS -->
+  <!-- ═══ CHARTS ═══ -->
   <div class="charts-grid">
     <div class="card wide">
-      <div class="card-title"><span>📈</span> Valor Negociado por Cliente (Top 15)</div>
+      <div class="card-title"><span>📈</span> Valor Negociado por Cessionário — Top 15 (Coluna B)</div>
       <canvas id="chartBar"></canvas>
     </div>
     <div class="card">
-      <div class="card-title"><span>🍩</span> Distribuição de Forma de Pagamento (Entrada)</div>
-      <canvas id="chartDoughnut"></canvas>
+      <div class="card-title"><span>🍩</span> Distribuição % Entrada (Col. E)</div>
+      <canvas id="chartDist"></canvas>
     </div>
     <div class="card">
-      <div class="card-title"><span>⚡</span> % de Entrada por Cliente</div>
-      <canvas id="chartEntrada"></canvas>
+      <div class="card-title"><span>🗓️</span> Média Parcelas Entrada (F) por Mês</div>
+      <canvas id="chartF"></canvas>
     </div>
     <div class="card">
-      <div class="card-title"><span>🔵</span> Parcelas de Entrada vs Saldo</div>
-      <canvas id="chartParcelas"></canvas>
+      <div class="card-title"><span>⚡</span> Entrada Efetiva (H) — Top 15</div>
+      <canvas id="chartH"></canvas>
     </div>
     <div class="card">
-      <div class="card-title"><span>💠</span> Entrada Efetiva por Parcela (Top 15)</div>
-      <canvas id="chartEfetiva"></canvas>
+      <div class="card-title"><span>🔵</span> Total Parcelas Produto (C) — distribuição</div>
+      <canvas id="chartC"></canvas>
     </div>
   </div>
 
-  <!-- TABLE -->
+  <!-- ═══ TABLE ═══ -->
   <div class="table-section">
     <div class="table-header">
-      <div class="table-title">📋 Detalhamento por Cota</div>
+      <div>
+        <div class="table-title">📋 Detalhamento por Cota</div>
+        <div class="table-meta" id="tableMeta"></div>
+      </div>
       <div class="search-wrap">
         <input type="text" id="searchInput" placeholder="Filtrar cessionário…" oninput="renderTable()"/>
       </div>
     </div>
     <div class="table-wrap">
-      <table id="mainTable">
+      <table>
         <thead>
           <tr>
-            <th onclick="sortTable(0)">#</th>
-            <th onclick="sortTable(1)">Cessionário ↕</th>
-            <th onclick="sortTable(2)">Valor Negociado ↕</th>
-            <th onclick="sortTable(3)">Tot. Parcelas ↕</th>
-            <th onclick="sortTable(4)">Valor Entrada ↕</th>
-            <th onclick="sortTable(5)">% Entrada ↕</th>
-            <th onclick="sortTable(6)">Qtd. Entrada ↕</th>
-            <th onclick="sortTable(7)">Entrada Efetiva ↕</th>
-            <th onclick="sortTable(8)">Qtd. Saldo ↕</th>
-            <th>Boleto Entrada</th>
-            <th>Cartão Entrada</th>
-            <th>Progresso Entrada</th>
+            <th onclick="sortTable('_idx')">#</th>
+            <th onclick="sortTable('periodo')">Período (Z) ↕</th>
+            <th onclick="sortTable('nome')">Cessionário ↕</th>
+            <th onclick="sortTable('B')">Valor Neg. (B) ↕</th>
+            <th onclick="sortTable('C')">Tot. Parcelas (C) ↕</th>
+            <th onclick="sortTable('D')">Valor Entrada (D) ↕</th>
+            <th onclick="sortTable('E')">% Entrada (E) ↕</th>
+            <th onclick="sortTable('F')">Qtd. Entrada (F) ↕</th>
+            <th onclick="sortTable('G')">% Entr. Efet. (G) ↕</th>
+            <th onclick="sortTable('H')">Entr. Efetiva (H) ↕</th>
           </tr>
         </thead>
         <tbody id="tableBody"></tbody>
@@ -291,344 +208,396 @@
   </div>
 
   <footer>
-    Dashboard gerado para <strong>Report1.xlsx</strong> · Powered by <strong>Chart.js</strong> · Design futurístico ✦
+    Dashboard — <strong>Report1.xlsx</strong> · Métricas: Colunas B · C · E · F · G · H · Z
+    · Powered by <strong>Chart.js</strong> ✦
   </footer>
 </div>
 
 <script>
-// ───────────────────────── RAW DATA ─────────────────────────
-const raw = [
-  ["GUSTAVO TALLES DA SILVA",88000,130,19000,21.59,10,2.16,1900,9,17100,0,0,0,120,69000,0],
-  ["GUSTAVO TALLES DA SILVA",88000,130,19000,21.59,10,2.16,1900,9,17100,0,0,0,120,69000,0],
-  ["FRANCISCO DE ASSIS AMARO DE SOUZA",90000,139,18000,20.00,18,1.11,1000,17,17000,1,1000,0,120,72000,0],
-  ["ROSILEY DO CARMO NASCIMENTO",90000,270,18000,20.00,30,0.67,600,29,17400,0,0,0,240,144000,0],
-  ["ALLAN NONATO RODRIGUES DE SOUSA",90000,132,18000,20.00,12,1.67,1500,11,16500,1,1500,0,120,72000,0],
-  ["ALLAN NONATO RODRIGUES DE SOUSA",90000,132,18000,20.00,12,1.67,1500,11,16500,1,1500,0,120,72000,0],
-  ["EDSON MARQUES DOS SANTOS JUNIOR",89000,151,17800,20.00,30,0.67,600,29,17200,0,0,0,120,71200,0],
-  ["EDSON MARQUES DOS SANTOS JUNIOR",89000,151,17800,20.00,30,0.67,600,29,17200,0,0,0,120,71200,0],
-  ["ROBERTO MAURO DA SILVA",98000,150,19600,20.00,30,0.67,653.33,29,18946.67,0,0,0,120,78400,0],
-  ["VITOR DANIEL SILVA CASTANHEIRA",90000,137,18000,20.00,17,1.11,1000,16,17000,0,0,0,120,72000,0],
-  ["VITOR DANIEL SILVA CASTANHEIRA",90000,137,18000,20.00,17,1.11,1000,16,17000,0,0,0,120,72000,0],
-  ["CELINA MARIA ALVES BASTOS",91830,140,18990,20.68,19,1.96,1800,18,17190,0,0,0,120,72840,0],
-  ["LEONARDO RODRIGUES GALHARDE",90000,144,17999.82,20.00,24,0.33,300,22,17699.82,0,0,0,120,72000.18,0],
-  ["LEONARDO RODRIGUES GALHARDE",90000,144,17999.82,20.00,24,0.33,300,22,17699.82,0,0,0,120,72000.18,0],
-  ["LUCIANO VALERAS DOS SANTOS",82000,151,16400,20.00,31,2.00,1640,29,14760,0,0,0,120,65600,0],
-  ["LUCIANO VALERAS DOS SANTOS",82000,151,16400,20.00,31,2.00,1640,29,14760,0,0,0,120,65600,0],
-  ["LUCIANO VALERAS DOS SANTOS",82000,151,16399.84,20.00,31,2.00,1640,29,14759.84,0,0,0,120,65600.16,0],
-  ["LUCIANO VALERAS DOS SANTOS",82000,151,16399.84,20.00,31,2.00,1640,29,14759.84,0,0,0,120,65600.16,0],
-  ["GABRIELLY SANTOS MUNHOZ GIMENES",98000,152,19599.93,20.00,30,9.45,9259.24,17,10340.69,13,9259.24,0,120,78400.07,0],
-  ["FABIO JUNQUEIRA ESTEVES",92000,150,18400,20.00,30,8.15,7500,18,10900,12,7500,0,120,73600,0],
-  ["FABIO JUNQUEIRA ESTEVES",92000,150,18400,20.00,30,8.15,7500,18,10900,12,7500,0,120,73600,0],
-  ["MAXI EMILIANO OLIVEIRA MOREIRA",85000,131,16999.92,20.00,10,2.12,1800,9,15199.92,0,0,0,120,68000.08,0],
-  ["MAXI EMILIANO OLIVEIRA MOREIRA",85000,131,16999.92,20.00,10,2.12,1800,9,15199.92,0,0,0,120,68000.08,0],
-  ["MAXI EMILIANO OLIVEIRA MOREIRA",85000,131,16999.92,20.00,10,2.12,1800,9,15199.92,0,0,0,120,68000.08,0],
-  ["MAXI EMILIANO OLIVEIRA MOREIRA",85000,131,16999.92,20.00,10,2.12,1800,9,15199.92,0,0,0,120,68000.08,0],
-  ["LEONARDO TIMOTE",90000,138,18000,20.00,17,2.22,2000,16,16000,1,2000,0,120,72000,0],
-  ["LAURA GODOY DA SILVA",88000,141,17600,20.00,21,2.00,1760,20,15840,0,0,0,120,70400,0],
-  ["LAURA GODOY DA SILVA",88000,141,17600,20.00,21,2.00,1760,20,15840,0,0,0,120,70400,0],
-  ["VALMIR BENTO DA SILVA",90000,151,17999.84,20.00,30,1.67,1500,29,16499.84,0,0,0,120,72000.16,0],
-  ["CARLA TATIANE AMORIM CORREIA DE CARVALHO",90000,147,18000,20.00,26,1.11,1000,25,17000,1,1000,0,120,72000,0],
-  ["NARAIANE LETICIA FERREIRA",98000,145,19600,20.00,25,1.02,1000,24,18600,0,0,0,120,78400,0],
-  ["NARAIANE LETICIA FERREIRA",98000,145,19600,20.00,25,1.02,1000,24,18600,0,0,0,120,78400,0],
-  ["KEITY MIRANDA DOS SANTOS",90000,151,18000,20.00,30,2.00,1800,27,16200,3,1800,0,120,72000,0],
-  ["MARCELO GAMA CORREA MARTINS",87000,150,17400,20.00,30,2.00,1740,28,15660,1,1240,0,120,69600,0],
-  ["MARCELO GAMA CORREA MARTINS",87000,150,17400,20.00,30,2.00,1740,28,15660,1,1240,0,120,69600,0],
-  ["MARCELO DE AZEVEDO MARQUES",90000,139,18000,20.00,19,2.00,1800,18,16200,1,1800,0,120,72000,0],
-  ["ALEXSANDRO FREITAS DA SILVA",85000,150,17000.08,20.00,30,0.71,600,29,16400.08,0,0,0,120,67999.92,0],
-  ["ALEXSANDRO FREITAS DA SILVA",85000,150,17000.08,20.00,30,0.71,600,29,16400.08,0,0,0,120,67999.92,0],
-  ["GABRIELA GONCALVES",90000,151,18000,20.00,30,0.67,600,29,17400,0,0,0,120,72000,0],
-  ["CAROLINA GOMES PEREIRA SANTANA",87000,150,17400,20.00,30,0.67,580,29,16820,0,0,0,120,69600,0],
-  ["MIRIAM ALBINO DE OLIVEIRA",90000,140,17999.84,20.00,20,4.00,3600,19,14399.84,0,0,0,120,72000.16,0],
-  ["LETICIA SILVA GONCALVES",88000,149,17599.96,20.00,29,3.00,2640,26,14959.96,3,2640,0,120,70400.04,0],
-  ["MARIA RAQUEL FERREIRA",95000,150,19000,20.00,30,6.32,6000,20,13000,10,6000,0,120,76000,0],
-  ["ERNANDO DOS SANTOS SOUSA NETO",90000,150,18000,20.00,30,0.67,600,29,17400,0,0,0,120,72000,0],
-  ["ERNANDO DOS SANTOS SOUSA NETO",90000,150,18000,20.00,30,0.67,600,29,17400,0,0,0,120,72000,0],
-  ["FRANCISCO EUGENIO SIQUEIRA LIMA",90000,150,18000.16,20.00,29,0.69,620,28,17380.16,0,0,0,120,71999.84,0],
-  ["JORDANA FERREIRA DA CONCEICAO RIBEIRO",98000,150,19599.90,20.00,30,2.67,2613.32,26,16986.58,4,2613.32,0,120,78400.10,0],
-  ["ALINE SUZANA CAMARGO DA SILVA CRUZ ALFERES",92000,150,18399.91,20.00,30,2.00,1840,27,16559.91,3,1840,0,120,73600.09,0],
-  ["MICHELLE EUSTAQUIO BUENO",90000,150,18000,20.00,30,0.67,600,29,17400,0,0,0,120,72000,0],
-  ["MICHELLE EUSTAQUIO BUENO",90000,150,18000,20.00,30,0.67,600,29,17400,0,0,0,120,72000,0],
-  ["JOMECI SANTANA BARBOSA",90000,151,18000,20.00,30,0.67,600,29,17400,0,0,0,120,72000,0],
-  ["ADRIANA MEDEIROS PEREIRA",90000,131,18000,20.00,10,2.00,1800,9,16200,1,1800,0,120,72000,0],
-  ["TAINA RAMOS",90000,130,18000,20.00,9,4.00,3600,8,14400,0,0,0,120,72000,0],
-  ["TAINA RAMOS",90000,130,18000,20.00,9,4.00,3600,8,14400,0,0,0,120,72000,0],
-  ["FERNANDO SARGACO DA COSTA E SILVA",125000,138,25000,20.00,18,2.00,2500,17,22500,0,0,0,120,100000,0],
-  ["FERNANDO SARGACO DA COSTA E SILVA",125000,138,25000,20.00,18,2.00,2500,17,22500,0,0,0,120,100000,0],
-  ["ESTER DE CAMARGO OCTAVIANO",90000,150,18000.01,20.00,30,0.44,400,29,17600.01,0,0,0,120,71999.99,0],
-  ["ESTER DE CAMARGO OCTAVIANO",90000,150,18000.01,20.00,30,0.44,400,29,17600.01,0,0,0,120,71999.99,0],
-  ["RITA DE CASSIA ROCHA DE ABREU",79000,150,15799.99,20.00,30,2.00,1579.99,27,14220,2,1053.33,0,120,63200.01,0],
-  ["RITA DE CASSIA ROCHA DE ABREU",79000,150,15799.99,20.00,30,2.00,1579.99,27,14220,2,1053.33,0,120,63200.01,0],
-  ["MONIQUE PEREIRA SILVA",80000,150,16000,20.00,30,0.67,533.50,29,15466.50,0,0,0,120,64000,0],
-  ["MONIQUE PEREIRA SILVA",80000,150,16000,20.00,30,0.67,533.50,29,15466.50,0,0,0,120,64000,0],
-  ["MAYCON PERROTTA MAIA",92700,150,18540,20.00,30,0.67,618,29,17922,1,618,0,120,74160,0],
-  ["IZABEL CARVALHO NICOLAU",90000,130,18000,20.00,10,20.00,18000,0,0,10,18000,0,120,72000,0],
-  ["LUIZ AUGUSTO SILVA DOS SANTOS",98000,150,19599.84,20.00,30,3.24,3176.55,27,16423.29,2,1216.55,0,120,78400.16,0],
-  ["LAIS FASSONI RIBEIRO DESOTTI",89000,150,17799.88,20.00,30,9.44,8405,17,9394.88,12,6625,0,120,71200.12,0],
-  ["LAIS FASSONI RIBEIRO DESOTTI",89000,150,17799.88,20.00,30,9.44,8405,17,9394.88,12,6625,0,120,71200.12,0],
-  ["LAIS FASSONI RIBEIRO DESOTTI",89000,258,17799.88,20.00,138,9.44,8405,17,9394.88,120,6625,0,120,71200.12,0],
-  ["LAIS FASSONI RIBEIRO DESOTTI",89000,150,17799.88,20.00,30,9.44,8405,17,9394.88,12,6625,0,120,71200.12,0],
-  ["HELIO FERNANDES",81000,150,16200,20.00,30,0.67,540,29,15660,1,540,0,120,64800,0],
-  ["HELIO FERNANDES",81000,150,16200,20.00,30,0.67,540,29,15660,1,540,0,120,64800,0],
-  ["GABRIELE RAYA",98000,150,19600.08,20.00,30,1.59,1553.33,26,18046.75,3,900,0,120,78399.92,0],
-  ["MARCOS VINICIUS HERRERA",90000,142,17999.96,20.00,22,5.56,5000,18,12999.96,4,5000,0,120,72000.04,0],
-  ["MARCOS VINICIUS HERRERA",90000,142,17999.96,20.00,22,5.56,5000,18,12999.96,4,5000,0,120,72000.04,0],
-  ["JEFERSON SOUSA FREITAS DOS SANTOS",81000,144,16200,20.00,24,0.83,675,23,15525,1,675,0,120,64800,0],
-  ["JEFERSON SOUSA FREITAS DOS SANTOS",81000,144,16200,20.00,24,0.83,675,23,15525,1,675,0,120,64800,0],
-  ["GUILHERME FERREIRA BIGATE",92100,150,18420,20.00,30,0.67,614,29,17806,1,614,0,120,73680,0],
-  ["ROGERIO APARECIDO SA RAMALHO",90000,148,18000,20.00,28,2.00,1800,27,16200,1,1800,0,120,72000,0],
-  ["DOUGLAS NICORO",90000,130,18000,20.00,10,20.00,18000,0,0,10,18000,0,120,72000,0],
-  ["DOUGLAS NICORO",90000,130,18000,20.00,10,20.00,18000,0,0,10,18000,0,120,72000,0],
-  ["MARX DE SENA RODRIGUES",90000,150,18000,20.00,30,0.67,600,29,17400,0,0,0,120,72000,0],
-  ["GUILHERME AUGUSTO ABRUNHOZA",79000,151,15800,20.00,31,0.67,526.88,29,15273.12,2,526.88,0,120,63200,0],
-  ["GUILHERME AUGUSTO ABRUNHOZA",79000,151,15800,20.00,31,0.67,526.88,29,15273.12,2,526.88,0,120,63200,0],
-  ["GUILHERME AUGUSTO ABRUNHOZA",79000,151,15800.01,20.00,31,0.67,526.89,29,15273.12,2,526.89,0,120,63199.99,0],
-  ["HENRIQUE MOREIRA MAGALHAES",90000,150,18000,20.00,30,2.00,1800,27,16200,3,1800,0,120,72000,0],
-  ["KAREN RAMOS FUKUDA SILVA",90000,150,18000,20.00,30,0.67,600,29,17400,1,600,0,120,72000,0],
-  ["GISELE SANTANA PEDREIRA",125000,150,24999.91,20.00,30,2.67,3333.33,26,21666.58,4,3333.33,0,120,100000.09,0],
-  ["GISELE SANTANA PEDREIRA",125000,150,24999.91,20.00,30,2.67,3333.33,26,21666.58,4,3333.33,0,120,100000.09,0],
-  ["VIVIANE ROBERTA DE SOUSA",80000,150,15999.87,20.00,30,2.08,1662.06,27,14337.81,3,1662.06,0,120,64000.13,0],
-  ["EDUARDO TAVARES FERREIRA",80000,150,15999.87,20.00,30,2.08,1662.06,27,14337.81,3,1662.06,0,120,64000.13,0],
-  ["LETICIA GARCIA MATOS",90000,150,18000,20.00,30,0.67,600,29,17400,0,0,0,120,72000,0],
-  ["ANDERSON RODRIGUES SANTANA JUNIOR",90000,149,18000,20.00,29,2.22,2000,28,16000,0,0,0,120,72000,0],
-  ["VITORIA MACHADO PINTO",90990,139,18197.96,20.00,19,1.09,988.88,18,17209.08,1,988.88,0,120,72792.04,0],
+// ═══════════════════════════════════════════════════
+//  DATASET COMPLETO — dados reais do Report1.xlsx
+//  B = Valor Negociado
+//  C = Tot. Parcelas
+//  D = Valor Entrada
+//  E = % Entrada
+//  F = Qtd. Entrada
+//  G = % Entrada Efetiva (parcela)
+//  H = Valor Entrada Efetiva (por parcela)
+//  Z = Período (mês)
+// ═══════════════════════════════════════════════════
+const DATASET = [
+  {nome:"GUSTAVO TALLES DA SILVA",           B:88000,   C:130, D:19000,    E:21.59, F:10, G:2.16, H:1900,    periodo:"JUNHO"},
+  {nome:"GUSTAVO TALLES DA SILVA",           B:88000,   C:130, D:19000,    E:21.59, F:10, G:2.16, H:1900,    periodo:"JUNHO"},
+  {nome:"FRANCISCO DE ASSIS AMARO DE SOUZA", B:90000,   C:139, D:18000,    E:20.00, F:18, G:1.11, H:1000,    periodo:"JUNHO"},
+  {nome:"ROSILEY DO CARMO NASCIMENTO",       B:90000,   C:270, D:18000,    E:20.00, F:30, G:0.67, H:600,     periodo:"JUNHO"},
+  {nome:"ALLAN NONATO RODRIGUES DE SOUSA",   B:90000,   C:132, D:18000,    E:20.00, F:12, G:1.67, H:1500,    periodo:"JUNHO"},
+  {nome:"ALLAN NONATO RODRIGUES DE SOUSA",   B:90000,   C:132, D:18000,    E:20.00, F:12, G:1.67, H:1500,    periodo:"JUNHO"},
+  {nome:"EDSON MARQUES DOS SANTOS JUNIOR",   B:89000,   C:151, D:17800,    E:20.00, F:30, G:0.67, H:600,     periodo:"JUNHO"},
+  {nome:"EDSON MARQUES DOS SANTOS JUNIOR",   B:89000,   C:151, D:17800,    E:20.00, F:30, G:0.67, H:600,     periodo:"JUNHO"},
+  {nome:"ROBERTO MAURO DA SILVA",            B:98000,   C:150, D:19600,    E:20.00, F:30, G:0.67, H:653.33,  periodo:"JUNHO"},
+  {nome:"VITOR DANIEL SILVA CASTANHEIRA",    B:90000,   C:137, D:18000,    E:20.00, F:17, G:1.11, H:1000,    periodo:"JUNHO"},
+  {nome:"VITOR DANIEL SILVA CASTANHEIRA",    B:90000,   C:137, D:18000,    E:20.00, F:17, G:1.11, H:1000,    periodo:"JUNHO"},
+  {nome:"CELINA MARIA ALVES BASTOS",         B:91830,   C:140, D:18990,    E:20.68, F:19, G:1.96, H:1800,    periodo:"JUNHO"},
+  {nome:"LEONARDO RODRIGUES GALHARDE",       B:90000,   C:144, D:17999.82, E:20.00, F:24, G:0.33, H:300,     periodo:"JUNHO"},
+  {nome:"LEONARDO RODRIGUES GALHARDE",       B:90000,   C:144, D:17999.82, E:20.00, F:24, G:0.33, H:300,     periodo:"JUNHO"},
+  {nome:"LUCIANO VALERAS DOS SANTOS",        B:82000,   C:151, D:16400,    E:20.00, F:31, G:2.00, H:1640,    periodo:"JUNHO"},
+  {nome:"LUCIANO VALERAS DOS SANTOS",        B:82000,   C:151, D:16400,    E:20.00, F:31, G:2.00, H:1640,    periodo:"JUNHO"},
+  {nome:"LUCIANO VALERAS DOS SANTOS",        B:82000,   C:151, D:16399.84, E:20.00, F:31, G:2.00, H:1640,    periodo:"JUNHO"},
+  {nome:"LUCIANO VALERAS DOS SANTOS",        B:82000,   C:151, D:16399.84, E:20.00, F:31, G:2.00, H:1640,    periodo:"JUNHO"},
+  {nome:"GABRIELLY SANTOS MUNHOZ GIMENES",   B:98000,   C:152, D:19599.93, E:20.00, F:30, G:9.45, H:9259.24, periodo:"JUNHO"},
+  {nome:"FABIO JUNQUEIRA ESTEVES",           B:92000,   C:150, D:18400,    E:20.00, F:30, G:8.15, H:7500,    periodo:"JUNHO"},
+  {nome:"FABIO JUNQUEIRA ESTEVES",           B:92000,   C:150, D:18400,    E:20.00, F:30, G:8.15, H:7500,    periodo:"JUNHO"},
+  {nome:"MAXI EMILIANO OLIVEIRA MOREIRA",    B:85000,   C:131, D:16999.92, E:20.00, F:10, G:2.12, H:1800,    periodo:"JUNHO"},
+  {nome:"MAXI EMILIANO OLIVEIRA MOREIRA",    B:85000,   C:131, D:16999.92, E:20.00, F:10, G:2.12, H:1800,    periodo:"JUNHO"},
+  {nome:"MAXI EMILIANO OLIVEIRA MOREIRA",    B:85000,   C:131, D:16999.92, E:20.00, F:10, G:2.12, H:1800,    periodo:"JUNHO"},
+  {nome:"MAXI EMILIANO OLIVEIRA MOREIRA",    B:85000,   C:131, D:16999.92, E:20.00, F:10, G:2.12, H:1800,    periodo:"JUNHO"},
+  {nome:"LEONARDO TIMOTE",                   B:90000,   C:138, D:18000,    E:20.00, F:17, G:2.22, H:2000,    periodo:"JUNHO"},
+  {nome:"LAURA GODOY DA SILVA",              B:88000,   C:141, D:17600,    E:20.00, F:21, G:2.00, H:1760,    periodo:"JUNHO"},
+  {nome:"LAURA GODOY DA SILVA",              B:88000,   C:141, D:17600,    E:20.00, F:21, G:2.00, H:1760,    periodo:"JUNHO"},
+  {nome:"VALMIR BENTO DA SILVA",             B:90000,   C:151, D:17999.84, E:20.00, F:30, G:1.67, H:1500,    periodo:"JUNHO"},
+  {nome:"CARLA TATIANE AMORIM CORREIA DE CARVALHO", B:90000, C:147, D:18000, E:20.00, F:26, G:1.11, H:1000,  periodo:"JUNHO"},
+  {nome:"NARAIANE LETICIA FERREIRA",         B:98000,   C:145, D:19600,    E:20.00, F:25, G:1.02, H:1000,    periodo:"JUNHO"},
+  {nome:"NARAIANE LETICIA FERREIRA",         B:98000,   C:145, D:19600,    E:20.00, F:25, G:1.02, H:1000,    periodo:"JUNHO"},
+  {nome:"KEITY MIRANDA DOS SANTOS",          B:90000,   C:151, D:18000,    E:20.00, F:30, G:2.00, H:1800,    periodo:"JUNHO"},
+  {nome:"MARCELO GAMA CORREA MARTINS",       B:87000,   C:150, D:17400,    E:20.00, F:30, G:2.00, H:1740,    periodo:"JUNHO"},
+  {nome:"MARCELO GAMA CORREA MARTINS",       B:87000,   C:150, D:17400,    E:20.00, F:30, G:2.00, H:1740,    periodo:"JUNHO"},
+  {nome:"MARCELO DE AZEVEDO MARQUES",        B:90000,   C:139, D:18000,    E:20.00, F:19, G:2.00, H:1800,    periodo:"JUNHO"},
+  {nome:"ALEXSANDRO FREITAS DA SILVA",       B:85000,   C:150, D:17000.08, E:20.00, F:30, G:0.71, H:600,     periodo:"JUNHO"},
+  {nome:"ALEXSANDRO FREITAS DA SILVA",       B:85000,   C:150, D:17000.08, E:20.00, F:30, G:0.71, H:600,     periodo:"JUNHO"},
+  {nome:"GABRIELA GONCALVES",                B:90000,   C:151, D:18000,    E:20.00, F:30, G:0.67, H:600,     periodo:"JUNHO"},
+  {nome:"CAROLINA GOMES PEREIRA SANTANA",    B:87000,   C:150, D:17400,    E:20.00, F:30, G:0.67, H:580,     periodo:"JUNHO"},
+  {nome:"MIRIAM ALBINO DE OLIVEIRA",         B:90000,   C:140, D:17999.84, E:20.00, F:20, G:4.00, H:3600,    periodo:"JUNHO"},
+  {nome:"LETICIA SILVA GONCALVES",           B:88000,   C:149, D:17599.96, E:20.00, F:29, G:3.00, H:2640,    periodo:"JUNHO"},
+  {nome:"MARIA RAQUEL FERREIRA",             B:95000,   C:150, D:19000,    E:20.00, F:30, G:6.32, H:6000,    periodo:"JUNHO"},
+  {nome:"ERNANDO DOS SANTOS SOUSA NETO",     B:90000,   C:150, D:18000,    E:20.00, F:30, G:0.67, H:600,     periodo:"JUNHO"},
+  {nome:"ERNANDO DOS SANTOS SOUSA NETO",     B:90000,   C:150, D:18000,    E:20.00, F:30, G:0.67, H:600,     periodo:"JUNHO"},
+  {nome:"FRANCISCO EUGENIO SIQUEIRA LIMA",   B:90000,   C:150, D:18000.16, E:20.00, F:29, G:0.69, H:620,     periodo:"JUNHO"},
+  {nome:"JORDANA FERREIRA DA CONCEICAO RIBEIRO", B:98000, C:150, D:19599.90, E:20.00, F:30, G:2.67, H:2613.32, periodo:"JUNHO"},
+  {nome:"ALINE SUZANA CAMARGO DA SILVA CRUZ ALFERES", B:92000, C:150, D:18399.91, E:20.00, F:30, G:2.00, H:1840, periodo:"JUNHO"},
+  {nome:"MICHELLE EUSTAQUIO BUENO",          B:90000,   C:150, D:18000,    E:20.00, F:30, G:0.67, H:600,     periodo:"JUNHO"},
+  {nome:"MICHELLE EUSTAQUIO BUENO",          B:90000,   C:150, D:18000,    E:20.00, F:30, G:0.67, H:600,     periodo:"JUNHO"},
+  {nome:"JOMECI SANTANA BARBOSA",            B:90000,   C:151, D:18000,    E:20.00, F:30, G:0.67, H:600,     periodo:"JUNHO"},
+  {nome:"ADRIANA MEDEIROS PEREIRA",          B:90000,   C:131, D:18000,    E:20.00, F:10, G:2.00, H:1800,    periodo:"JUNHO"},
+  {nome:"TAINA RAMOS",                       B:90000,   C:130, D:18000,    E:20.00, F:9,  G:4.00, H:3600,    periodo:"JUNHO"},
+  {nome:"TAINA RAMOS",                       B:90000,   C:130, D:18000,    E:20.00, F:9,  G:4.00, H:3600,    periodo:"JUNHO"},
+  {nome:"FERNANDO SARGACO DA COSTA E SILVA", B:125000,  C:138, D:25000,    E:20.00, F:18, G:2.00, H:2500,    periodo:"JUNHO"},
+  {nome:"FERNANDO SARGACO DA COSTA E SILVA", B:125000,  C:138, D:25000,    E:20.00, F:18, G:2.00, H:2500,    periodo:"JUNHO"},
+  {nome:"ESTER DE CAMARGO OCTAVIANO",        B:90000,   C:150, D:18000.01, E:20.00, F:30, G:0.44, H:400,     periodo:"JUNHO"},
+  {nome:"ESTER DE CAMARGO OCTAVIANO",        B:90000,   C:150, D:18000.01, E:20.00, F:30, G:0.44, H:400,     periodo:"JUNHO"},
+  {nome:"RITA DE CASSIA ROCHA DE ABREU",     B:79000,   C:150, D:15799.99, E:20.00, F:30, G:2.00, H:1579.99, periodo:"JUNHO"},
+  {nome:"RITA DE CASSIA ROCHA DE ABREU",     B:79000,   C:150, D:15799.99, E:20.00, F:30, G:2.00, H:1579.99, periodo:"JUNHO"},
+  {nome:"MONIQUE PEREIRA SILVA",             B:80000,   C:150, D:16000,    E:20.00, F:30, G:0.67, H:533.50,  periodo:"JUNHO"},
+  {nome:"MONIQUE PEREIRA SILVA",             B:80000,   C:150, D:16000,    E:20.00, F:30, G:0.67, H:533.50,  periodo:"JUNHO"},
+  {nome:"MAYCON PERROTTA MAIA",              B:92700,   C:150, D:18540,    E:20.00, F:30, G:0.67, H:618,     periodo:"JUNHO"},
+  {nome:"IZABEL CARVALHO NICOLAU",           B:90000,   C:130, D:18000,    E:20.00, F:10, G:20.00,H:18000,   periodo:"JUNHO"},
+  {nome:"LUIZ AUGUSTO SILVA DOS SANTOS",     B:98000,   C:150, D:19599.84, E:20.00, F:30, G:3.24, H:3176.55, periodo:"JUNHO"},
+  {nome:"LAIS FASSONI RIBEIRO DESOTTI",      B:89000,   C:150, D:17799.88, E:20.00, F:30, G:9.44, H:8405,    periodo:"JUNHO"},
+  {nome:"LAIS FASSONI RIBEIRO DESOTTI",      B:89000,   C:150, D:17799.88, E:20.00, F:30, G:9.44, H:8405,    periodo:"JUNHO"},
+  {nome:"LAIS FASSONI RIBEIRO DESOTTI",      B:89000,   C:258, D:17799.88, E:20.00, F:138,G:9.44, H:8405,    periodo:"JUNHO"},
+  {nome:"LAIS FASSONI RIBEIRO DESOTTI",      B:89000,   C:150, D:17799.88, E:20.00, F:30, G:9.44, H:8405,    periodo:"JUNHO"},
+  {nome:"HELIO FERNANDES",                   B:81000,   C:150, D:16200,    E:20.00, F:30, G:0.67, H:540,     periodo:"JUNHO"},
+  {nome:"HELIO FERNANDES",                   B:81000,   C:150, D:16200,    E:20.00, F:30, G:0.67, H:540,     periodo:"JUNHO"},
+  {nome:"GABRIELE RAYA",                     B:98000,   C:150, D:19600.08, E:20.00, F:30, G:1.59, H:1553.33, periodo:"JUNHO"},
+  {nome:"MARCOS VINICIUS HERRERA",           B:90000,   C:142, D:17999.96, E:20.00, F:22, G:5.56, H:5000,    periodo:"JUNHO"},
+  {nome:"MARCOS VINICIUS HERRERA",           B:90000,   C:142, D:17999.96, E:20.00, F:22, G:5.56, H:5000,    periodo:"JUNHO"},
+  {nome:"JEFERSON SOUSA FREITAS DOS SANTOS", B:81000,   C:144, D:16200,    E:20.00, F:24, G:0.83, H:675,     periodo:"JUNHO"},
+  {nome:"JEFERSON SOUSA FREITAS DOS SANTOS", B:81000,   C:144, D:16200,    E:20.00, F:24, G:0.83, H:675,     periodo:"JUNHO"},
+  {nome:"GUILHERME FERREIRA BIGATE",         B:92100,   C:150, D:18420,    E:20.00, F:30, G:0.67, H:614,     periodo:"JUNHO"},
+  {nome:"ROGERIO APARECIDO SA RAMALHO",      B:90000,   C:148, D:18000,    E:20.00, F:28, G:2.00, H:1800,    periodo:"JUNHO"},
+  {nome:"DOUGLAS NICORO",                    B:90000,   C:130, D:18000,    E:20.00, F:10, G:20.00,H:18000,   periodo:"JUNHO"},
+  {nome:"DOUGLAS NICORO",                    B:90000,   C:130, D:18000,    E:20.00, F:10, G:20.00,H:18000,   periodo:"JUNHO"},
+  {nome:"MARX DE SENA RODRIGUES",            B:90000,   C:150, D:18000,    E:20.00, F:30, G:0.67, H:600,     periodo:"JUNHO"},
+  {nome:"GUILHERME AUGUSTO ABRUNHOZA",       B:79000,   C:151, D:15800,    E:20.00, F:31, G:0.67, H:526.88,  periodo:"JUNHO"},
+  {nome:"GUILHERME AUGUSTO ABRUNHOZA",       B:79000,   C:151, D:15800,    E:20.00, F:31, G:0.67, H:526.88,  periodo:"JUNHO"},
+  {nome:"GUILHERME AUGUSTO ABRUNHOZA",       B:79000,   C:151, D:15800.01, E:20.00, F:31, G:0.67, H:526.89,  periodo:"JUNHO"},
+  {nome:"HENRIQUE MOREIRA MAGALHAES",        B:90000,   C:150, D:18000,    E:20.00, F:30, G:2.00, H:1800,    periodo:"JUNHO"},
+  {nome:"KAREN RAMOS FUKUDA SILVA",          B:90000,   C:150, D:18000,    E:20.00, F:30, G:0.67, H:600,     periodo:"JUNHO"},
+  {nome:"GISELE SANTANA PEDREIRA",           B:125000,  C:150, D:24999.91, E:20.00, F:30, G:2.67, H:3333.33, periodo:"JUNHO"},
+  {nome:"GISELE SANTANA PEDREIRA",           B:125000,  C:150, D:24999.91, E:20.00, F:30, G:2.67, H:3333.33, periodo:"JUNHO"},
+  {nome:"VIVIANE ROBERTA DE SOUSA",          B:80000,   C:150, D:15999.87, E:20.00, F:30, G:2.08, H:1662.06, periodo:"JUNHO"},
+  {nome:"EDUARDO TAVARES FERREIRA",          B:80000,   C:150, D:15999.87, E:20.00, F:30, G:2.08, H:1662.06, periodo:"JUNHO"},
+  {nome:"LETICIA GARCIA MATOS",              B:90000,   C:150, D:18000,    E:20.00, F:30, G:0.67, H:600,     periodo:"JUNHO"},
+  {nome:"ANDERSON RODRIGUES SANTANA JUNIOR", B:90000,   C:149, D:18000,    E:20.00, F:29, G:2.22, H:2000,    periodo:"JUNHO"},
+  {nome:"VITORIA MACHADO PINTO",             B:90990,   C:139, D:18197.96, E:20.00, F:19, G:1.09, H:988.88,  periodo:"JUNHO"},
 ];
 
-// cols: 0=nome,1=vlrNeg,2=totParc,3=vlrEnt,4=pctEnt,5=qtdEnt,6=pctParc,7=entEfet,8=qtdBolEnt,9=vlrBolEnt,10=qtdCartEnt,11=vlrCartEnt,12=dummy,13=qtdSaldo,14=vlrSaldo,15=dummy
+// ── Helpers ──────────────────────────────────────────────────
+const R = (v,d=2)=>Number(v).toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const BRL = v=>'R$ '+R(v);
+const avg = a => a.length ? a.reduce((s,v)=>s+v,0)/a.length : 0;
+const sum = a => a.reduce((s,v)=>s+v,0);
 
-const fmt = v => 'R$ ' + v.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
-const avg = arr => arr.reduce((a,b)=>a+b,0)/arr.length;
+// ── State ─────────────────────────────────────────────────────
+let periodoAtivo = 'TODOS';
+let sortKey = null, sortAsc = true;
+let CHARTS = {};
+
+// ── Período filter ────────────────────────────────────────────
+function getFiltered(){
+  if(periodoAtivo==='TODOS') return DATASET;
+  return DATASET.filter(r=>r.periodo===periodoAtivo);
+}
+
+function setPeriodo(p){
+  periodoAtivo = p;
+  // update buttons
+  document.querySelectorAll('.periodo-btn').forEach(b=>b.classList.remove('active'));
+  const btn = document.getElementById('btn-'+p);
+  if(btn) btn.classList.add('active');
+  // hint
+  const hint = document.getElementById('rangeHint');
+  hint.innerHTML = p==='TODOS'
+    ? 'Exibindo: <strong>todos os meses</strong>'
+    : `Exibindo: <strong>${p.charAt(0)+p.slice(1).toLowerCase()}</strong>`;
+  rebuild();
+}
 
 // ── KPIs ──────────────────────────────────────────────────────
-const total        = raw.length;
-const somaVlr      = raw.reduce((a,r)=>a+r[1],0);
-const somaEnt      = raw.reduce((a,r)=>a+r[3],0);
-const mediaVlr     = avg(raw.map(r=>r[1]));
-const mediaEnt     = avg(raw.map(r=>r[3]));
-const mediaPct     = avg(raw.map(r=>r[4]));
-const mediaParc    = avg(raw.map(r=>r[2]));
-const mediaQtdEnt  = avg(raw.map(r=>r[5]));
-const mediaEfet    = avg(raw.map(r=>r[7]));
-const mediaSaldo   = avg(raw.map(r=>r[13]));
-const comCartao    = raw.filter(r=>r[10]>0).length;
-const pctCartao    = (comCartao/total*100).toFixed(1);
+function renderKPIs(){
+  const rows = getFiltered();
+  const n = rows.length;
 
-const kpis = [
-  {icon:'📦', label:'Total de Cotas', value: total, sub:'registros na planilha', c1:'#00f5c4', c2:'#7c3aed'},
-  {icon:'💰', label:'Soma Valor Negociado', value: fmt(somaVlr), sub:'volume total', c1:'#f59e0b', c2:'#ef4444'},
-  {icon:'📊', label:'Média Valor Negociado', value: fmt(mediaVlr), sub:'por cota', c1:'#7c3aed', c2:'#a78bfa'},
-  {icon:'🔑', label:'Média Valor de Entrada', value: fmt(mediaEnt), sub:`média ${mediaPct.toFixed(2)}% do negociado`, c1:'#00f5c4', c2:'#06b6d4'},
-  {icon:'⚡', label:'Média Entrada Efetiva', value: fmt(mediaEfet), sub:'por parcela de entrada', c1:'#f59e0b', c2:'#fbbf24'},
-  {icon:'🗓️', label:'Média Total Parcelas', value: Math.round(mediaParc), sub:'parcelas por cota', c1:'#a78bfa', c2:'#7c3aed'},
-  {icon:'📅', label:'Média Parcelas Entrada', value: Math.round(mediaQtdEnt), sub:'parcelas de entrada', c1:'#06b6d4', c2:'#00f5c4'},
-  {icon:'💳', label:'Cotas c/ Cartão Entrada', value: `${comCartao} (${pctCartao}%)`, sub:'utilizam cartão na entrada', c1:'#ef4444', c2:'#f59e0b'},
-];
+  // Coluna B
+  const somaB = sum(rows.map(r=>r.B));
+  // Coluna C - média total parcelamento produto
+  const mediaC = avg(rows.map(r=>r.C));
+  // Coluna E - média % entrada
+  const mediaE = avg(rows.map(r=>r.E));
+  // Coluna F - média parcelamento da entrada
+  const mediaF = avg(rows.map(r=>r.F));
+  // Coluna H - soma entrada efetiva
+  const somaH = sum(rows.map(r=>r.H));
+  // % Entrada Efetiva = SOMA(H) / SOMA(B) * 100
+  const pctEfetiva = somaB ? (somaH / somaB) * 100 : 0;
 
-const grid = document.getElementById('kpiGrid');
-kpis.forEach(k=>{
-  grid.innerHTML += `
-    <div class="kpi" style="--c1:${k.c1};--c2:${k.c2}">
-      <div class="kpi-icon">${k.icon}</div>
-      <div class="kpi-label">${k.label}</div>
-      <div class="kpi-value">${k.value}</div>
-      <div class="kpi-sub">${k.sub}</div>
-    </div>`;
-});
+  const cards = [
+    {icon:'📦', label:'Total de Cotas',              value: n,           sub:'registros no período',           c1:'#00f5c4',c2:'#7c3aed', formula:''},
+    {icon:'💰', label:'Valor Total das Cotas (ΣB)',   value: BRL(somaB),  sub:'soma coluna B',                  c1:'#f59e0b',c2:'#ef4444', formula:''},
+    {icon:'🔑', label:'Média % Entrada (E)',           value: R(mediaE)+'%', sub:'média da coluna E',           c1:'#00f5c4',c2:'#06b6d4', formula:'MÉDIA(E)'},
+    {icon:'🗓️', label:'Média Parc. Entrada (F)',       value: R(mediaF,1)+'x', sub:'média da coluna F',         c1:'#a78bfa',c2:'#7c3aed', formula:'MÉDIA(F)'},
+    {icon:'⚡', label:'% Entrada Efetiva (H÷B)',       value: R(pctEfetiva)+'%', sub:'SOMA(H) ÷ SOMA(B) × 100', c1:'#ef4444',c2:'#f59e0b', formula:'SOMA(H)/SOMA(B)'},
+    {icon:'📅', label:'Média Total Parcelas (C)',      value: R(mediaC,1)+'x', sub:'média da coluna C',          c1:'#f59e0b',c2:'#fbbf24', formula:'MÉDIA(C)'},
+    {icon:'🧾', label:'Soma Entrada Efetiva (ΣH)',     value: BRL(somaH),  sub:'soma coluna H',                  c1:'#06b6d4',c2:'#00f5c4', formula:''},
+  ];
 
-// ── CHART COLORS ──────────────────────────────────────────────
-const COLORS = [
-  '#00f5c4','#7c3aed','#f59e0b','#ef4444','#06b6d4',
-  '#a78bfa','#fbbf24','#34d399','#f472b6','#60a5fa',
-  '#fb923c','#4ade80','#e879f9','#38bdf8','#facc15'
-];
-
-const grd = (ctx, c1, c2) => {
-  const g = ctx.createLinearGradient(0,0,0,300);
-  g.addColorStop(0, c1); g.addColorStop(1, c2); return g;
-};
-
-const baseOpts = {
-  responsive: true, maintainAspectRatio: true,
-  plugins: { legend: { labels: { color:'#94a3b8', font:{size:11} } } },
-  scales: {
-    x: { ticks:{color:'#64748b',font:{size:10}}, grid:{color:'rgba(255,255,255,.05)'} },
-    y: { ticks:{color:'#64748b',font:{size:10}}, grid:{color:'rgba(255,255,255,.05)'} }
-  }
-};
-
-// top 15 por valor negociado (únicos por nome)
-const uniq = {};
-raw.forEach(r=>{ if(!uniq[r[0]] || r[1]>uniq[r[0]][1]) uniq[r[0]]=r; });
-const uniqRows = Object.values(uniq).sort((a,b)=>b[1]-a[1]).slice(0,15);
-
-// ── BAR: valor negociado top15 ────────────────────────────────
-(()=>{
-  const ctx = document.getElementById('chartBar').getContext('2d');
-  new Chart(ctx,{
-    type:'bar',
-    data:{
-      labels: uniqRows.map(r=>r[0].split(' ')[0]+' '+r[0].split(' ')[1]),
-      datasets:[{
-        label:'Valor Negociado (R$)',
-        data: uniqRows.map(r=>r[1]),
-        backgroundColor: ctx => {
-          const c = document.getElementById('chartBar').getContext('2d');
-          return grd(c,'rgba(0,245,196,.8)','rgba(124,58,237,.3)');
-        },
-        borderRadius:8, borderSkipped:false,
-        borderColor:'rgba(0,245,196,.5)', borderWidth:1
-      }]
-    },
-    options:{...baseOpts,
-      plugins:{...baseOpts.plugins,
-        legend:{display:false},
-        tooltip:{callbacks:{label:c=>' '+fmt(c.raw)}}
-      }
-    }
-  });
-})();
-
-// ── DOUGHNUT: formas de pagamento entrada ─────────────────────
-(()=>{
-  const boleto  = raw.filter(r=>r[8]>0).length;
-  const cartao  = raw.filter(r=>r[10]>0 && r[8]===0).length;
-  const ambos   = raw.filter(r=>r[8]>0 && r[10]>0).length;
-  const nenhum  = raw.length - boleto - cartao - ambos;
-  const ctx = document.getElementById('chartDoughnut').getContext('2d');
-  new Chart(ctx,{
-    type:'doughnut',
-    data:{
-      labels:['Só Boleto','Só Cartão','Boleto + Cartão','Sem especif.'],
-      datasets:[{
-        data:[boleto,cartao,ambos,nenhum],
-        backgroundColor:['#00f5c4','#7c3aed','#f59e0b','#475569'],
-        borderColor:'#050810', borderWidth:3
-      }]
-    },
-    options:{responsive:true, maintainAspectRatio:true,
-      plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{size:11},padding:14}}}
-    }
-  });
-})();
-
-// ── BAR: % de entrada (top15 únicos) ─────────────────────────
-(()=>{
-  const ctx = document.getElementById('chartEntrada').getContext('2d');
-  new Chart(ctx,{
-    type:'bar',
-    data:{
-      labels: uniqRows.map(r=>r[0].split(' ')[0]),
-      datasets:[{
-        label:'% Entrada',
-        data: uniqRows.map(r=>r[4]),
-        backgroundColor: COLORS.map(c=>c+'bb'),
-        borderRadius:6, borderSkipped:false,
-      }]
-    },
-    options:{...baseOpts,
-      plugins:{...baseOpts.plugins,
-        legend:{display:false},
-        tooltip:{callbacks:{label:c=>` ${c.raw.toFixed(2)}%`}}
-      },
-      scales:{...baseOpts.scales,
-        y:{...baseOpts.scales.y, ticks:{...baseOpts.scales.y.ticks,callback:v=>v+'%'}}
-      }
-    }
-  });
-})();
-
-// ── HORIZONTAL BAR: parcelas entrada vs saldo ─────────────────
-(()=>{
-  const ctx = document.getElementById('chartParcelas').getContext('2d');
-  const top10 = uniqRows.slice(0,10);
-  new Chart(ctx,{
-    type:'bar',
-    data:{
-      labels: top10.map(r=>r[0].split(' ')[0]),
-      datasets:[
-        {label:'Qtd. Entrada', data:top10.map(r=>r[5]), backgroundColor:'rgba(0,245,196,.75)', borderRadius:4},
-        {label:'Qtd. Saldo',   data:top10.map(r=>r[13]),backgroundColor:'rgba(124,58,237,.75)', borderRadius:4},
-      ]
-    },
-    options:{...baseOpts,
-      plugins:{...baseOpts.plugins},
-      scales:{...baseOpts.scales}
-    }
-  });
-})();
-
-// ── LINE: entrada efetiva top15 ───────────────────────────────
-(()=>{
-  const ctx = document.getElementById('chartEfetiva').getContext('2d');
-  new Chart(ctx,{
-    type:'line',
-    data:{
-      labels: uniqRows.map(r=>r[0].split(' ')[0]),
-      datasets:[{
-        label:'Entrada Efetiva (R$)',
-        data: uniqRows.map(r=>r[7]),
-        borderColor:'#f59e0b',
-        backgroundColor:'rgba(245,158,11,.12)',
-        fill:true, tension:.4,
-        pointBackgroundColor:'#f59e0b', pointRadius:4,
-      }]
-    },
-    options:{...baseOpts,
-      plugins:{...baseOpts.plugins,
-        legend:{display:false},
-        tooltip:{callbacks:{label:c=>' '+fmt(c.raw)}}
-      }
-    }
-  });
-})();
-
-// ── TABLE ─────────────────────────────────────────────────────
-let sortCol = -1, sortAsc = true;
-
-function pillPct(pct){
-  if(pct>=10) return `<span class="pill pill-red">${pct.toFixed(2)}%</span>`;
-  if(pct>=3)  return `<span class="pill pill-amber">${pct.toFixed(2)}%</span>`;
-  if(pct>=1)  return `<span class="pill pill-purple">${pct.toFixed(2)}%</span>`;
-  return `<span class="pill pill-green">${pct.toFixed(2)}%</span>`;
+  document.getElementById('kpiGrid').innerHTML = cards.map(c=>`
+    <div class="kpi" style="--c1:${c.c1};--c2:${c.c2}">
+      <div class="kpi-icon">${c.icon}</div>
+      <div class="kpi-label">${c.label}</div>
+      <div class="kpi-value">${c.value}</div>
+      <div class="kpi-sub">${c.sub}</div>
+      ${c.formula?`<div class="kpi-formula">fórmula: ${c.formula}</div>`:''}
+    </div>`).join('');
 }
 
-function renderTable(){
-  const q = document.getElementById('searchInput').value.toLowerCase();
-  let rows = raw.filter(r=>r[0].toLowerCase().includes(q));
-  if(sortCol>=0){
-    rows.sort((a,b)=>{
-      const va=a[sortCol], vb=b[sortCol];
-      return sortAsc ? (va>vb?1:-1) : (va<vb?1:-1);
+// ── Charts ────────────────────────────────────────────────────
+const COLORS=['#00f5c4','#7c3aed','#f59e0b','#ef4444','#06b6d4','#a78bfa','#fbbf24','#34d399','#60a5fa','#f472b6','#fb923c','#4ade80','#e879f9','#38bdf8','#facc15'];
+
+function baseOpts(overrides={}){
+  return {
+    responsive:true, maintainAspectRatio:true,
+    plugins:{
+      legend:{labels:{color:'#94a3b8',font:{size:11},padding:12}},
+      tooltip:{titleColor:'#e2e8f0',bodyColor:'#e2e8f0'},
+      ...overrides.plugins
+    },
+    scales:{
+      x:{ticks:{color:'#64748b',font:{size:10},maxRotation:35},grid:{color:'rgba(255,255,255,.05)'}},
+      y:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'rgba(255,255,255,.05)'}},
+      ...overrides.scales
+    },
+    ...overrides
+  };
+}
+
+function destroyCharts(){
+  Object.values(CHARTS).forEach(c=>{try{c.destroy()}catch(e){}});
+  CHARTS={};
+}
+
+function rebuildCharts(){
+  destroyCharts();
+  const rows = getFiltered();
+
+  // Top 15 únicos por nome (maior B)
+  const byNome={};
+  rows.forEach(r=>{if(!byNome[r.nome]||r.B>byNome[r.nome].B)byNome[r.nome]=r});
+  const top15 = Object.values(byNome).sort((a,b)=>b.B-a.B).slice(0,15);
+  const shortName = n=>{ const p=n.split(' '); return p[0]+' '+(p[1]||''); };
+
+  // ── Chart 1: Valor Negociado Top 15 (B) ──
+  {
+    const ctx=document.getElementById('chartBar').getContext('2d');
+    CHARTS.bar=new Chart(ctx,{
+      type:'bar',
+      data:{
+        labels:top15.map(r=>shortName(r.nome)),
+        datasets:[{
+          label:'Valor Negociado (B)',
+          data:top15.map(r=>r.B),
+          backgroundColor:COLORS.map(c=>c+'99'),
+          borderColor:COLORS,borderWidth:1,borderRadius:8,borderSkipped:false
+        }]
+      },
+      options:baseOpts({
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+BRL(c.raw)}}},
+      })
     });
   }
-  const cols = [0,1,2,3,4,5,7,8,10,13];
-  document.getElementById('tableBody').innerHTML = rows.map((r,i)=>`
-    <tr>
-      <td style="color:var(--muted)">${i+1}</td>
-      <td style="font-weight:500">${r[0]}</td>
-      <td>${fmt(r[1])}</td>
-      <td><span class="pill pill-purple">${r[2]}x</span></td>
-      <td>${fmt(r[3])}</td>
-      <td>${pillPct(r[4])}</td>
-      <td><span class="pill pill-green">${r[5]}x</span></td>
-      <td style="color:var(--accent3)">${fmt(r[7])}</td>
-      <td>${r[13]}x</td>
-      <td>${r[8]>0?`<span class="pill pill-green">${r[8]}x</span>`:'<span class="pill" style="background:rgba(100,116,139,.1);color:var(--muted)">—</span>'}</td>
-      <td>${r[10]>0?`<span class="pill pill-amber">${r[10]}x</span>`:'<span class="pill" style="background:rgba(100,116,139,.1);color:var(--muted)">—</span>'}</td>
-      <td>
-        <div class="bar-bg"><div class="bar-fill" style="width:${Math.min(r[4],25)*4}%"></div></div>
-      </td>
-    </tr>`).join('');
+
+  // ── Chart 2: Distribuição % Entrada (E) — faixas ──
+  {
+    const faixas=[
+      {k:'< 20%',  a:0,  b:20},
+      {k:'= 20%',  a:20, b:20.001},
+      {k:'20–21%', a:20.001, b:21},
+      {k:'> 21%',  a:21, b:999},
+    ];
+    const counts=faixas.map(f=>rows.filter(r=>r.E>=f.a&&r.E<f.b).length);
+    const ctx=document.getElementById('chartDist').getContext('2d');
+    CHARTS.dist=new Chart(ctx,{
+      type:'doughnut',
+      data:{
+        labels:faixas.map(f=>f.k),
+        datasets:[{data:counts,backgroundColor:['#7c3aed','#00f5c4','#f59e0b','#ef4444'],borderColor:'#050810',borderWidth:3}]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:true,
+        plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{size:11},padding:14}}}
+      }
+    });
+  }
+
+  // ── Chart 3: Média F por mês (agrupa por periodo) ──
+  {
+    const byMes={};
+    DATASET.forEach(r=>{
+      if(!byMes[r.periodo]) byMes[r.periodo]={vals:[]};
+      byMes[r.periodo].vals.push(r.F);
+    });
+    const meses=Object.keys(byMes);
+    const medias=meses.map(m=>avg(byMes[m].vals));
+    const ctx=document.getElementById('chartF').getContext('2d');
+    CHARTS.f=new Chart(ctx,{
+      type:'bar',
+      data:{
+        labels:meses,
+        datasets:[{
+          label:'Média Qtd. Entrada (F)',
+          data:medias,
+          backgroundColor:'rgba(124,58,237,.65)',
+          borderColor:'#a78bfa',borderWidth:1,borderRadius:8,borderSkipped:false
+        }]
+      },
+      options:baseOpts({
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.raw.toFixed(1)}x`}}},
+        scales:{y:{ticks:{callback:v=>v+'x',color:'#64748b',font:{size:10}},grid:{color:'rgba(255,255,255,.05)'}},
+                x:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'rgba(255,255,255,.05)'}}}
+      })
+    });
+  }
+
+  // ── Chart 4: Entrada Efetiva H — Top 15 ──
+  {
+    const ctx=document.getElementById('chartH').getContext('2d');
+    CHARTS.h=new Chart(ctx,{
+      type:'line',
+      data:{
+        labels:top15.map(r=>shortName(r.nome)),
+        datasets:[{
+          label:'Entrada Efetiva (H)',
+          data:top15.map(r=>r.H),
+          borderColor:'#f59e0b',
+          backgroundColor:'rgba(245,158,11,.12)',
+          fill:true,tension:.35,
+          pointBackgroundColor:'#f59e0b',pointRadius:4
+        }]
+      },
+      options:baseOpts({
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+BRL(c.raw)}}}
+      })
+    });
+  }
+
+  // ── Chart 5: Total Parcelas Produto C — histograma faixas ──
+  {
+    const faixas=[
+      {k:'≤130',a:0,b:131},{k:'131–140',a:131,b:141},
+      {k:'141–150',a:141,b:151},{k:'151–160',a:151,b:161},
+      {k:'161–200',a:161,b:201},{k:'>200',a:201,b:9999}
+    ];
+    const counts=faixas.map(f=>rows.filter(r=>r.C>=f.a&&r.C<f.b).length);
+    const ctx=document.getElementById('chartC').getContext('2d');
+    CHARTS.c=new Chart(ctx,{
+      type:'bar',
+      data:{
+        labels:faixas.map(f=>f.k),
+        datasets:[{
+          label:'Qtde de cotas',
+          data:counts,
+          backgroundColor:COLORS.slice(0,6).map(c=>c+'99'),
+          borderColor:COLORS.slice(0,6),
+          borderWidth:1,borderRadius:8,borderSkipped:false
+        }]
+      },
+      options:baseOpts({plugins:{legend:{display:false}}})
+    });
+  }
 }
 
-function sortTable(col){
-  const map = [0,0,1,2,3,4,5,7,8,10,13];
-  const rawCol = map[col];
-  if(sortCol===rawCol) sortAsc=!sortAsc;
-  else { sortCol=rawCol; sortAsc=true; }
+// ── Table ─────────────────────────────────────────────────────
+function pillE(v){
+  if(v>21)   return `<span class="pill pill-red">${R(v)}%</span>`;
+  if(v>20)   return `<span class="pill pill-amber">${R(v)}%</span>`;
+  if(v===20) return `<span class="pill pill-green">${R(v)}%</span>`;
+  return             `<span class="pill pill-purple">${R(v)}%</span>`;
+}
+
+function sortTable(key){
+  if(sortKey===key) sortAsc=!sortAsc;
+  else{sortKey=key;sortAsc=true;}
   renderTable();
 }
 
-renderTable();
+function renderTable(){
+  const q=document.getElementById('searchInput').value.trim().toLowerCase();
+  let rows=getFiltered().filter(r=>r.nome.toLowerCase().includes(q));
+  rows=rows.map((r,i)=>({...r,_idx:i+1}));
+
+  if(sortKey){
+    rows.sort((a,b)=>{
+      const va=sortKey==='nome'||sortKey==='periodo'?a[sortKey]||'':Number(a[sortKey])||0;
+      const vb=sortKey==='nome'||sortKey==='periodo'?b[sortKey]||'':Number(b[sortKey])||0;
+      if(va===vb)return 0;
+      return sortAsc?(va>vb?1:-1):(va<vb?1:-1);
+    });
+  }
+
+  document.getElementById('tableMeta').textContent=`${rows.length} registro(s)`;
+  document.getElementById('tableBody').innerHTML=rows.map(r=>`
+    <tr>
+      <td style="color:var(--muted)">${r._idx}</td>
+      <td><span class="pill pill-purple">${r.periodo}</span></td>
+      <td style="font-weight:600;max-width:220px;overflow:hidden;text-overflow:ellipsis">${r.nome}</td>
+      <td style="font-weight:700">${BRL(r.B)}</td>
+      <td><span class="pill pill-muted">${r.C}x</span></td>
+      <td>${BRL(r.D)}</td>
+      <td>${pillE(r.E)}</td>
+      <td><span class="pill pill-green">${r.F}x</span></td>
+      <td><span class="pill ${r.G>=5?'pill-red':r.G>=2?'pill-amber':'pill-green'}">${R(r.G)}%</span></td>
+      <td style="color:var(--accent3);font-weight:700">${BRL(r.H)}</td>
+    </tr>`).join('');
+}
+
+// ── Rebuild all ───────────────────────────────────────────────
+function rebuild(){
+  renderKPIs();
+  rebuildCharts();
+  renderTable();
+}
+
+// ── Init ──────────────────────────────────────────────────────
+rebuild();
 </script>
 </body>
 </html>
