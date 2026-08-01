@@ -1054,10 +1054,58 @@
 const el   = id => document.getElementById(id);
 const norm = s  => (s ?? "").toString().toLowerCase().trim().replace(/\s+/g," ");
 
-const CLIENT_NAME_HEADERS = [
-  norm("nome do cliente"),norm("cliente"),norm("nome"),norm("casal"),
-  norm("nome completo"),norm("nome do casal"),
-];
+/* ═══════════════════════════════════════════════
+   DETECÇÃO INTELIGENTE DO NOME DO CLIENTE
+   Procura em TODAS as colunas do CSV para encontrar
+   o nome do cliente/cessionário (agora mais abrangente).
+═══════════════════════════════════════════════ */
+function detectClientNameColumn(headerKeys) {
+  // Lista expandida com variações de "cliente", "cessionário", "nome", etc.
+  const CLIENT_NAME_HEADERS = [
+    "nome do cliente", "cliente", "nome", "casal",
+    "nome completo", "nome do casal",
+    "cessionário", "cessionario", "nome do cessionário",
+    "nome do cessionario", "cliente/cessionário",
+    "cliente / cessionário", "cliente cessionario",
+    "razao social", "razão social", "nome razão",
+    "comprador", "nome comprador", "titular",
+    "nome titular", "contratante", "nome contratante",
+  ];
+
+  // Primeira tentativa: match exato com a lista
+  for (const candidate of CLIENT_NAME_HEADERS) {
+    if (headerKeys.includes(norm(candidate))) {
+      return norm(candidate);
+    }
+  }
+
+  // Segunda tentativa: busca por palavras-chave isoladas
+  const keywords = ["cliente", "cessionário", "cessionario", "nome", "casal", "comprador", "titular", "contratante"];
+  for (const key of headerKeys) {
+    const nk = norm(key);
+    if (!nk) continue;
+    for (const kw of keywords) {
+      if (nk.includes(kw)) {
+        return key; // retorna a key original (não normalizada)
+      }
+    }
+  }
+
+  // Terceira tentativa: procura por colunas que NÃO sejam as colunas de sistema conhecidas
+  const KNOWN_KEYS = new Set([
+    norm("data de atendimento"), norm("status do contrato"), norm("status atendimento"),
+    norm("renda"), norm("uf"),
+    norm("promotor de marketing"), norm("liner"), norm("closer"),
+  ]);
+  for (const key of headerKeys) {
+    if (!KNOWN_KEYS.has(norm(key)) && !norm(key).includes("vgv") && !norm(key).includes("valor")) {
+      return key;
+    }
+  }
+
+  return null;
+}
+
 const KEY = {
   dataAtendimento  : norm("data de atendimento"),
   statusContrato   : norm("status do contrato"),
@@ -1069,7 +1117,7 @@ const KEY = {
   closer  : norm("closer"),
 };
 
-const state   = { rows:[], filtered:[], meta:{ vgvColKey:null, firstColKey:null }, expandedRanking:{cid:null,name:null} };
+const state   = { rows:[], filtered:[], meta:{ vgvColKey:null, firstColKey:null, clientNameKey:null }, expandedRanking:{cid:null,name:null} };
 const charts  = { curva:null, semana:null, cancelamento:null };
 const sortState = {
   "ranking-promotor"   :{ key:"vendas",    dir:"desc" },
@@ -1201,6 +1249,11 @@ function parseDelimited(text, delimiter=";"){
   state.meta.firstColKey=keys[0]||null;
   state.meta.vgvColKey  =keys[6]||null;
   if(!state.meta.vgvColKey) throw new Error("CSV precisa ter pelo menos 7 colunas (VGV na coluna G).");
+
+  // Detectar a coluna de nome do cliente
+  state.meta.clientNameKey = detectClientNameColumn(keys);
+  console.log("🔍 Coluna de nome do cliente detectada:", state.meta.clientNameKey || "NENHUMA (usará fallback)");
+
   return data;
 }
 
@@ -1264,7 +1317,10 @@ function contractBucket(s){
 ═══════════════════════════════════════════════ */
 function buildObjects(rows){
   if(!rows.length) throw new Error("CSV vazio.");
-  const cnk=(()=>{ const ks=Object.keys(rows[0]); for(const c of CLIENT_NAME_HEADERS) if(ks.includes(c)) return c; return null; })();
+
+  // Obtém o nome do cliente de forma inteligente
+  const cnk = state.meta.clientNameKey;
+
   return rows.map(r=>{
     const o={...r};
     o._dt        =parseBRDateTime(o[KEY.dataAtendimento])||parseBRDateTime(o[state.meta.firstColKey]);
@@ -1405,7 +1461,10 @@ function renderClientDetailForRanking(profName, cid){
   const comprou    = rows.filter(r => (r._quotas?.total ?? 0) > 0);
   const naoComprou = rows.filter(r => (r._quotas?.total ?? 0) === 0);
 
+  // ⭐ ALTERAÇÃO PRINCIPAL: exibe o nome real do cliente/cessionário
   const clientRow = (r, idx) => {
+    // Usa o nome real do cliente/cessionário detectado do CSV.
+    // Só exibe "Cliente #X" como último recurso se nenhum nome for encontrado.
     const clientName = r._clientName || `Cliente #${idx + 1}`;
     const dt         = r._dt ? toISO(r._dt) : "—";
     const quotas     = r._quotas?.total ?? 0;
@@ -1437,7 +1496,7 @@ function renderClientDetailForRanking(profName, cid){
       <div class="table-wrap" style="max-height:45vh;margin-bottom:0">
         <table>
           <thead><tr>
-            <th>Cliente</th>
+            <th>Cliente / Cessionário</th>
             <th>Data</th>
             <th class="num">Cotas</th>
             <th class="num">VGV</th>
