@@ -2715,136 +2715,317 @@ function populateProfNames(){
 /* ═══════════════════════════════════════════════
    CUSTO DE BRINDE
 ═══════════════════════════════════════════════ */
-function loadBrindeConfig(){
-  try{ return JSON.parse(localStorage.getItem("brindeConfig")||"{}"); }catch(e){ return {}; }
-}
-function saveBrindeConfig(cfg){
-  localStorage.setItem("brindeConfig", JSON.stringify(cfg));
-}
-
-function renderBrinde(){
-  const cfg = loadBrindeConfig();
-  el("brindeCustoUnit").value = cfg.custoUnit ?? "";
-
-  const rows = state.filtered;
-  const totalCasais = rows.length;
-  const custoUnit = parseFloat(el("brindeCustoUnit").value) || 0;
-  const custoTotal = totalCasais * custoUnit;
+function renderBrindeStats(rows){
+  const totalBrinde = rows.reduce((s,r)=>s+(r._brindeTotal??0),0);
+  const casaisComBrinde = rows.filter(r=>(r._brindeTotal??0)>0).length;
   const s = statsFor(rows);
-  const custoPorVenda = s.vendas ? custoTotal / s.vendas : 0;
-  const pctSobreVgv = s.vgvTotal ? (custoTotal / s.vgvTotal) * 100 : 0;
+  const custoPorVenda = s.vendas ? totalBrinde/s.vendas : 0;
+  const pctSobreVgv = s.vgvTotal ? (totalBrinde/s.vgvTotal)*100 : 0;
+  const ticketBrindeMedio = casaisComBrinde ? totalBrinde/casaisComBrinde : 0;
 
   el("stats-brinde").innerHTML = `
-    <div class="stat-card"><div class="stat-value">${totalCasais}</div><div class="stat-label">Casais atendidos</div></div>
-    <div class="stat-card"><div class="stat-value">${fmtMoney(custoUnit)}</div><div class="stat-label">Custo unitário</div></div>
-    <div class="stat-card"><div class="stat-value">${fmtMoney(custoTotal)}</div><div class="stat-label">Custo total de brindes</div></div>
-    <div class="stat-card"><div class="stat-value">${fmtMoney(custoPorVenda)}</div><div class="stat-label">Custo por venda (cota)</div></div>
+    <div class="stat-card"><div class="stat-value">${fmtMoney(totalBrinde)}</div><div class="stat-label">Custo total de brindes</div></div>
+    <div class="stat-card"><div class="stat-value">${casaisComBrinde}</div><div class="stat-label">Casais com brinde</div></div>
+    <div class="stat-card"><div class="stat-value">${fmtMoney(ticketBrindeMedio)}</div><div class="stat-label">Custo médio por casal (c/ brinde)</div></div>
+    <div class="stat-card"><div class="stat-value">${fmtMoney(custoPorVenda)}</div><div class="stat-label">Custo de brinde por venda (cota)</div></div>
     <div class="stat-card"><div class="stat-value">${fmtPctBR(pctSobreVgv/100)}</div><div class="stat-label">% sobre VGV total</div></div>
   `;
+
+  const statusEl = el("brinde-status");
+  if(!state.meta.brindeColKey){
+    statusEl.style.display = "block";
+    statusEl.textContent = "⚠️ Nenhuma coluna de brinde foi detectada automaticamente no CSV. Verifique se existe uma coluna com o texto 'brinde' ou 'cortesia' no cabeçalho.";
+  } else {
+    statusEl.style.display = "none";
+  }
+}
+
+function renderBrindePorDia(rows){
+  const map = new Map();
+  rows.forEach(r=>{
+    if(!r._dt || !(r._brindeTotal>0)) return;
+    const key = toISO(r._dt);
+    if(!map.has(key)) map.set(key,{total:0,casais:0});
+    const d = map.get(key);
+    d.total += r._brindeTotal;
+    d.casais++;
+  });
+  const list = Array.from(map.entries()).map(([dia,d])=>({dia,total:d.total,casais:d.casais,media:d.casais?d.total/d.casais:0}));
+  const sorted = sortedList(list,"brinde-dia-table","total").sort((a,b)=>{
+    const s = sortState["brinde-dia-table"];
+    if(s.key==="dia") return s.dir==="asc"?a.dia.localeCompare(b.dia):b.dia.localeCompare(a.dia);
+    return 0;
+  });
+  const finalList = sortState["brinde-dia-table"].key==="dia" ? sorted : sortedList(list,"brinde-dia-table","total");
+
+  el("brinde-por-dia").innerHTML = `<div class="table-wrap"><table>
+    <thead><tr>
+      <th class="sortable" data-sort="dia" data-tid="brinde-dia-table">Data ${sortInd("brinde-dia-table","dia")}</th>
+      <th class="num sortable" data-sort="casais" data-tid="brinde-dia-table">Casais c/ brinde ${sortInd("brinde-dia-table","casais")}</th>
+      <th class="num sortable" data-sort="total" data-tid="brinde-dia-table">Custo total ${sortInd("brinde-dia-table","total")}</th>
+      <th class="num sortable" data-sort="media" data-tid="brinde-dia-table">Custo médio ${sortInd("brinde-dia-table","media")}</th>
+    </tr></thead>
+    <tbody>${finalList.map(l=>`<tr>
+      <td>${fmtBR(l.dia)}</td>
+      <td class="num">${l.casais}</td>
+      <td class="num">${fmtMoney(l.total)}</td>
+      <td class="num">${fmtMoney(l.media)}</td>
+    </tr>`).join("")}</tbody></table></div>`;
+
+  el("brinde-por-dia").querySelectorAll("[data-sort]").forEach(th=>{
+    th.addEventListener("click", ()=>{
+      setSort("brinde-dia-table", th.dataset.sort);
+      renderBrindePorDia(state.filtered);
+    });
+  });
+}
+
+function renderBrindePorParceiro(rows){
+  const map = new Map();
+  rows.forEach(r=>{
+    (r._brindeItems||[]).forEach(item=>{
+      const key = item.partner || "Desconhecido";
+      if(!map.has(key)) map.set(key,{total:0,qtd:0,unit:item.unitPrice});
+      const d = map.get(key);
+      d.total += item.valorTotal;
+      d.qtd += item.qty;
+    });
+  });
+  const list = Array.from(map.entries()).map(([parceiro,d])=>({parceiro,total:d.total,qtd:d.qtd,unit:d.unit,media:d.qtd?d.total/d.qtd:0}));
+  const sorted = sortedList(list,"brinde-parceiro-table","total");
+
+  el("brinde-por-parceiro").innerHTML = `<div class="table-wrap"><table>
+    <thead><tr>
+      <th>Parceiro</th>
+      <th class="num sortable" data-sort="qtd" data-tid="brinde-parceiro-table">Qtd. brindes ${sortInd("brinde-parceiro-table","qtd")}</th>
+      <th class="num sortable" data-sort="unit" data-tid="brinde-parceiro-table">Valor unitário ${sortInd("brinde-parceiro-table","unit")}</th>
+      <th class="num sortable" data-sort="total" data-tid="brinde-parceiro-table">Custo total ${sortInd("brinde-parceiro-table","total")}</th>
+    </tr></thead>
+    <tbody>${sorted.map(l=>`<tr>
+      <td class="name">${l.parceiro}</td>
+      <td class="num">${l.qtd}</td>
+      <td class="num">${fmtMoney(l.unit)}</td>
+      <td class="num">${fmtMoney(l.total)}</td>
+    </tr>`).join("")}</tbody></table></div>`;
+
+  el("brinde-por-parceiro").querySelectorAll("[data-sort]").forEach(th=>{
+    th.addEventListener("click", ()=>{
+      setSort("brinde-parceiro-table", th.dataset.sort);
+      renderBrindePorParceiro(state.filtered);
+    });
+  });
+}
+
+function renderBrindePorPromotor(rows){
+  const map = new Map();
+  rows.forEach(r=>{
+    const nome = (r[KEY.promotor]??"").toString().trim();
+    if(!nome || !(r._brindeTotal>0)) return;
+    if(!map.has(nome)) map.set(nome,{total:0,casais:0});
+    const d = map.get(nome);
+    d.total += r._brindeTotal;
+    d.casais++;
+  });
+  const list = Array.from(map.entries()).map(([nome,d])=>({nome,total:d.total,casais:d.casais,media:d.casais?d.total/d.casais:0}));
+  const sorted = sortedList(list,"brinde-promotor-table","total");
+
+  el("brinde-por-promotor").innerHTML = `<div class="table-wrap"><table>
+    <thead><tr>
+      <th>Promotor</th>
+      <th class="num sortable" data-sort="casais" data-tid="brinde-promotor-table">Casais c/ brinde ${sortInd("brinde-promotor-table","casais")}</th>
+      <th class="num sortable" data-sort="total" data-tid="brinde-promotor-table">Custo total ${sortInd("brinde-promotor-table","total")}</th>
+      <th class="num sortable" data-sort="media" data-tid="brinde-promotor-table">Custo médio ${sortInd("brinde-promotor-table","media")}</th>
+    </tr></thead>
+    <tbody>${sorted.map(l=>`<tr>
+      <td class="name">${l.nome}</td>
+      <td class="num">${l.casais}</td>
+      <td class="num">${fmtMoney(l.total)}</td>
+      <td class="num">${fmtMoney(l.media)}</td>
+    </tr>`).join("")}</tbody></table></div>`;
+
+  el("brinde-por-promotor").querySelectorAll("[data-sort]").forEach(th=>{
+    th.addEventListener("click", ()=>{
+      setSort("brinde-promotor-table", th.dataset.sort);
+      renderBrindePorPromotor(state.filtered);
+    });
+  });
+}
+
+function renderBrinde(rows){
+  renderBrindeStats(rows);
+  renderBrindePorDia(rows);
+  renderBrindePorParceiro(rows);
+  renderBrindePorPromotor(rows);
 }
 
 /* ═══════════════════════════════════════════════
    CONTROLE DE ABAS
 ═══════════════════════════════════════════════ */
 function getActiveTab(){
-  const active = document.querySelector(".tab-btn.active");
+  const active = document.querySelector(".tab.active");
   return active ? active.dataset.tab : "resumo";
 }
 
 function refreshTab(tabId){
   const rows = state.filtered;
   switch(tabId){
-    case "resumo": renderCards("stats-resumo", rows); break;
-    case "curva": renderCurva(rows); break;
-    case "semana": renderSemana(rows); break;
+    case "resumo": renderCards("stats", rows); break;
+    case "comparativo": renderComparativo(); break;
+    case "curva": renderCurva(rows); renderSemana(rows); break;
     case "cancelamento": renderCancelamento(rows); break;
     case "equipes": renderEquipes(); break;
     case "equipes-supervisores": renderSupervisores(); break;
+    case "individual-mes-mes": renderMM(); break;
+    case "desafios": renderChallenges(); break;
     case "ranking-promotor": renderRanking("ranking-promotor", rows, KEY.promotor); break;
     case "ranking-liner": renderRanking("ranking-liner", rows, KEY.liner); break;
     case "ranking-closer": renderRanking("ranking-closer", rows, KEY.closer); break;
     case "perfil-renda": renderPerfilRenda(rows); break;
-    case "mm": renderMM(); break;
-    case "desafios": renderChallenges(); break;
-    case "comparativo": renderComparativo(); break;
     case "profissionais": renderProfissionaisSingle(); break;
-    case "brinde": renderBrinde(); break;
+    case "custo-brinde": renderBrinde(rows); break;
     default: break;
   }
 }
 
 function switchTab(tabId){
-  document.querySelectorAll(".tab-btn").forEach(b=>b.classList.toggle("active", b.dataset.tab===tabId));
-  document.querySelectorAll(".tab-panel").forEach(p=>p.classList.toggle("active", p.id==="panel-"+tabId));
+  document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active", b.dataset.tab===tabId));
+  document.querySelectorAll(".tab-content").forEach(p=>p.classList.toggle("active", p.id==="tab-"+tabId));
   refreshTab(tabId);
 }
 
-document.querySelectorAll(".tab-btn").forEach(btn=>{
+document.querySelectorAll(".tab").forEach(btn=>{
   btn.addEventListener("click", ()=>switchTab(btn.dataset.tab));
 });
 
 /* ═══════════════════════════════════════════════
-   APLICAR FILTROS GLOBAIS
+   FILTROS GLOBAIS — APLICAÇÃO
 ═══════════════════════════════════════════════ */
-function applyFilters(){
-  const d1 = parseDateOnlyInput(el("dateStart").value);
-  const d2 = parseDateOnlyInput(el("dateEnd").value);
-  const status = el("statusSelect").value;
-  const ufSel = el("ufSelect").value;
-  const profTipo = norm(el("profTipo").value);
-  const profNome = el("profNome").value;
-
-  state.filtered = state.rows.filter(r=>{
-    if(d1 || d2){
-      if(!r._dt) return false;
-      if(d1 && r._dt.getTime() < d1.getTime()) return false;
-      if(d2){
-        const end = new Date(d2.getFullYear(),d2.getMonth(),d2.getDate(),23,59,59,999).getTime();
-        if(r._dt.getTime() > end) return false;
-      }
-    }
-    if(status!=="todos" && r._bucket!==status) return false;
-    if(ufSel!=="todos" && (r[KEY.uf]??"").toString().trim()!==ufSel) return false;
-    if(profNome!=="todos"){
-      const n=(r[profTipo]??"").toString().trim();
-      if(n!==profNome) return false;
-    }
-    return true;
-  });
-
+function applyFiltersGlobal(){
+  state.filtered = applyFilters(state.rows);
   refreshTab(getActiveTab());
 }
 
-el("btnFiltrar")?.addEventListener("click", applyFilters);
-el("btnLimparFiltros")?.addEventListener("click", ()=>{
+el("dateStart")?.addEventListener("change", applyFiltersGlobal);
+el("dateEnd")?.addEventListener("change", applyFiltersGlobal);
+el("statusSelect")?.addEventListener("change", applyFiltersGlobal);
+el("ufSelect")?.addEventListener("change", applyFiltersGlobal);
+el("profTipo")?.addEventListener("change", ()=>{ populateProfNames(); applyFiltersGlobal(); });
+el("profNome")?.addEventListener("change", applyFiltersGlobal);
+
+el("btnHoje")?.addEventListener("click", ()=>{
+  const hoje = toISO(new Date());
+  el("dateStart").value = hoje;
+  el("dateEnd").value = hoje;
+  applyFiltersGlobal();
+});
+el("btn30")?.addEventListener("click", ()=>{
+  const hoje = new Date();
+  const past = new Date(); past.setDate(past.getDate()-29);
+  el("dateStart").value = toISO(past);
+  el("dateEnd").value = toISO(hoje);
+  applyFiltersGlobal();
+});
+el("btnLimparPeriodo")?.addEventListener("click", ()=>{
   el("dateStart").value = "";
   el("dateEnd").value = "";
-  el("statusSelect").value = "todos";
-  el("ufSelect").value = "todos";
-  el("profNome").value = "todos";
-  state.filtered = state.rows.slice();
-  refreshTab(getActiveTab());
+  applyFiltersGlobal();
 });
-el("profTipo")?.addEventListener("change", ()=>{ populateProfNames(); });
-
-/* Mês/Mês listeners */
-el("mmProfTipo")?.addEventListener("change", ()=>{ populateMMNames(); renderMM(); });
-el("mmProfNome")?.addEventListener("change", renderMM);
-
-/* Profissionais individual listeners */
-el("profTipoSingle")?.addEventListener("change", ()=>{ populateProfSingleNames(); renderProfissionaisSingle(); });
-el("profNomeSingle")?.addEventListener("change", renderProfissionaisSingle);
 
 /* Comparativo listeners */
 ["cmpXStart","cmpXEnd","cmpYStart","cmpYEnd"].forEach(id=>{
   el(id)?.addEventListener("change", renderComparativo);
 });
+el("btnCmpXHoje")?.addEventListener("click", ()=>{
+  const hoje = toISO(new Date());
+  el("cmpXStart").value = hoje; el("cmpXEnd").value = hoje;
+  renderComparativo();
+});
+el("btnCmpX30")?.addEventListener("click", ()=>{
+  const hoje = new Date(); const past = new Date(); past.setDate(past.getDate()-29);
+  el("cmpXStart").value = toISO(past); el("cmpXEnd").value = toISO(hoje);
+  renderComparativo();
+});
+el("btnCmpYHoje")?.addEventListener("click", ()=>{
+  const hoje = toISO(new Date());
+  el("cmpYStart").value = hoje; el("cmpYEnd").value = hoje;
+  renderComparativo();
+});
+el("btnCmpY30")?.addEventListener("click", ()=>{
+  const hoje = new Date(); const past = new Date(); past.setDate(past.getDate()-29);
+  el("cmpYStart").value = toISO(past); el("cmpYEnd").value = toISO(hoje);
+  renderComparativo();
+});
+
+/* Equipes listeners */
+el("btnLimparEquipes")?.addEventListener("click", ()=>{
+  if(confirm("Apagar todas as configurações de equipe?")){
+    localStorage.removeItem(TEAM_KEY_V2);
+    refreshTab("equipes");
+  }
+});
+el("btnLimparEquipesSup")?.addEventListener("click", ()=>{
+  if(confirm("Apagar todas as configurações de equipe?")){
+    localStorage.removeItem(TEAM_KEY_V2);
+    refreshTab("equipes-supervisores");
+  }
+});
+el("btnSalvarEquipeSup")?.addEventListener("click", ()=>{
+  const nome = el("supPromotorSelect").value;
+  const equipe = el("supEquipeSelect").value;
+  if(!nome){ alert("Selecione um promotor."); return; }
+  setTeamConfig(nome, {equipe, inativoInicio:null, inativoFim:null});
+  refreshTab("equipes-supervisores");
+});
+
+/* Mês/Mês listeners */
+el("mmProfTipo")?.addEventListener("change", ()=>{ populateMMNames(); renderMM(); });
+el("mmProfNome")?.addEventListener("change", renderMM);
+el("mmBtnTodos")?.addEventListener("click", ()=>{
+  const d1 = parseDateOnlyInput(el("dateStart").value);
+  const d2 = parseDateOnlyInput(el("dateEnd").value);
+  let scope = state.rows.slice();
+  if(d1||d2){
+    const s=d1?d1.getTime():-Infinity;
+    const e=d2?new Date(d2.getFullYear(),d2.getMonth(),d2.getDate(),23,59,59,999).getTime():Infinity;
+    scope = scope.filter(r=>r._dt&&r._dt.getTime()>=s&&r._dt.getTime()<=e);
+  }
+  mmSelectedMonths = getAvailableMonths(scope);
+  renderMM();
+});
+el("mmBtnUlt3")?.addEventListener("click", ()=>{
+  const d1 = parseDateOnlyInput(el("dateStart").value);
+  const d2 = parseDateOnlyInput(el("dateEnd").value);
+  let scope = state.rows.slice();
+  if(d1||d2){
+    const s=d1?d1.getTime():-Infinity;
+    const e=d2?new Date(d2.getFullYear(),d2.getMonth(),d2.getDate(),23,59,59,999).getTime():Infinity;
+    scope = scope.filter(r=>r._dt&&r._dt.getTime()>=s&&r._dt.getTime()<=e);
+  }
+  mmSelectedMonths = getAvailableMonths(scope).slice(-3);
+  renderMM();
+});
+el("mmBtnUlt6")?.addEventListener("click", ()=>{
+  const d1 = parseDateOnlyInput(el("dateStart").value);
+  const d2 = parseDateOnlyInput(el("dateEnd").value);
+  let scope = state.rows.slice();
+  if(d1||d2){
+    const s=d1?d1.getTime():-Infinity;
+    const e=d2?new Date(d2.getFullYear(),d2.getMonth(),d2.getDate(),23,59,59,999).getTime():Infinity;
+    scope = scope.filter(r=>r._dt&&r._dt.getTime()>=s&&r._dt.getTime()<=e);
+  }
+  mmSelectedMonths = getAvailableMonths(scope).slice(-6);
+  renderMM();
+});
+el("mmBtnLimpar")?.addEventListener("click", ()=>{
+  mmSelectedMonths = [];
+  renderMM();
+});
 
 /* Desafios listeners */
 el("chTeamsCount")?.addEventListener("change", renderChTeamsEditor);
 el("chProfTipo")?.addEventListener("change", renderChTeamsEditor);
-el("btnSalvarDesafio")?.addEventListener("click", saveChallenge);
-el("btnCancelarEdicaoDesafio")?.addEventListener("click", ()=>{
+el("btnChSave")?.addEventListener("click", saveChallenge);
+el("btnChNew")?.addEventListener("click", ()=>{
   challengeEditId = null;
   el("challengeFormTitle").textContent = "Criar desafio";
   el("chName").value = "";
@@ -2852,54 +3033,53 @@ el("btnCancelarEdicaoDesafio")?.addEventListener("click", ()=>{
   el("chEnd").value = "";
   renderChTeamsEditor();
 });
-
-/* Brinde listener */
-el("brindeCustoUnit")?.addEventListener("input", ()=>{
-  const cfg = loadBrindeConfig();
-  cfg.custoUnit = parseFloat(el("brindeCustoUnit").value) || 0;
-  saveBrindeConfig(cfg);
-  renderBrinde();
+el("btnChClearAll")?.addEventListener("click", ()=>{
+  if(confirm("Apagar todos os desafios?")){
+    saveChallenges([]);
+    renderChallenges();
+  }
 });
+
+/* Profissionais individual listeners */
+el("profTipoSingle")?.addEventListener("change", ()=>{ populateProfSingleNames(); renderProfissionaisSingle(); });
+el("profNomeSingle")?.addEventListener("change", renderProfissionaisSingle);
 
 /* ═══════════════════════════════════════════════
    CARREGAMENTO DO CSV / INICIALIZAÇÃO
 ═══════════════════════════════════════════════ */
-function loadCSV(file){
-  Papa.parse(file, {
-    header: true,
-    skipEmptyLines: true,
-    encoding: "UTF-8",
-    complete: (results) => {
-      const rows = results.data.map(processRow);
-      state.rows = rows;
-      state.filtered = rows.slice();
-      populateFilters();
-      populateMMNames();
-      populateProfSingleNames();
-      renderChTeamsEditor();
-      switchTab("resumo");
-      el("uploadStatus").textContent = `✅ ${rows.length} linhas carregadas.`;
-    },
-    error: (err) => {
-      el("uploadStatus").textContent = `❌ Erro ao processar CSV: ${err.message}`;
-    }
-  });
+function initApp(){
+  populateFilters();
+  populateMMNames();
+  populateProfSingleNames();
+  el("chProfTipo") && renderChTeamsEditor();
+  applyFiltersGlobal();
+  switchTab("resumo");
+  el("loading").style.display = "none";
 }
 
-el("csvFileInput")?.addEventListener("change", (e)=>{
-  const file = e.target.files[0];
-  if(!file) return;
-  el("uploadStatus").textContent = "⏳ Processando...";
-  loadCSV(file);
-});
-
-/* Inicializa estado global */
-const state = { rows: [], filtered: [], expandedRanking: {cid:null, name:null} };
-const charts = {};
-const sortState = {};
-
-/* Inicialização */
-document.addEventListener("DOMContentLoaded", ()=>{
-  switchTab("resumo");
-});
+fetch("dados.csv")
+  .then(res => {
+    if(!res.ok) throw new Error("Não foi possível carregar dados.csv (HTTP " + res.status + ")");
+    return res.text();
+  })
+  .then(text => {
+    const rawRows = parseDelimited(text, ";");
+    if(!rawRows.length){
+      // tenta vírgula como separador se ponto-e-vírgula não funcionar
+      const rawRows2 = parseDelimited(text, ",");
+      state.rows = buildObjects(rawRows2);
+    } else {
+      state.rows = buildObjects(rawRows);
+    }
+    state.filtered = state.rows.slice();
+    initApp();
+  })
+  .catch(err => {
+    el("loading").style.display = "none";
+    el("error").style.display = "block";
+    el("error").textContent = "❌ Erro ao carregar dados.csv: " + err.message;
+    console.error(err);
+  });
 </script>
+</body>
+</html>
