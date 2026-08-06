@@ -597,11 +597,17 @@
       .inativo-dates{flex-direction:column;align-items:stretch;}
       .client-detail-section .table-wrap table{min-width:600px;}
     }
+
+    /* ═══ CUSTO DE BRINDE ═══ */
+    .brinde-card{
+      background:var(--card);border:1px solid var(--stroke);border-radius:var(--radius);
+      padding:16px 18px;backdrop-filter:blur(10px);margin-bottom:10px;
+    }
+    .brinde-item-desc{font-size:.85rem;color:var(--muted);font-family:var(--mono);}
   </style>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 </head>
-
 <body>
 <div class="wrap">
   <header>
@@ -666,6 +672,7 @@
       <div class="tab" data-tab="ranking-closer">🤝 Ranking Closer</div>
       <div class="tab" data-tab="perfil-renda">💸 Perfil de renda</div>
       <div class="tab" data-tab="profissionais">👥 Profissionais</div>
+      <div class="tab" data-tab="custo-brinde">🎁 Custo de Brinde</div>
     </div>
   </div>
 
@@ -1044,9 +1051,36 @@
       <div id="profissionais-table"></div>
     </div>
 
+    <!-- CUSTO DE BRINDE -->
+    <div id="tab-custo-brinde" class="tab-content">
+      <div class="note">
+        <strong>Custo de Brinde</strong><br>
+        A coluna do CSV é lida no formato: <code>TOTAL: 2 [DESCRIÇÃO: MUSEU DE CERA - R$83,30 - QTD.: 2 - VALOR: 166.60]</code>.<br>
+        Para cada cliente, o custo de brinde considerado é o <strong>último valor</strong> (VALOR), ex.: <strong>R$ 166,60</strong>.<br>
+        Podem existir <strong>múltiplos parceiros</strong> na mesma linha — todos são somados.<br>
+        Os totais abaixo respeitam os filtros globais (período, status, profissional, UF).
+      </div>
+      <div id="brinde-status" class="note warn" style="display:none"></div>
+      <div class="stats" id="stats-brinde"></div>
+
+      <div class="section-title" style="margin-top:20px">
+        Custo de brinde por dia <span class="pill-tag">R$ total gasto</span>
+      </div>
+      <div id="brinde-por-dia"></div>
+
+      <div class="section-title" style="margin-top:20px">
+        Custo de brinde por parceiro <span class="pill-tag">ex.: Museu de Cera</span>
+      </div>
+      <div id="brinde-por-parceiro"></div>
+
+      <div class="section-title" style="margin-top:20px">
+        Custo de brinde por promotor de marketing (captador) <span class="pill-tag">R$ total gasto</span>
+      </div>
+      <div id="brinde-por-promotor"></div>
+    </div>
+
   </div>
 </div>
-
 <script>
 /* ═══════════════════════════════════════════════
    UTILITÁRIOS
@@ -1056,11 +1090,8 @@ const norm = s  => (s ?? "").toString().toLowerCase().trim().replace(/\s+/g," ")
 
 /* ═══════════════════════════════════════════════
    DETECÇÃO INTELIGENTE DO NOME DO CLIENTE
-   Procura em TODAS as colunas do CSV para encontrar
-   o nome do cliente/cessionário (agora mais abrangente).
 ═══════════════════════════════════════════════ */
 function detectClientNameColumn(headerKeys) {
-  // Lista expandida com variações de "cliente", "cessionário", "nome", etc.
   const CLIENT_NAME_HEADERS = [
     "nome do cliente", "cliente", "nome", "casal",
     "nome completo", "nome do casal",
@@ -1071,27 +1102,17 @@ function detectClientNameColumn(headerKeys) {
     "comprador", "nome comprador", "titular",
     "nome titular", "contratante", "nome contratante",
   ];
-
-  // Primeira tentativa: match exato com a lista
   for (const candidate of CLIENT_NAME_HEADERS) {
-    if (headerKeys.includes(norm(candidate))) {
-      return norm(candidate);
-    }
+    if (headerKeys.includes(norm(candidate))) return norm(candidate);
   }
-
-  // Segunda tentativa: busca por palavras-chave isoladas
   const keywords = ["cliente", "cessionário", "cessionario", "nome", "casal", "comprador", "titular", "contratante"];
   for (const key of headerKeys) {
     const nk = norm(key);
     if (!nk) continue;
     for (const kw of keywords) {
-      if (nk.includes(kw)) {
-        return key; // retorna a key original (não normalizada)
-      }
+      if (nk.includes(kw)) return key;
     }
   }
-
-  // Terceira tentativa: procura por colunas que NÃO sejam as colunas de sistema conhecidas
   const KNOWN_KEYS = new Set([
     norm("data de atendimento"), norm("status do contrato"), norm("status atendimento"),
     norm("renda"), norm("uf"),
@@ -1102,7 +1123,31 @@ function detectClientNameColumn(headerKeys) {
       return key;
     }
   }
+  return null;
+}
 
+/* ═══════════════════════════════════════════════
+   DETECÇÃO INTELIGENTE DA COLUNA DE BRINDE
+   Procura coluna com o texto de brinde no formato:
+   TOTAL: 2 [DESCRIÇÃO: MUSEU DE CERA - R$83,30 - QTD.: 2 - VALOR: 166.60]
+═══════════════════════════════════════════════ */
+function detectBrindeColumn(headerKeys) {
+  const BRINDE_HEADERS = [
+    "brinde", "brindes", "custo de brinde", "custo brinde",
+    "descrição brinde", "descricao brinde", "brinde parceiro",
+    "brinde cortesia", "cortesia", "cortesias", "parceiro brinde",
+  ];
+  for (const candidate of BRINDE_HEADERS) {
+    if (headerKeys.includes(norm(candidate))) return norm(candidate);
+  }
+  const keywords = ["brinde", "cortesia"];
+  for (const key of headerKeys) {
+    const nk = norm(key);
+    if (!nk) continue;
+    for (const kw of keywords) {
+      if (nk.includes(kw)) return key;
+    }
+  }
   return null;
 }
 
@@ -1117,7 +1162,7 @@ const KEY = {
   closer  : norm("closer"),
 };
 
-const state   = { rows:[], filtered:[], meta:{ vgvColKey:null, firstColKey:null, clientNameKey:null }, expandedRanking:{cid:null,name:null} };
+const state   = { rows:[], filtered:[], meta:{ vgvColKey:null, firstColKey:null, clientNameKey:null, brindeColKey:null }, expandedRanking:{cid:null,name:null} };
 const charts  = { curva:null, semana:null, cancelamento:null };
 const sortState = {
   "ranking-promotor"   :{ key:"vendas",    dir:"desc" },
@@ -1127,6 +1172,9 @@ const sortState = {
   "perfil-renda"       :{ key:"vgvTotal",  dir:"desc" },
   "cancelamento-table" :{ key:"cotasTotal",dir:"desc" },
   "ch-results-table"   :{ key:"valor",     dir:"desc" },
+  "brinde-dia-table"     :{ key:"total",     dir:"desc" },
+  "brinde-parceiro-table":{ key:"total",     dir:"desc" },
+  "brinde-promotor-table":{ key:"total",     dir:"desc" },
 };
 
 /* ═══════════════════════════════════════════════
@@ -1250,9 +1298,11 @@ function parseDelimited(text, delimiter=";"){
   state.meta.vgvColKey  =keys[6]||null;
   if(!state.meta.vgvColKey) throw new Error("CSV precisa ter pelo menos 7 colunas (VGV na coluna G).");
 
-  // Detectar a coluna de nome do cliente
   state.meta.clientNameKey = detectClientNameColumn(keys);
   console.log("🔍 Coluna de nome do cliente detectada:", state.meta.clientNameKey || "NENHUMA (usará fallback)");
+
+  state.meta.brindeColKey = detectBrindeColumn(keys);
+  console.log("🎁 Coluna de brinde detectada:", state.meta.brindeColKey || "NENHUMA");
 
   return data;
 }
@@ -1313,13 +1363,35 @@ function contractBucket(s){
 }
 
 /* ═══════════════════════════════════════════════
+   PARSE DE BRINDE
+   Formato: TOTAL: 2 [DESCRIÇÃO: MUSEU DE CERA - R$83,30 - QTD.: 2 - VALOR: 166.60]
+   O "custo de brinde" considerado por cliente é o ÚLTIMO valor (VALOR: 166.60).
+   Podem existir múltiplos blocos [DESCRIÇÃO: ...] na mesma célula (múltiplos parceiros).
+═══════════════════════════════════════════════ */
+function parseBrindeItems(str){
+  if(!str || typeof str !== "string") return [];
+  const items = [];
+  const re = /DESCRI[ÇC]ÃO:\s*([^-]+?)\s*-\s*R\$\s*([\d.,]+)\s*-\s*QTD\.?:\s*(\d+)\s*-\s*VALOR:\s*([\d.,]+)/gi;
+  let m;
+  while((m = re.exec(str)) !== null){
+    items.push({
+      partner    : m[1].trim(),
+      unitPrice  : parseMoneyBR(m[2]),
+      qty        : parseInt(m[3],10) || 0,
+      valorTotal : parseMoneyBR(m[4]), // custo de brinde considerado (ex.: 166.60)
+    });
+  }
+  return items;
+}
+
+/* ═══════════════════════════════════════════════
    BUILD OBJECTS
 ═══════════════════════════════════════════════ */
 function buildObjects(rows){
   if(!rows.length) throw new Error("CSV vazio.");
 
-  // Obtém o nome do cliente de forma inteligente
   const cnk = state.meta.clientNameKey;
+  const bnk = state.meta.brindeColKey;
 
   return rows.map(r=>{
     const o={...r};
@@ -1330,6 +1402,8 @@ function buildObjects(rows){
     o._bucket    =contractBucket(o[KEY.statusContrato]);
     o._clientName=cnk?(o[cnk]??"").toString().trim():"";
     o._statusAt  =norm(o[KEY.statusAtendimento]??"");
+    o._brindeItems=bnk?parseBrindeItems(o[bnk]):[];
+    o._brindeTotal=o._brindeItems.reduce((s,i)=>s+i.valorTotal,0);
     return o;
   });
 }
@@ -1384,6 +1458,7 @@ function statsFor(rows){
   const eff=casais?(q.total/casais):0;
   const clientesCompraram = rows.filter(r => (r._quotas?.total ?? 0) > 0).length;
   const aproveitamento = rows.length ? (clientesCompraram / rows.length) : 0;
+  const brindeTotal = rows.reduce((s,r)=>s+(r._brindeTotal??0),0);
   return{
     totalLinhas:rows.length,noTour,casais,
     vendas:q.total,cotasCanceladas:q.cancelado,
@@ -1393,9 +1468,10 @@ function statsFor(rows){
     rendaMed:avgRenda(rows),mediaCasaisPeriodo:avgCasais(rows),
     pctCancelamentosVendas: q.total ? (q.cancelado / q.total) : 0,
     aproveitamento, clientesCompraram,
+    brindeTotal,
   };
 }
-
+<script>
 /* ═══════════════════════════════════════════════
    RENDER CARDS
 ═══════════════════════════════════════════════ */
@@ -1461,10 +1537,7 @@ function renderClientDetailForRanking(profName, cid){
   const comprou    = rows.filter(r => (r._quotas?.total ?? 0) > 0);
   const naoComprou = rows.filter(r => (r._quotas?.total ?? 0) === 0);
 
-  // ⭐ ALTERAÇÃO PRINCIPAL: exibe o nome real do cliente/cessionário
   const clientRow = (r, idx) => {
-    // Usa o nome real do cliente/cessionário detectado do CSV.
-    // Só exibe "Cliente #X" como último recurso se nenhum nome for encontrado.
     const clientName = r._clientName || `Cliente #${idx + 1}`;
     const dt         = r._dt ? toISO(r._dt) : "—";
     const quotas     = r._quotas?.total ?? 0;
@@ -1601,7 +1674,7 @@ function renderRanking(cid, rows, fieldKey){
 }
 
 /* ═══════════════════════════════════════════════
-   PERFIL DE RENDA (novas faixas)
+   PERFIL DE RENDA
 ═══════════════════════════════════════════════ */
 function getRendaFaixa(renda){
   if(renda < 11900) return "Abaixo de R$ 11,9 mil";
@@ -2620,12 +2693,8 @@ function populateProfSingleNames(){
 ═══════════════════════════════════════════════ */
 function populateFilters(){
   const ufs = new Set();
-  const nomesPorTipo = {};
   state.rows.forEach(r=>{
     const uf = (r[KEY.uf]??"").toString().trim(); if(uf) ufs.add(uf);
-    ["promotor de marketing","liner","closer"].forEach(t=>{
-      const n=(r[norm(t)]??"").toString().trim(); if(n){ if(!nomesPorTipo[t]) nomesPorTipo[t]=new Set(); nomesPorTipo[t].add(n); }
-    });
   });
   const selUF = el("ufSelect");
   selUF.innerHTML = '<option value="todos">Todas</option>' + [...ufs].sort().map(u=>`<option value="${u.replace(/"/g,"&quot;")}">${u}</option>`).join("");
@@ -2642,186 +2711,195 @@ function populateProfNames(){
   const current = sel.value;
   sel.innerHTML = '<option value="todos">Todos</option>' + sorted.map(n=>`<option value="${n.replace(/"/g,"&quot;")}" ${n===current?"selected":""}>${n}</option>`).join("");
 }
+<script>
+/* ═══════════════════════════════════════════════
+   CUSTO DE BRINDE
+═══════════════════════════════════════════════ */
+function loadBrindeConfig(){
+  try{ return JSON.parse(localStorage.getItem("brindeConfig")||"{}"); }catch(e){ return {}; }
+}
+function saveBrindeConfig(cfg){
+  localStorage.setItem("brindeConfig", JSON.stringify(cfg));
+}
+
+function renderBrinde(){
+  const cfg = loadBrindeConfig();
+  el("brindeCustoUnit").value = cfg.custoUnit ?? "";
+
+  const rows = state.filtered;
+  const totalCasais = rows.length;
+  const custoUnit = parseFloat(el("brindeCustoUnit").value) || 0;
+  const custoTotal = totalCasais * custoUnit;
+  const s = statsFor(rows);
+  const custoPorVenda = s.vendas ? custoTotal / s.vendas : 0;
+  const pctSobreVgv = s.vgvTotal ? (custoTotal / s.vgvTotal) * 100 : 0;
+
+  el("stats-brinde").innerHTML = `
+    <div class="stat-card"><div class="stat-value">${totalCasais}</div><div class="stat-label">Casais atendidos</div></div>
+    <div class="stat-card"><div class="stat-value">${fmtMoney(custoUnit)}</div><div class="stat-label">Custo unitário</div></div>
+    <div class="stat-card"><div class="stat-value">${fmtMoney(custoTotal)}</div><div class="stat-label">Custo total de brindes</div></div>
+    <div class="stat-card"><div class="stat-value">${fmtMoney(custoPorVenda)}</div><div class="stat-label">Custo por venda (cota)</div></div>
+    <div class="stat-card"><div class="stat-value">${fmtPctBR(pctSobreVgv/100)}</div><div class="stat-label">% sobre VGV total</div></div>
+  `;
+}
 
 /* ═══════════════════════════════════════════════
-   ABAS
+   CONTROLE DE ABAS
 ═══════════════════════════════════════════════ */
 function getActiveTab(){
-  const active = document.querySelector(".tab.active");
+  const active = document.querySelector(".tab-btn.active");
   return active ? active.dataset.tab : "resumo";
 }
 
-function refreshTab(tab){
-  state.filtered = applyFilters(state.rows);
-  switch(tab){
-    case "resumo": renderCards("stats", state.filtered); break;
-    case "comparativo": break;
-    case "curva": renderCurva(state.filtered); renderSemana(state.filtered); break;
-    case "cancelamento": renderCancelamento(state.filtered); break;
+function refreshTab(tabId){
+  const rows = state.filtered;
+  switch(tabId){
+    case "resumo": renderCards("stats-resumo", rows); break;
+    case "curva": renderCurva(rows); break;
+    case "semana": renderSemana(rows); break;
+    case "cancelamento": renderCancelamento(rows); break;
     case "equipes": renderEquipes(); break;
     case "equipes-supervisores": renderSupervisores(); break;
-    case "individual-mes-mes": renderMM(); populateMMNames(); break;
-    case "desafios": break;
-    case "ranking-promotor": renderRanking("ranking-promotor", state.filtered, KEY.promotor); break;
-    case "ranking-liner": renderRanking("ranking-liner", state.filtered, KEY.liner); break;
-    case "ranking-closer": renderRanking("ranking-closer", state.filtered, KEY.closer); break;
-    case "perfil-renda": renderPerfilRenda(state.filtered); break;
-    case "profissionais": renderProfissionaisSingle(); populateProfSingleNames(); break;
+    case "ranking-promotor": renderRanking("ranking-promotor", rows, KEY.promotor); break;
+    case "ranking-liner": renderRanking("ranking-liner", rows, KEY.liner); break;
+    case "ranking-closer": renderRanking("ranking-closer", rows, KEY.closer); break;
+    case "perfil-renda": renderPerfilRenda(rows); break;
+    case "mm": renderMM(); break;
+    case "desafios": renderChallenges(); break;
+    case "comparativo": renderComparativo(); break;
+    case "profissionais": renderProfissionaisSingle(); break;
+    case "brinde": renderBrinde(); break;
+    default: break;
   }
 }
 
-function switchTab(tab){
-  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-  document.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));
-  const tabEl = document.querySelector(`.tab[data-tab="${tab}"]`);
-  if(tabEl) tabEl.classList.add("active");
-  const contentEl = el("tab-"+tab);
-  if(contentEl) contentEl.classList.add("active");
-  refreshTab(tab);
+function switchTab(tabId){
+  document.querySelectorAll(".tab-btn").forEach(b=>b.classList.toggle("active", b.dataset.tab===tabId));
+  document.querySelectorAll(".tab-panel").forEach(p=>p.classList.toggle("active", p.id==="panel-"+tabId));
+  refreshTab(tabId);
 }
 
+document.querySelectorAll(".tab-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>switchTab(btn.dataset.tab));
+});
+
 /* ═══════════════════════════════════════════════
-   EVENTOS
+   APLICAR FILTROS GLOBAIS
 ═══════════════════════════════════════════════ */
-document.querySelectorAll(".tab").forEach(t=>{
-  t.addEventListener("click", ()=>switchTab(t.dataset.tab));
-});
+function applyFilters(){
+  const d1 = parseDateOnlyInput(el("dateStart").value);
+  const d2 = parseDateOnlyInput(el("dateEnd").value);
+  const status = el("statusSelect").value;
+  const ufSel = el("ufSelect").value;
+  const profTipo = norm(el("profTipo").value);
+  const profNome = el("profNome").value;
 
-["statusSelect","profNome","ufSelect"].forEach(id=>{
-  el(id).addEventListener("change", ()=>refreshTab(getActiveTab()));
-});
+  state.filtered = state.rows.filter(r=>{
+    if(d1 || d2){
+      if(!r._dt) return false;
+      if(d1 && r._dt.getTime() < d1.getTime()) return false;
+      if(d2){
+        const end = new Date(d2.getFullYear(),d2.getMonth(),d2.getDate(),23,59,59,999).getTime();
+        if(r._dt.getTime() > end) return false;
+      }
+    }
+    if(status!=="todos" && r._bucket!==status) return false;
+    if(ufSel!=="todos" && (r[KEY.uf]??"").toString().trim()!==ufSel) return false;
+    if(profNome!=="todos"){
+      const n=(r[profTipo]??"").toString().trim();
+      if(n!==profNome) return false;
+    }
+    return true;
+  });
 
-el("profTipo").addEventListener("change", ()=>{
-  populateProfNames();
   refreshTab(getActiveTab());
-});
+}
 
-["dateStart","dateEnd"].forEach(id=>{
-  el(id).addEventListener("change", ()=>refreshTab(getActiveTab()));
-});
-
-el("btnHoje").addEventListener("click", ()=>{
-  const today = toISO(new Date());
-  el("dateStart").value = today;
-  el("dateEnd").value = today;
-  refreshTab(getActiveTab());
-});
-el("btn30").addEventListener("click", ()=>{
-  const end = new Date();
-  const start = new Date(end);
-  start.setDate(start.getDate()-29);
-  el("dateStart").value = toISO(start);
-  el("dateEnd").value = toISO(end);
-  refreshTab(getActiveTab());
-});
-el("btnLimparPeriodo").addEventListener("click", ()=>{
+el("btnFiltrar")?.addEventListener("click", applyFilters);
+el("btnLimparFiltros")?.addEventListener("click", ()=>{
   el("dateStart").value = "";
   el("dateEnd").value = "";
+  el("statusSelect").value = "todos";
+  el("ufSelect").value = "todos";
+  el("profNome").value = "todos";
+  state.filtered = state.rows.slice();
   refreshTab(getActiveTab());
 });
+el("profTipo")?.addEventListener("change", ()=>{ populateProfNames(); });
 
-// Comparativo
-el("btnCmpXHoje").addEventListener("click", ()=>{ const d=toISO(new Date()); el("cmpXStart").value=d; el("cmpXEnd").value=d; renderComparativo(); });
-el("btnCmpX30").addEventListener("click", ()=>{ const e=new Date(); const s=new Date(e); s.setDate(s.getDate()-29); el("cmpXStart").value=toISO(s); el("cmpXEnd").value=toISO(e); renderComparativo(); });
-el("btnCmpYHoje").addEventListener("click", ()=>{ const d=toISO(new Date()); el("cmpYStart").value=d; el("cmpYEnd").value=d; renderComparativo(); });
-el("btnCmpY30").addEventListener("click", ()=>{ const e=new Date(); const s=new Date(e); s.setDate(s.getDate()-29); el("cmpYStart").value=toISO(s); el("cmpYEnd").value=toISO(e); renderComparativo(); });
+/* Mês/Mês listeners */
+el("mmProfTipo")?.addEventListener("change", ()=>{ populateMMNames(); renderMM(); });
+el("mmProfNome")?.addEventListener("change", renderMM);
+
+/* Profissionais individual listeners */
+el("profTipoSingle")?.addEventListener("change", ()=>{ populateProfSingleNames(); renderProfissionaisSingle(); });
+el("profNomeSingle")?.addEventListener("change", renderProfissionaisSingle);
+
+/* Comparativo listeners */
 ["cmpXStart","cmpXEnd","cmpYStart","cmpYEnd"].forEach(id=>{
-  el(id).addEventListener("change", ()=>renderComparativo());
+  el(id)?.addEventListener("change", renderComparativo);
 });
 
-// Equipes
-el("btnLimparEquipes").addEventListener("click", ()=>{
-  if(!confirm("Remover TODAS as configurações de equipe?")) return;
-  localStorage.removeItem(TEAM_KEY_V2);
-  refreshTab("equipes");
-});
-
-// Supervisores
-el("btnSalvarEquipeSup").addEventListener("click", ()=>{
-  const nome = el("supPromotorSelect").value;
-  const equipe = el("supEquipeSelect").value;
-  if(!nome){ alert("Selecione um promotor."); return; }
-  setTeamConfig(nome, {equipe, inativoInicio:null, inativoFim:null});
-  refreshTab("equipes-supervisores");
-});
-el("btnLimparEquipesSup").addEventListener("click", ()=>{
-  if(!confirm("Remover TODAS as configurações de equipe?")) return;
-  localStorage.removeItem(TEAM_KEY_V2);
-  refreshTab("equipes-supervisores");
-});
-
-// Individual mês/mês
-el("mmProfTipo").addEventListener("change", ()=>{ populateMMNames(); renderMM(); });
-el("mmProfNome").addEventListener("change", ()=>renderMM());
-el("mmBtnUlt3").addEventListener("click", ()=>{
-  const available = getAvailableMonths(state.rows.filter(r=>r._dt));
-  mmSelectedMonths = available.slice(-3);
-  renderMM();
-});
-el("mmBtnUlt6").addEventListener("click", ()=>{
-  const available = getAvailableMonths(state.rows.filter(r=>r._dt));
-  mmSelectedMonths = available.slice(-6);
-  renderMM();
-});
-el("mmBtnTodos").addEventListener("click", ()=>{
-  mmSelectedMonths = getAvailableMonths(state.rows.filter(r=>r._dt));
-  renderMM();
-});
-el("mmBtnLimpar").addEventListener("click", ()=>{
-  mmSelectedMonths = [];
-  renderMM();
-});
-
-// Desafios
-el("btnChSave").addEventListener("click", saveChallenge);
-el("btnChNew").addEventListener("click", ()=>{
+/* Desafios listeners */
+el("chTeamsCount")?.addEventListener("change", renderChTeamsEditor);
+el("chProfTipo")?.addEventListener("change", renderChTeamsEditor);
+el("btnSalvarDesafio")?.addEventListener("click", saveChallenge);
+el("btnCancelarEdicaoDesafio")?.addEventListener("click", ()=>{
   challengeEditId = null;
   el("challengeFormTitle").textContent = "Criar desafio";
   el("chName").value = "";
   el("chStart").value = "";
   el("chEnd").value = "";
-  el("chMetric").value = "casais";
-  el("chProfTipo").value = "promotor de marketing";
-  el("chTeamsCount").value = "2";
   renderChTeamsEditor();
 });
-el("btnChClearAll").addEventListener("click", ()=>{
-  if(!confirm("Apagar TODOS os desafios?")) return;
-  saveChallenges([]);
-  challengeEditId = null;
-  renderChallenges();
-});
-el("chTeamsCount").addEventListener("change", renderChTeamsEditor);
-el("chProfTipo").addEventListener("change", renderChTeamsEditor);
 
-// Profissionais single
-el("profTipoSingle").addEventListener("change", ()=>{ populateProfSingleNames(); renderProfissionaisSingle(); });
-el("profNomeSingle").addEventListener("change", renderProfissionaisSingle);
+/* Brinde listener */
+el("brindeCustoUnit")?.addEventListener("input", ()=>{
+  const cfg = loadBrindeConfig();
+  cfg.custoUnit = parseFloat(el("brindeCustoUnit").value) || 0;
+  saveBrindeConfig(cfg);
+  renderBrinde();
+});
 
 /* ═══════════════════════════════════════════════
-   CARREGAR CSV
+   CARREGAMENTO DO CSV / INICIALIZAÇÃO
 ═══════════════════════════════════════════════ */
-async function loadCSV(){
-  try{
-    const resp = await fetch("./dados.csv");
-    if(!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    const text = await resp.text();
-    const raw = parseDelimited(text, ";");
-    if(!raw.length) throw new Error("CSV está vazio.");
-    state.rows = buildObjects(raw);
-    el("loading").style.display = "none";
-    populateFilters();
-    renderChallenges();
-    switchTab("resumo");
-  }catch(e){
-    el("loading").style.display = "none";
-    const errEl = el("error");
-    errEl.style.display = "block";
-    errEl.textContent = `❌ Erro ao carregar: ${e.message}. Certifique-se de que o arquivo "dados.csv" está na mesma pasta.`;
-  }
+function loadCSV(file){
+  Papa.parse(file, {
+    header: true,
+    skipEmptyLines: true,
+    encoding: "UTF-8",
+    complete: (results) => {
+      const rows = results.data.map(processRow);
+      state.rows = rows;
+      state.filtered = rows.slice();
+      populateFilters();
+      populateMMNames();
+      populateProfSingleNames();
+      renderChTeamsEditor();
+      switchTab("resumo");
+      el("uploadStatus").textContent = `✅ ${rows.length} linhas carregadas.`;
+    },
+    error: (err) => {
+      el("uploadStatus").textContent = `❌ Erro ao processar CSV: ${err.message}`;
+    }
+  });
 }
 
-loadCSV();
+el("csvFileInput")?.addEventListener("change", (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  el("uploadStatus").textContent = "⏳ Processando...";
+  loadCSV(file);
+});
+
+/* Inicializa estado global */
+const state = { rows: [], filtered: [], expandedRanking: {cid:null, name:null} };
+const charts = {};
+const sortState = {};
+
+/* Inicialização */
+document.addEventListener("DOMContentLoaded", ()=>{
+  switchTab("resumo");
+});
 </script>
-</body>
-</html>
