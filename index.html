@@ -71,7 +71,7 @@
       backdrop-filter:blur(10px);
       padding:10px;
     }
-    .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}
+    .tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;}
     .tab{
       display:flex;align-items:center;justify-content:center;gap:10px;
       padding:12px 12px;text-align:center;cursor:pointer;
@@ -433,64 +433,6 @@
     .kpi-sub b{color:rgba(234,240,255,.88)}
     .hint{font-size:.9rem;color:var(--muted);line-height:1.45;}
 
-    .challenge-grid{
-      display:grid;
-      grid-template-columns: 420px 1fr;
-      gap:14px;
-      align-items:start;
-      margin-top:10px;
-    }
-    .challenge-card{
-      background:var(--card);
-      border:1px solid var(--stroke);
-      border-radius:var(--radius);
-      padding:14px;
-      backdrop-filter:blur(10px);
-      overflow:hidden;
-    }
-    .challenge-card h3{margin:0 0 10px;font-size:1.05rem;}
-    .challenge-list{display:flex;flex-direction:column;gap:10px;max-height:65vh;overflow:auto;padding-right:6px;}
-    .challenge-item{
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(255,255,255,.03);
-      border-radius:14px;
-      padding:12px 12px;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    }
-    .challenge-item .top{
-      display:flex;gap:10px;align-items:baseline;justify-content:space-between;flex-wrap:wrap;
-    }
-    .challenge-item .title{
-      font-weight:950;
-      display:flex;gap:10px;align-items:center;min-width:0;
-    }
-    .challenge-item .title span{
-      overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:360px;
-    }
-    .challenge-item .meta{color:var(--muted);font-size:.9rem;}
-    .challenge-item .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
-    .teams-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:10px;}
-    .team-box{
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(255,255,255,.02);
-      border-radius:14px;
-      padding:12px;
-    }
-    .team-box .hdr{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:10px;}
-    .team-box .hdr b{font-size:.98rem;}
-    .team-members{
-      border-top:1px solid rgba(255,255,255,.08);
-      padding-top:10px;
-      margin-top:10px;
-      display:flex;flex-direction:column;gap:8px;
-    }
-    .member-row{display:flex;align-items:center;justify-content:space-between;gap:12px;}
-    .member-row label{font-weight:750;color:rgba(234,240,255,.88);text-transform:none;letter-spacing:0;font-size:.95rem;}
-    .member-row input[type="checkbox"]{transform:scale(1.1);}
-    .tiny{font-size:.85rem;color:var(--muted);}
-
     .mm-panel{
       background:rgba(255,255,255,.03);
       border:1px solid rgba(255,255,255,.08);
@@ -577,7 +519,6 @@
     @media(max-width:1100px){
       .tabs{grid-template-columns:repeat(3,minmax(0,1fr));}
       .sup-compare-header,.sup-compare-row{grid-template-columns:160px 1fr 1fr 1fr;}
-      .challenge-grid{grid-template-columns: 1fr;}
     }
     @media(max-width:820px){
       .wrap{padding:0 16px}
@@ -597,17 +538,11 @@
       .inativo-dates{flex-direction:column;align-items:stretch;}
       .client-detail-section .table-wrap table{min-width:600px;}
     }
-
-    /* ═══ CUSTO DE BRINDE ═══ */
-    .brinde-card{
-      background:var(--card);border:1px solid var(--stroke);border-radius:var(--radius);
-      padding:16px 18px;backdrop-filter:blur(10px);margin-bottom:10px;
-    }
-    .brinde-item-desc{font-size:.85rem;color:var(--muted);font-family:var(--mono);}
   </style>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 </head>
+
 <body>
 <div class="wrap">
   <header>
@@ -666,13 +601,10 @@
       <div class="tab" data-tab="equipes">🧲 Equipes de captação</div>
       <div class="tab" data-tab="equipes-supervisores">🧑‍✈️ Promotores (2 supervisores)</div>
       <div class="tab" data-tab="individual-mes-mes">🗓️ Individual mês/mês</div>
-      <div class="tab" data-tab="desafios">🏁 Desafios</div>
       <div class="tab" data-tab="ranking-promotor">🎯 Ranking Promotor</div>
       <div class="tab" data-tab="ranking-liner">💬 Ranking Liner</div>
       <div class="tab" data-tab="ranking-closer">🤝 Ranking Closer</div>
       <div class="tab" data-tab="perfil-renda">💸 Perfil de renda</div>
-      <div class="tab" data-tab="profissionais">👥 Profissionais</div>
-      <div class="tab" data-tab="custo-brinde">🎁 Custo de Brinde</div>
     </div>
   </div>
 
@@ -916,95 +848,6 @@
       <div id="mmGrid" class="mm-grid"></div>
     </div>
 
-    <!-- ABA: DESAFIOS -->
-    <div id="tab-desafios" class="tab-content">
-      <div class="note">
-        <strong>Desafios</strong><br>
-        Crie desafios com período, número de equipes, nome das equipes, seleção de profissionais por equipe e escolha do critério de apuração.
-        Tudo fica salvo no seu navegador (localStorage).
-      </div>
-      <div class="challenge-grid">
-        <div class="challenge-card">
-          <h3 id="challengeFormTitle">Criar desafio</h3>
-          <div class="controls" style="margin:0;justify-content:flex-start">
-            <div class="control-group" style="min-width:260px">
-              <label>Nome do desafio</label>
-              <input id="chName" placeholder="Ex.: Desafio Junho" />
-            </div>
-            <div class="control-group" style="min-width:330px">
-              <label>Período do desafio</label>
-              <div class="range-row">
-                <input id="chStart" type="date" />
-                <span class="sep">a</span>
-                <input id="chEnd" type="date" />
-              </div>
-            </div>
-            <div class="control-group" style="min-width:220px">
-              <label>Apuração</label>
-              <select id="chMetric">
-                <option value="casais">Número de casais</option>
-                <option value="vgv">VGV</option>
-                <option value="casais_atendidos">Casais atendidos</option>
-                <option value="eficiencia">Eficiência</option>
-                <option value="aproveitamento">Aproveitamento</option>
-              </select>
-            </div>
-            <div class="control-group" style="min-width:220px">
-              <label>Qtd. de equipes</label>
-              <select id="chTeamsCount">
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-              </select>
-            </div>
-            <div class="control-group" style="min-width:180px">
-              <label>Tipo de profissional</label>
-              <select id="chProfTipo">
-                <option value="promotor de marketing">Promotor de marketing</option>
-                <option value="liner">Liner</option>
-                <option value="closer">Closer</option>
-              </select>
-              <div class="tiny">A seleção abaixo lista apenas nomes desse tipo.</div>
-            </div>
-          </div>
-          <div class="divider" style="margin:16px 0 14px"></div>
-          <div class="section-title" style="margin-bottom:10px">
-            Equipes <span class="pill-tag">nomes + membros</span>
-          </div>
-          <div id="chTeamsEditor" class="teams-wrap"></div>
-          <div class="divider" style="margin:16px 0 14px"></div>
-          <div class="controls" style="margin:0;justify-content:flex-start">
-            <div class="control-group" style="min-width:180px">
-              <label>&nbsp;</label>
-              <button class="btn primary" id="btnChSave">💾 Salvar desafio</button>
-            </div>
-            <div class="control-group" style="min-width:220px">
-              <label>&nbsp;</label>
-              <button class="btn" id="btnChNew">➕ Novo</button>
-            </div>
-            <div class="control-group" style="min-width:220px">
-              <label>&nbsp;</label>
-              <button class="btn danger" id="btnChClearAll">🗑 Apagar todos</button>
-            </div>
-          </div>
-          <div id="chFormMsg" class="note" style="display:none;margin-top:12px"></div>
-        </div>
-        <div class="challenge-card">
-          <h3>Meus desafios</h3>
-          <div id="chList" class="challenge-list"></div>
-          <div class="divider"></div>
-          <h3>Apuração (no período do desafio)</h3>
-          <div class="note warn" style="margin-top:10px">
-            A apuração do desafio <strong>ignora</strong> o filtro global de período e usa o período definido no desafio.
-            Ela <strong>respeita</strong> os filtros globais de <strong>Status</strong> e <strong>UF</strong>.
-          </div>
-          <div id="chResults"></div>
-        </div>
-      </div>
-    </div>
-
     <!-- RANKING PROMOTOR -->
     <div id="tab-ranking-promotor" class="tab-content">
       <div class="note">Ranking por <span class="badge">Promotor de marketing</span>. Clique nos cabeçalhos para ordenar. <strong>Clique no nome do profissional para ver os clientes.</strong></div>
@@ -1029,58 +872,9 @@
       <div id="perfil-renda"></div>
     </div>
 
-    <!-- PROFISSIONAIS -->
-    <div id="tab-profissionais" class="tab-content">
-      <div class="note">Selecione um profissional para ver o detalhe individual no período filtrado.</div>
-      <div class="controls" style="margin-top:10px">
-        <div class="control-group">
-          <label>Área (individual)</label>
-          <select id="profTipoSingle">
-            <option value="promotor de marketing">Promotor de marketing</option>
-            <option value="liner">Liner</option>
-            <option value="closer">Closer</option>
-          </select>
-        </div>
-        <div class="control-group">
-          <label>Nome (individual)</label>
-          <select id="profNomeSingle"><option value="">Selecione...</option></select>
-        </div>
-      </div>
-      <div class="stats" id="stats-single" style="margin-top:10px"></div>
-      <div class="note" style="margin-top:8px">Tabela por profissional (respeita os filtros globais):</div>
-      <div id="profissionais-table"></div>
-    </div>
-
-    <!-- CUSTO DE BRINDE -->
-    <div id="tab-custo-brinde" class="tab-content">
-      <div class="note">
-        <strong>Custo de Brinde</strong><br>
-        A coluna do CSV é lida no formato: <code>TOTAL: 2 [DESCRIÇÃO: MUSEU DE CERA - R$83,30 - QTD.: 2 - VALOR: 166.60]</code>.<br>
-        Para cada cliente, o custo de brinde considerado é o <strong>último valor</strong> (VALOR), ex.: <strong>R$ 166,60</strong>.<br>
-        Podem existir <strong>múltiplos parceiros</strong> na mesma linha — todos são somados.<br>
-        Os totais abaixo respeitam os filtros globais (período, status, profissional, UF).
-      </div>
-      <div id="brinde-status" class="note warn" style="display:none"></div>
-      <div class="stats" id="stats-brinde"></div>
-
-      <div class="section-title" style="margin-top:20px">
-        Custo de brinde por dia <span class="pill-tag">R$ total gasto</span>
-      </div>
-      <div id="brinde-por-dia"></div>
-
-      <div class="section-title" style="margin-top:20px">
-        Custo de brinde por parceiro <span class="pill-tag">ex.: Museu de Cera</span>
-      </div>
-      <div id="brinde-por-parceiro"></div>
-
-      <div class="section-title" style="margin-top:20px">
-        Custo de brinde por promotor de marketing (captador) <span class="pill-tag">R$ total gasto</span>
-      </div>
-      <div id="brinde-por-promotor"></div>
-    </div>
-
   </div>
 </div>
+
 <script>
 /* ═══════════════════════════════════════════════
    UTILITÁRIOS
@@ -1090,8 +884,11 @@ const norm = s  => (s ?? "").toString().toLowerCase().trim().replace(/\s+/g," ")
 
 /* ═══════════════════════════════════════════════
    DETECÇÃO INTELIGENTE DO NOME DO CLIENTE
+   Procura em TODAS as colunas do CSV para encontrar
+   o nome do cliente/cessionário (agora mais abrangente).
 ═══════════════════════════════════════════════ */
 function detectClientNameColumn(headerKeys) {
+  // Lista expandida com variações de "cliente", "cessionário", "nome", etc.
   const CLIENT_NAME_HEADERS = [
     "nome do cliente", "cliente", "nome", "casal",
     "nome completo", "nome do casal",
@@ -1102,17 +899,27 @@ function detectClientNameColumn(headerKeys) {
     "comprador", "nome comprador", "titular",
     "nome titular", "contratante", "nome contratante",
   ];
+
+  // Primeira tentativa: match exato com a lista
   for (const candidate of CLIENT_NAME_HEADERS) {
-    if (headerKeys.includes(norm(candidate))) return norm(candidate);
+    if (headerKeys.includes(norm(candidate))) {
+      return norm(candidate);
+    }
   }
+
+  // Segunda tentativa: busca por palavras-chave isoladas
   const keywords = ["cliente", "cessionário", "cessionario", "nome", "casal", "comprador", "titular", "contratante"];
   for (const key of headerKeys) {
     const nk = norm(key);
     if (!nk) continue;
     for (const kw of keywords) {
-      if (nk.includes(kw)) return key;
+      if (nk.includes(kw)) {
+        return key; // retorna a key original (não normalizada)
+      }
     }
   }
+
+  // Terceira tentativa: procura por colunas que NÃO sejam as colunas de sistema conhecidas
   const KNOWN_KEYS = new Set([
     norm("data de atendimento"), norm("status do contrato"), norm("status atendimento"),
     norm("renda"), norm("uf"),
@@ -1123,31 +930,7 @@ function detectClientNameColumn(headerKeys) {
       return key;
     }
   }
-  return null;
-}
 
-/* ═══════════════════════════════════════════════
-   DETECÇÃO INTELIGENTE DA COLUNA DE BRINDE
-   Procura coluna com o texto de brinde no formato:
-   TOTAL: 2 [DESCRIÇÃO: MUSEU DE CERA - R$83,30 - QTD.: 2 - VALOR: 166.60]
-═══════════════════════════════════════════════ */
-function detectBrindeColumn(headerKeys) {
-  const BRINDE_HEADERS = [
-    "brinde", "brindes", "custo de brinde", "custo brinde",
-    "descrição brinde", "descricao brinde", "brinde parceiro",
-    "brinde cortesia", "cortesia", "cortesias", "parceiro brinde",
-  ];
-  for (const candidate of BRINDE_HEADERS) {
-    if (headerKeys.includes(norm(candidate))) return norm(candidate);
-  }
-  const keywords = ["brinde", "cortesia"];
-  for (const key of headerKeys) {
-    const nk = norm(key);
-    if (!nk) continue;
-    for (const kw of keywords) {
-      if (nk.includes(kw)) return key;
-    }
-  }
   return null;
 }
 
@@ -1162,19 +945,14 @@ const KEY = {
   closer  : norm("closer"),
 };
 
-const state   = { rows:[], filtered:[], meta:{ vgvColKey:null, firstColKey:null, clientNameKey:null, brindeColKey:null }, expandedRanking:{cid:null,name:null} };
+const state   = { rows:[], filtered:[], meta:{ vgvColKey:null, firstColKey:null, clientNameKey:null }, expandedRanking:{cid:null,name:null} };
 const charts  = { curva:null, semana:null, cancelamento:null };
 const sortState = {
   "ranking-promotor"   :{ key:"vendas",    dir:"desc" },
   "ranking-liner"      :{ key:"vendas",    dir:"desc" },
   "ranking-closer"     :{ key:"vendas",    dir:"desc" },
-  "profissionais-table":{ key:"vendas",    dir:"desc" },
   "perfil-renda"       :{ key:"vgvTotal",  dir:"desc" },
   "cancelamento-table" :{ key:"cotasTotal",dir:"desc" },
-  "ch-results-table"   :{ key:"valor",     dir:"desc" },
-  "brinde-dia-table"     :{ key:"total",     dir:"desc" },
-  "brinde-parceiro-table":{ key:"total",     dir:"desc" },
-  "brinde-promotor-table":{ key:"total",     dir:"desc" },
 };
 
 /* ═══════════════════════════════════════════════
@@ -1263,13 +1041,6 @@ function getEquipeEfetiva(promotorNome, dt){
 }
 
 /* ═══════════════════════════════════════════════
-   DESAFIOS localStorage
-═══════════════════════════════════════════════ */
-const CH_KEY = "painel_desafios_v1";
-const loadChallenges = () => { try{ const r=localStorage.getItem(CH_KEY); const o=r?JSON.parse(r):[]; return Array.isArray(o)?o:[]; }catch(e){ return []; } };
-const saveChallenges = arr => localStorage.setItem(CH_KEY, JSON.stringify(Array.isArray(arr)?arr:[]));
-
-/* ═══════════════════════════════════════════════
    PARSE CSV
 ═══════════════════════════════════════════════ */
 function parseDelimited(text, delimiter=";"){
@@ -1298,11 +1069,9 @@ function parseDelimited(text, delimiter=";"){
   state.meta.vgvColKey  =keys[6]||null;
   if(!state.meta.vgvColKey) throw new Error("CSV precisa ter pelo menos 7 colunas (VGV na coluna G).");
 
+  // Detectar a coluna de nome do cliente
   state.meta.clientNameKey = detectClientNameColumn(keys);
   console.log("🔍 Coluna de nome do cliente detectada:", state.meta.clientNameKey || "NENHUMA (usará fallback)");
-
-  state.meta.brindeColKey = detectBrindeColumn(keys);
-  console.log("🎁 Coluna de brinde detectada:", state.meta.brindeColKey || "NENHUMA");
 
   return data;
 }
@@ -1363,35 +1132,13 @@ function contractBucket(s){
 }
 
 /* ═══════════════════════════════════════════════
-   PARSE DE BRINDE
-   Formato: TOTAL: 2 [DESCRIÇÃO: MUSEU DE CERA - R$83,30 - QTD.: 2 - VALOR: 166.60]
-   O "custo de brinde" considerado por cliente é o ÚLTIMO valor (VALOR: 166.60).
-   Podem existir múltiplos blocos [DESCRIÇÃO: ...] na mesma célula (múltiplos parceiros).
-═══════════════════════════════════════════════ */
-function parseBrindeItems(str){
-  if(!str || typeof str !== "string") return [];
-  const items = [];
-  const re = /DESCRI[ÇC]ÃO:\s*([^-]+?)\s*-\s*R\$\s*([\d.,]+)\s*-\s*QTD\.?:\s*(\d+)\s*-\s*VALOR:\s*([\d.,]+)/gi;
-  let m;
-  while((m = re.exec(str)) !== null){
-    items.push({
-      partner    : m[1].trim(),
-      unitPrice  : parseMoneyBR(m[2]),
-      qty        : parseInt(m[3],10) || 0,
-      valorTotal : parseMoneyBR(m[4]), // custo de brinde considerado (ex.: 166.60)
-    });
-  }
-  return items;
-}
-
-/* ═══════════════════════════════════════════════
    BUILD OBJECTS
 ═══════════════════════════════════════════════ */
 function buildObjects(rows){
   if(!rows.length) throw new Error("CSV vazio.");
 
+  // Obtém o nome do cliente de forma inteligente
   const cnk = state.meta.clientNameKey;
-  const bnk = state.meta.brindeColKey;
 
   return rows.map(r=>{
     const o={...r};
@@ -1402,8 +1149,6 @@ function buildObjects(rows){
     o._bucket    =contractBucket(o[KEY.statusContrato]);
     o._clientName=cnk?(o[cnk]??"").toString().trim():"";
     o._statusAt  =norm(o[KEY.statusAtendimento]??"");
-    o._brindeItems=bnk?parseBrindeItems(o[bnk]):[];
-    o._brindeTotal=o._brindeItems.reduce((s,i)=>s+i.valorTotal,0);
     return o;
   });
 }
@@ -1458,7 +1203,6 @@ function statsFor(rows){
   const eff=casais?(q.total/casais):0;
   const clientesCompraram = rows.filter(r => (r._quotas?.total ?? 0) > 0).length;
   const aproveitamento = rows.length ? (clientesCompraram / rows.length) : 0;
-  const brindeTotal = rows.reduce((s,r)=>s+(r._brindeTotal??0),0);
   return{
     totalLinhas:rows.length,noTour,casais,
     vendas:q.total,cotasCanceladas:q.cancelado,
@@ -1468,10 +1212,9 @@ function statsFor(rows){
     rendaMed:avgRenda(rows),mediaCasaisPeriodo:avgCasais(rows),
     pctCancelamentosVendas: q.total ? (q.cancelado / q.total) : 0,
     aproveitamento, clientesCompraram,
-    brindeTotal,
   };
 }
-<script>
+
 /* ═══════════════════════════════════════════════
    RENDER CARDS
 ═══════════════════════════════════════════════ */
@@ -1674,7 +1417,7 @@ function renderRanking(cid, rows, fieldKey){
 }
 
 /* ═══════════════════════════════════════════════
-   PERFIL DE RENDA
+   PERFIL DE RENDA (novas faixas)
 ═══════════════════════════════════════════════ */
 function getRendaFaixa(renda){
   if(renda < 11900) return "Abaixo de R$ 11,9 mil";
@@ -2353,227 +2096,6 @@ function populateMMNames(){
 }
 
 /* ═══════════════════════════════════════════════
-   DESAFIOS
-═══════════════════════════════════════════════ */
-let challengeEditId = null;
-
-function getProfissionaisByTipo(tipo){
-  const nomes = new Set();
-  state.rows.forEach(r=>{ const n=(r[tipo]??"").toString().trim(); if(n) nomes.add(n); });
-  return [...nomes].sort((a,b)=>a.localeCompare(b));
-}
-
-function renderChTeamsEditor(){
-  const count = parseInt(el("chTeamsCount").value) || 2;
-  const profTipo = norm(el("chProfTipo").value);
-  const nomes = getProfissionaisByTipo(profTipo);
-
-  let existingTeams = [];
-  if(challengeEditId !== null){
-    const challenges = loadChallenges();
-    const found = challenges.find(c=>c.id===challengeEditId);
-    if(found) existingTeams = found.teams || [];
-  }
-
-  el("chTeamsEditor").innerHTML = Array.from({length:count}, (_,i)=>{
-    const existing = existingTeams[i] || {name:`Equipe ${i+1}`, members:[]};
-    return `<div class="team-box">
-      <div class="hdr">
-        <b>Equipe ${i+1}</b>
-        <input class="ch-team-name" value="${(existing.name||`Equipe ${i+1}`).replace(/"/g,"&quot;")}" placeholder="Nome da equipe" style="width:200px" />
-      </div>
-      <div class="tiny" style="margin-bottom:8px">Selecione os membros:</div>
-      <div class="team-members">
-        ${nomes.map(n=>`<div class="member-row">
-          <label>${n}</label>
-          <input type="checkbox" class="ch-member" data-team="${i}" data-name="${n.replace(/"/g,"&quot;")}" ${(existing.members||[]).includes(n)?"checked":""} />
-        </div>`).join("")}
-      </div>
-    </div>`;
-  }).join("");
-}
-
-function collectChallengeForm(){
-  const name = el("chName").value.trim();
-  const start = el("chStart").value;
-  const end = el("chEnd").value;
-  const metric = el("chMetric").value;
-  const profTipo = norm(el("chProfTipo").value);
-  const count = parseInt(el("chTeamsCount").value) || 2;
-  if(!name || !start || !end){ alert("Preencha nome e período do desafio."); return null; }
-
-  const teams = [];
-  const teamBoxes = el("chTeamsEditor").querySelectorAll(".team-box");
-  teamBoxes.forEach((box,i)=>{
-    const tname = box.querySelector(".ch-team-name")?.value?.trim() || `Equipe ${i+1}`;
-    const members = [];
-    box.querySelectorAll(".ch-member:checked").forEach(cb=>members.push(cb.dataset.name));
-    teams.push({name:tname, members});
-  });
-
-  return {name, start, end, metric, profTipo, teams, id: challengeEditId || Date.now()};
-}
-
-function saveChallenge(){
-  const data = collectChallengeForm();
-  if(!data) return;
-  const challenges = loadChallenges();
-  if(challengeEditId !== null){
-    const idx = challenges.findIndex(c=>c.id===challengeEditId);
-    if(idx>=0) challenges[idx] = data;
-    else challenges.push(data);
-  } else {
-    challenges.push(data);
-  }
-  saveChallenges(challenges);
-  challengeEditId = null;
-  el("challengeFormTitle").textContent = "Criar desafio";
-  el("chName").value = "";
-  el("chStart").value = "";
-  el("chEnd").value = "";
-  el("chFormMsg").style.display = "block";
-  el("chFormMsg").className = "note success";
-  el("chFormMsg").textContent = "✅ Desafio salvo!";
-  setTimeout(()=>{el("chFormMsg").style.display="none";}, 2500);
-  renderChallenges();
-}
-
-function editChallenge(id){
-  const challenges = loadChallenges();
-  const found = challenges.find(c=>c.id===id);
-  if(!found) return;
-  challengeEditId = id;
-  el("challengeFormTitle").textContent = "Editar desafio";
-  el("chName").value = found.name;
-  el("chStart").value = found.start;
-  el("chEnd").value = found.end;
-  el("chMetric").value = found.metric;
-  el("chProfTipo").value = found.profTipo;
-  el("chTeamsCount").value = found.teams.length;
-  renderChTeamsEditor();
-  window.scrollTo({top:0,behavior:"smooth"});
-}
-
-function deleteChallenge(id){
-  if(!confirm("Apagar este desafio?")) return;
-  const challenges = loadChallenges().filter(c=>c.id!==id);
-  saveChallenges(challenges);
-  if(challengeEditId===id){ challengeEditId=null; el("challengeFormTitle").textContent="Criar desafio"; el("chName").value=""; el("chStart").value=""; el("chEnd").value=""; }
-  renderChallenges();
-}
-
-function apurarDesafio(challenge){
-  const d1 = parseDateOnlyInput(challenge.start);
-  const d2 = parseDateOnlyInput(challenge.end);
-  if(!d1||!d2) return [];
-  const s = d1.getTime();
-  const e = new Date(d2.getFullYear(),d2.getMonth(),d2.getDate(),23,59,59,999).getTime();
-
-  const status  = el("statusSelect").value;
-  const ufSel   = el("ufSelect").value;
-
-  const rows = state.rows.filter(r=>{
-    if(!r._dt || r._dt.getTime()<s || r._dt.getTime()>e) return false;
-    if(status!=="todos" && r._bucket!==status) return false;
-    if(ufSel!=="todos" && (r[KEY.uf]??"").toString().trim()!==ufSel) return false;
-    return true;
-  });
-
-  return challenge.teams.map(team=>{
-    const teamRows = rows.filter(r=>{
-      const n = (r[challenge.profTipo]??"").toString().trim();
-      return team.members.includes(n);
-    });
-    const st = statsFor(teamRows);
-    let valor = 0;
-    switch(challenge.metric){
-      case "casais": valor = st.casais; break;
-      case "vgv": valor = st.vgvTotal; break;
-      case "casais_atendidos": valor = st.casais; break;
-      case "eficiencia": valor = st.eficiencia * 100; break;
-      case "aproveitamento": valor = st.aproveitamento * 100; break;
-    }
-    return {team:team.name, valor, st};
-  }).sort((a,b)=>b.valor-a.valor);
-}
-
-function renderChallenges(){
-  const challenges = loadChallenges();
-  el("chList").innerHTML = challenges.length
-    ? challenges.map(c=>`<div class="challenge-item">
-      <div class="top">
-        <div class="title"><span>${c.name}</span><span class="badge">${c.teams.length} equipes</span></div>
-        <div class="meta">${fmtBR(c.start)} a ${fmtBR(c.end)} · ${c.metric}</div>
-      </div>
-      <div class="tiny">Tipo: ${c.profTipo} · Equipes: ${c.teams.map(t=>t.name).join(", ")}</div>
-      <div class="actions">
-        <button class="btn" data-ch-apurar="${c.id}">📊 Apurar</button>
-        <button class="btn" data-ch-edit="${c.id}">✏️ Editar</button>
-        <button class="btn danger" data-ch-delete="${c.id}">🗑</button>
-      </div>
-    </div>`).join("")
-    : '<div class="note" style="margin:0">Nenhum desafio criado.</div>';
-
-  el("chList").querySelectorAll("[data-ch-apurar]").forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      const id = parseInt(btn.dataset.chApurar);
-      const challenges = loadChallenges();
-      const found = challenges.find(c=>c.id===id);
-      if(!found) return;
-      const results = apurarDesafio(found);
-      renderChResults(results, found.metric);
-    });
-  });
-  el("chList").querySelectorAll("[data-ch-edit]").forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      editChallenge(parseInt(btn.dataset.chEdit));
-    });
-  });
-  el("chList").querySelectorAll("[data-ch-delete]").forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      deleteChallenge(parseInt(btn.dataset.chDelete));
-    });
-  });
-
-  renderChTeamsEditor();
-}
-
-function renderChResults(results, metric){
-  const metLabel = {"casais":"Casais","vgv":"VGV","casais_atendidos":"Casais atendidos","eficiencia":"Eficiência","aproveitamento":"Aproveitamento"}[metric]||metric;
-  const sorted = sortedList(results, "ch-results-table", "valor");
-  el("chResults").innerHTML = `<div class="table-wrap"><table id="ch-results-table">
-    <thead><tr>
-      <th class="rank-col">#</th>
-      <th>Equipe</th>
-      <th class="num sortable" data-sort="valor" data-tid="ch-results-table">${metLabel} ${sortInd("ch-results-table","valor")}</th>
-      <th class="num">Casais</th>
-      <th class="num">Vendas</th>
-      <th class="num">VGV Total</th>
-      <th class="num">VGV Líquido</th>
-      <th class="num">Eficiência</th>
-      <th class="num">Aproveitamento</th>
-    </tr></thead>
-    <tbody>${sorted.map((r,i)=>`<tr>
-      <td class="rank-col">${i+1}</td>
-      <td class="name">${r.team}</td>
-      <td class="num"><span class="pill ${metric==="aproveitamento"?aprPill(r.valor/100):r.valor>0?"p-good":"p-bad"}">${metric==="eficiencia"||metric==="aproveitamento"?fmtPctBR(r.valor/100):metric==="vgv"?fmtMoney(r.valor):fmtNumBR(r.valor,1,1)}</span></td>
-      <td class="num">${r.st.casais}</td>
-      <td class="num">${r.st.vendas}</td>
-      <td class="num">${fmtMoney(r.st.vgvTotal)}</td>
-      <td class="num">${fmtMoney(r.st.vgvAtivo)}</td>
-      <td class="num"><span class="pill ${effPill(r.st.eficiencia)}">${fmtPctBR(r.st.eficiencia)}</span></td>
-      <td class="num"><span class="pill ${aprPill(r.st.aproveitamento)}">${fmtPctBR(r.st.aproveitamento)}</span></td>
-    </tr>`).join("")}</tbody></table></div>`;
-
-  el("chResults").querySelectorAll("[data-sort]").forEach(th=>{
-    th.addEventListener("click", ()=>{
-      setSort("ch-results-table", th.dataset.sort);
-      renderChResults(results, metric);
-    });
-  });
-}
-
-/* ═══════════════════════════════════════════════
    COMPARATIVO
 ═══════════════════════════════════════════════ */
 function getFilteredForPeriod(d1,d2){
@@ -2637,64 +2159,16 @@ function renderComparativo(){
 }
 
 /* ═══════════════════════════════════════════════
-   PROFISSIONAIS (individual)
-═══════════════════════════════════════════════ */
-function renderProfissionaisSingle(){
-  const tipo = norm(el("profTipoSingle").value);
-  const nome = el("profNomeSingle").value;
-  if(!nome){ el("stats-single").innerHTML=""; el("profissionais-table").innerHTML=""; return; }
-  const rows = state.filtered.filter(r=>(r[tipo]??"").toString().trim()===nome);
-  renderCards("stats-single", rows);
-
-  const list = groupRanking(state.filtered, tipo);
-  const sorted = sortedList(list, "profissionais-table");
-  el("profissionais-table").innerHTML = `<div class="table-wrap"><table>
-    <thead><tr>
-      <th>Nome</th>
-      <th class="num sortable" data-sort="casais" data-tid="profissionais-table">Casais ${sortInd("profissionais-table","casais")}</th>
-      <th class="num sortable" data-sort="vendas" data-tid="profissionais-table">Vendas ${sortInd("profissionais-table","vendas")}</th>
-      <th class="num sortable" data-sort="vgvTotal" data-tid="profissionais-table">VGV Total ${sortInd("profissionais-table","vgvTotal")}</th>
-      <th class="num sortable" data-sort="vgvAtivo" data-tid="profissionais-table">VGV Líquido ${sortInd("profissionais-table","vgvAtivo")}</th>
-      <th class="num sortable" data-sort="eficiencia" data-tid="profissionais-table">Eficiênc. ${sortInd("profissionais-table","eficiencia")}</th>
-      <th class="num sortable" data-sort="aproveitamento" data-tid="profissionais-table">Aproveit. ${sortInd("profissionais-table","aproveitamento")}</th>
-      <th class="num sortable" data-sort="pctCancel" data-tid="profissionais-table">% Canc. ${sortInd("profissionais-table","pctCancel")}</th>
-    </tr></thead>
-    <tbody>${sorted.map(it=>`<tr>
-      <td class="name">${it.name}</td>
-      <td class="num">${it.casais}</td>
-      <td class="num">${it.vendas}</td>
-      <td class="num">${fmtMoney(it.vgvTotal)}</td>
-      <td class="num">${fmtMoney(it.vgvAtivo)}</td>
-      <td class="num"><span class="pill ${effPill(it.eficiencia)}">${fmtPctBR(it.eficiencia)}</span></td>
-      <td class="num"><span class="pill ${aprPill(it.aproveitamento)}">${fmtPctBR(it.aproveitamento)}</span></td>
-      <td class="num"><span class="pill ${canPill(it.pctCancel)}">${fmtPctBR(it.pctCancel)}</span></td>
-    </tr>`).join("")}</tbody></table></div>`;
-
-  el("profissionais-table").querySelectorAll("[data-sort]").forEach(th=>{
-    th.addEventListener("click", ()=>{
-      setSort("profissionais-table", th.dataset.sort);
-      refreshTab("profissionais");
-    });
-  });
-}
-
-function populateProfSingleNames(){
-  const tipo = norm(el("profTipoSingle").value);
-  const sel = el("profNomeSingle");
-  const nomes = new Set();
-  state.rows.forEach(r=>{ const n=(r[tipo]??"").toString().trim(); if(n) nomes.add(n); });
-  const sorted = [...nomes].sort((a,b)=>a.localeCompare(b));
-  const current = sel.value;
-  sel.innerHTML = '<option value="">Selecione...</option>' + sorted.map(n=>`<option value="${n.replace(/"/g,"&quot;")}" ${n===current?"selected":""}>${n}</option>`).join("");
-}
-
-/* ═══════════════════════════════════════════════
    POPULATE FILTROS
 ═══════════════════════════════════════════════ */
 function populateFilters(){
   const ufs = new Set();
+  const nomesPorTipo = {};
   state.rows.forEach(r=>{
     const uf = (r[KEY.uf]??"").toString().trim(); if(uf) ufs.add(uf);
+    ["promotor de marketing","liner","closer"].forEach(t=>{
+      const n=(r[norm(t)]??"").toString().trim(); if(n){ if(!nomesPorTipo[t]) nomesPorTipo[t]=new Set(); nomesPorTipo[t].add(n); }
+    });
   });
   const selUF = el("ufSelect");
   selUF.innerHTML = '<option value="todos">Todas</option>' + [...ufs].sort().map(u=>`<option value="${u.replace(/"/g,"&quot;")}">${u}</option>`).join("");
@@ -2711,375 +2185,157 @@ function populateProfNames(){
   const current = sel.value;
   sel.innerHTML = '<option value="todos">Todos</option>' + sorted.map(n=>`<option value="${n.replace(/"/g,"&quot;")}" ${n===current?"selected":""}>${n}</option>`).join("");
 }
-<script>
-/* ═══════════════════════════════════════════════
-   CUSTO DE BRINDE
-═══════════════════════════════════════════════ */
-function renderBrindeStats(rows){
-  const totalBrinde = rows.reduce((s,r)=>s+(r._brindeTotal??0),0);
-  const casaisComBrinde = rows.filter(r=>(r._brindeTotal??0)>0).length;
-  const s = statsFor(rows);
-  const custoPorVenda = s.vendas ? totalBrinde/s.vendas : 0;
-  const pctSobreVgv = s.vgvTotal ? (totalBrinde/s.vgvTotal)*100 : 0;
-  const ticketBrindeMedio = casaisComBrinde ? totalBrinde/casaisComBrinde : 0;
-
-  el("stats-brinde").innerHTML = `
-    <div class="stat-card"><div class="stat-value">${fmtMoney(totalBrinde)}</div><div class="stat-label">Custo total de brindes</div></div>
-    <div class="stat-card"><div class="stat-value">${casaisComBrinde}</div><div class="stat-label">Casais com brinde</div></div>
-    <div class="stat-card"><div class="stat-value">${fmtMoney(ticketBrindeMedio)}</div><div class="stat-label">Custo médio por casal (c/ brinde)</div></div>
-    <div class="stat-card"><div class="stat-value">${fmtMoney(custoPorVenda)}</div><div class="stat-label">Custo de brinde por venda (cota)</div></div>
-    <div class="stat-card"><div class="stat-value">${fmtPctBR(pctSobreVgv/100)}</div><div class="stat-label">% sobre VGV total</div></div>
-  `;
-
-  const statusEl = el("brinde-status");
-  if(!state.meta.brindeColKey){
-    statusEl.style.display = "block";
-    statusEl.textContent = "⚠️ Nenhuma coluna de brinde foi detectada automaticamente no CSV. Verifique se existe uma coluna com o texto 'brinde' ou 'cortesia' no cabeçalho.";
-  } else {
-    statusEl.style.display = "none";
-  }
-}
-
-function renderBrindePorDia(rows){
-  const map = new Map();
-  rows.forEach(r=>{
-    if(!r._dt || !(r._brindeTotal>0)) return;
-    const key = toISO(r._dt);
-    if(!map.has(key)) map.set(key,{total:0,casais:0});
-    const d = map.get(key);
-    d.total += r._brindeTotal;
-    d.casais++;
-  });
-  const list = Array.from(map.entries()).map(([dia,d])=>({dia,total:d.total,casais:d.casais,media:d.casais?d.total/d.casais:0}));
-  const sorted = sortedList(list,"brinde-dia-table","total").sort((a,b)=>{
-    const s = sortState["brinde-dia-table"];
-    if(s.key==="dia") return s.dir==="asc"?a.dia.localeCompare(b.dia):b.dia.localeCompare(a.dia);
-    return 0;
-  });
-  const finalList = sortState["brinde-dia-table"].key==="dia" ? sorted : sortedList(list,"brinde-dia-table","total");
-
-  el("brinde-por-dia").innerHTML = `<div class="table-wrap"><table>
-    <thead><tr>
-      <th class="sortable" data-sort="dia" data-tid="brinde-dia-table">Data ${sortInd("brinde-dia-table","dia")}</th>
-      <th class="num sortable" data-sort="casais" data-tid="brinde-dia-table">Casais c/ brinde ${sortInd("brinde-dia-table","casais")}</th>
-      <th class="num sortable" data-sort="total" data-tid="brinde-dia-table">Custo total ${sortInd("brinde-dia-table","total")}</th>
-      <th class="num sortable" data-sort="media" data-tid="brinde-dia-table">Custo médio ${sortInd("brinde-dia-table","media")}</th>
-    </tr></thead>
-    <tbody>${finalList.map(l=>`<tr>
-      <td>${fmtBR(l.dia)}</td>
-      <td class="num">${l.casais}</td>
-      <td class="num">${fmtMoney(l.total)}</td>
-      <td class="num">${fmtMoney(l.media)}</td>
-    </tr>`).join("")}</tbody></table></div>`;
-
-  el("brinde-por-dia").querySelectorAll("[data-sort]").forEach(th=>{
-    th.addEventListener("click", ()=>{
-      setSort("brinde-dia-table", th.dataset.sort);
-      renderBrindePorDia(state.filtered);
-    });
-  });
-}
-
-function renderBrindePorParceiro(rows){
-  const map = new Map();
-  rows.forEach(r=>{
-    (r._brindeItems||[]).forEach(item=>{
-      const key = item.partner || "Desconhecido";
-      if(!map.has(key)) map.set(key,{total:0,qtd:0,unit:item.unitPrice});
-      const d = map.get(key);
-      d.total += item.valorTotal;
-      d.qtd += item.qty;
-    });
-  });
-  const list = Array.from(map.entries()).map(([parceiro,d])=>({parceiro,total:d.total,qtd:d.qtd,unit:d.unit,media:d.qtd?d.total/d.qtd:0}));
-  const sorted = sortedList(list,"brinde-parceiro-table","total");
-
-  el("brinde-por-parceiro").innerHTML = `<div class="table-wrap"><table>
-    <thead><tr>
-      <th>Parceiro</th>
-      <th class="num sortable" data-sort="qtd" data-tid="brinde-parceiro-table">Qtd. brindes ${sortInd("brinde-parceiro-table","qtd")}</th>
-      <th class="num sortable" data-sort="unit" data-tid="brinde-parceiro-table">Valor unitário ${sortInd("brinde-parceiro-table","unit")}</th>
-      <th class="num sortable" data-sort="total" data-tid="brinde-parceiro-table">Custo total ${sortInd("brinde-parceiro-table","total")}</th>
-    </tr></thead>
-    <tbody>${sorted.map(l=>`<tr>
-      <td class="name">${l.parceiro}</td>
-      <td class="num">${l.qtd}</td>
-      <td class="num">${fmtMoney(l.unit)}</td>
-      <td class="num">${fmtMoney(l.total)}</td>
-    </tr>`).join("")}</tbody></table></div>`;
-
-  el("brinde-por-parceiro").querySelectorAll("[data-sort]").forEach(th=>{
-    th.addEventListener("click", ()=>{
-      setSort("brinde-parceiro-table", th.dataset.sort);
-      renderBrindePorParceiro(state.filtered);
-    });
-  });
-}
-
-function renderBrindePorPromotor(rows){
-  const map = new Map();
-  rows.forEach(r=>{
-    const nome = (r[KEY.promotor]??"").toString().trim();
-    if(!nome || !(r._brindeTotal>0)) return;
-    if(!map.has(nome)) map.set(nome,{total:0,casais:0});
-    const d = map.get(nome);
-    d.total += r._brindeTotal;
-    d.casais++;
-  });
-  const list = Array.from(map.entries()).map(([nome,d])=>({nome,total:d.total,casais:d.casais,media:d.casais?d.total/d.casais:0}));
-  const sorted = sortedList(list,"brinde-promotor-table","total");
-
-  el("brinde-por-promotor").innerHTML = `<div class="table-wrap"><table>
-    <thead><tr>
-      <th>Promotor</th>
-      <th class="num sortable" data-sort="casais" data-tid="brinde-promotor-table">Casais c/ brinde ${sortInd("brinde-promotor-table","casais")}</th>
-      <th class="num sortable" data-sort="total" data-tid="brinde-promotor-table">Custo total ${sortInd("brinde-promotor-table","total")}</th>
-      <th class="num sortable" data-sort="media" data-tid="brinde-promotor-table">Custo médio ${sortInd("brinde-promotor-table","media")}</th>
-    </tr></thead>
-    <tbody>${sorted.map(l=>`<tr>
-      <td class="name">${l.nome}</td>
-      <td class="num">${l.casais}</td>
-      <td class="num">${fmtMoney(l.total)}</td>
-      <td class="num">${fmtMoney(l.media)}</td>
-    </tr>`).join("")}</tbody></table></div>`;
-
-  el("brinde-por-promotor").querySelectorAll("[data-sort]").forEach(th=>{
-    th.addEventListener("click", ()=>{
-      setSort("brinde-promotor-table", th.dataset.sort);
-      renderBrindePorPromotor(state.filtered);
-    });
-  });
-}
-
-function renderBrinde(rows){
-  renderBrindeStats(rows);
-  renderBrindePorDia(rows);
-  renderBrindePorParceiro(rows);
-  renderBrindePorPromotor(rows);
-}
 
 /* ═══════════════════════════════════════════════
-   CONTROLE DE ABAS
+   ABAS
 ═══════════════════════════════════════════════ */
 function getActiveTab(){
   const active = document.querySelector(".tab.active");
   return active ? active.dataset.tab : "resumo";
 }
 
-function refreshTab(tabId){
-  const rows = state.filtered;
-  switch(tabId){
-    case "resumo": renderCards("stats", rows); break;
-    case "comparativo": renderComparativo(); break;
-    case "curva": renderCurva(rows); renderSemana(rows); break;
-    case "cancelamento": renderCancelamento(rows); break;
+function refreshTab(tab){
+  state.filtered = applyFilters(state.rows);
+  switch(tab){
+    case "resumo": renderCards("stats", state.filtered); break;
+    case "comparativo": break;
+    case "curva": renderCurva(state.filtered); renderSemana(state.filtered); break;
+    case "cancelamento": renderCancelamento(state.filtered); break;
     case "equipes": renderEquipes(); break;
     case "equipes-supervisores": renderSupervisores(); break;
-    case "individual-mes-mes": renderMM(); break;
-    case "desafios": renderChallenges(); break;
-    case "ranking-promotor": renderRanking("ranking-promotor", rows, KEY.promotor); break;
-    case "ranking-liner": renderRanking("ranking-liner", rows, KEY.liner); break;
-    case "ranking-closer": renderRanking("ranking-closer", rows, KEY.closer); break;
-    case "perfil-renda": renderPerfilRenda(rows); break;
-    case "profissionais": renderProfissionaisSingle(); break;
-    case "custo-brinde": renderBrinde(rows); break;
-    default: break;
+    case "individual-mes-mes": renderMM(); populateMMNames(); break;
+    case "ranking-promotor": renderRanking("ranking-promotor", state.filtered, KEY.promotor); break;
+    case "ranking-liner": renderRanking("ranking-liner", state.filtered, KEY.liner); break;
+    case "ranking-closer": renderRanking("ranking-closer", state.filtered, KEY.closer); break;
+    case "perfil-renda": renderPerfilRenda(state.filtered); break;
   }
 }
 
-function switchTab(tabId){
-  document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active", b.dataset.tab===tabId));
-  document.querySelectorAll(".tab-content").forEach(p=>p.classList.toggle("active", p.id==="tab-"+tabId));
-  refreshTab(tabId);
+function switchTab(tab){
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  document.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));
+  const tabEl = document.querySelector(`.tab[data-tab="${tab}"]`);
+  if(tabEl) tabEl.classList.add("active");
+  const contentEl = el("tab-"+tab);
+  if(contentEl) contentEl.classList.add("active");
+  refreshTab(tab);
 }
-
-document.querySelectorAll(".tab").forEach(btn=>{
-  btn.addEventListener("click", ()=>switchTab(btn.dataset.tab));
-});
 
 /* ═══════════════════════════════════════════════
-   FILTROS GLOBAIS — APLICAÇÃO
+   EVENTOS
 ═══════════════════════════════════════════════ */
-function applyFiltersGlobal(){
-  state.filtered = applyFilters(state.rows);
+document.querySelectorAll(".tab").forEach(t=>{
+  t.addEventListener("click", ()=>switchTab(t.dataset.tab));
+});
+
+["statusSelect","profNome","ufSelect"].forEach(id=>{
+  el(id).addEventListener("change", ()=>refreshTab(getActiveTab()));
+});
+
+el("profTipo").addEventListener("change", ()=>{
+  populateProfNames();
   refreshTab(getActiveTab());
-}
-
-el("dateStart")?.addEventListener("change", applyFiltersGlobal);
-el("dateEnd")?.addEventListener("change", applyFiltersGlobal);
-el("statusSelect")?.addEventListener("change", applyFiltersGlobal);
-el("ufSelect")?.addEventListener("change", applyFiltersGlobal);
-el("profTipo")?.addEventListener("change", ()=>{ populateProfNames(); applyFiltersGlobal(); });
-el("profNome")?.addEventListener("change", applyFiltersGlobal);
-
-el("btnHoje")?.addEventListener("click", ()=>{
-  const hoje = toISO(new Date());
-  el("dateStart").value = hoje;
-  el("dateEnd").value = hoje;
-  applyFiltersGlobal();
 });
-el("btn30")?.addEventListener("click", ()=>{
-  const hoje = new Date();
-  const past = new Date(); past.setDate(past.getDate()-29);
-  el("dateStart").value = toISO(past);
-  el("dateEnd").value = toISO(hoje);
-  applyFiltersGlobal();
+
+["dateStart","dateEnd"].forEach(id=>{
+  el(id).addEventListener("change", ()=>refreshTab(getActiveTab()));
 });
-el("btnLimparPeriodo")?.addEventListener("click", ()=>{
+
+el("btnHoje").addEventListener("click", ()=>{
+  const today = toISO(new Date());
+  el("dateStart").value = today;
+  el("dateEnd").value = today;
+  refreshTab(getActiveTab());
+});
+el("btn30").addEventListener("click", ()=>{
+  const end = new Date();
+  const start = new Date(end);
+  start.setDate(start.getDate()-29);
+  el("dateStart").value = toISO(start);
+  el("dateEnd").value = toISO(end);
+  refreshTab(getActiveTab());
+});
+el("btnLimparPeriodo").addEventListener("click", ()=>{
   el("dateStart").value = "";
   el("dateEnd").value = "";
-  applyFiltersGlobal();
+  refreshTab(getActiveTab());
 });
 
-/* Comparativo listeners */
+// Comparativo
+el("btnCmpXHoje").addEventListener("click", ()=>{ const d=toISO(new Date()); el("cmpXStart").value=d; el("cmpXEnd").value=d; renderComparativo(); });
+el("btnCmpX30").addEventListener("click", ()=>{ const e=new Date(); const s=new Date(e); s.setDate(s.getDate()-29); el("cmpXStart").value=toISO(s); el("cmpXEnd").value=toISO(e); renderComparativo(); });
+el("btnCmpYHoje").addEventListener("click", ()=>{ const d=toISO(new Date()); el("cmpYStart").value=d; el("cmpYEnd").value=d; renderComparativo(); });
+el("btnCmpY30").addEventListener("click", ()=>{ const e=new Date(); const s=new Date(e); s.setDate(s.getDate()-29); el("cmpYStart").value=toISO(s); el("cmpYEnd").value=toISO(e); renderComparativo(); });
 ["cmpXStart","cmpXEnd","cmpYStart","cmpYEnd"].forEach(id=>{
-  el(id)?.addEventListener("change", renderComparativo);
-});
-el("btnCmpXHoje")?.addEventListener("click", ()=>{
-  const hoje = toISO(new Date());
-  el("cmpXStart").value = hoje; el("cmpXEnd").value = hoje;
-  renderComparativo();
-});
-el("btnCmpX30")?.addEventListener("click", ()=>{
-  const hoje = new Date(); const past = new Date(); past.setDate(past.getDate()-29);
-  el("cmpXStart").value = toISO(past); el("cmpXEnd").value = toISO(hoje);
-  renderComparativo();
-});
-el("btnCmpYHoje")?.addEventListener("click", ()=>{
-  const hoje = toISO(new Date());
-  el("cmpYStart").value = hoje; el("cmpYEnd").value = hoje;
-  renderComparativo();
-});
-el("btnCmpY30")?.addEventListener("click", ()=>{
-  const hoje = new Date(); const past = new Date(); past.setDate(past.getDate()-29);
-  el("cmpYStart").value = toISO(past); el("cmpYEnd").value = toISO(hoje);
-  renderComparativo();
+  el(id).addEventListener("change", ()=>renderComparativo());
 });
 
-/* Equipes listeners */
-el("btnLimparEquipes")?.addEventListener("click", ()=>{
-  if(confirm("Apagar todas as configurações de equipe?")){
-    localStorage.removeItem(TEAM_KEY_V2);
-    refreshTab("equipes");
-  }
+// Equipes
+el("btnLimparEquipes").addEventListener("click", ()=>{
+  if(!confirm("Remover TODAS as configurações de equipe?")) return;
+  localStorage.removeItem(TEAM_KEY_V2);
+  refreshTab("equipes");
 });
-el("btnLimparEquipesSup")?.addEventListener("click", ()=>{
-  if(confirm("Apagar todas as configurações de equipe?")){
-    localStorage.removeItem(TEAM_KEY_V2);
-    refreshTab("equipes-supervisores");
-  }
-});
-el("btnSalvarEquipeSup")?.addEventListener("click", ()=>{
+
+// Supervisores
+el("btnSalvarEquipeSup").addEventListener("click", ()=>{
   const nome = el("supPromotorSelect").value;
   const equipe = el("supEquipeSelect").value;
   if(!nome){ alert("Selecione um promotor."); return; }
   setTeamConfig(nome, {equipe, inativoInicio:null, inativoFim:null});
   refreshTab("equipes-supervisores");
 });
+el("btnLimparEquipesSup").addEventListener("click", ()=>{
+  if(!confirm("Remover TODAS as configurações de equipe?")) return;
+  localStorage.removeItem(TEAM_KEY_V2);
+  refreshTab("equipes-supervisores");
+});
 
-/* Mês/Mês listeners */
-el("mmProfTipo")?.addEventListener("change", ()=>{ populateMMNames(); renderMM(); });
-el("mmProfNome")?.addEventListener("change", renderMM);
-el("mmBtnTodos")?.addEventListener("click", ()=>{
-  const d1 = parseDateOnlyInput(el("dateStart").value);
-  const d2 = parseDateOnlyInput(el("dateEnd").value);
-  let scope = state.rows.slice();
-  if(d1||d2){
-    const s=d1?d1.getTime():-Infinity;
-    const e=d2?new Date(d2.getFullYear(),d2.getMonth(),d2.getDate(),23,59,59,999).getTime():Infinity;
-    scope = scope.filter(r=>r._dt&&r._dt.getTime()>=s&&r._dt.getTime()<=e);
-  }
-  mmSelectedMonths = getAvailableMonths(scope);
+// Individual mês/mês
+el("mmProfTipo").addEventListener("change", ()=>{ populateMMNames(); renderMM(); });
+el("mmProfNome").addEventListener("change", ()=>renderMM());
+el("mmBtnUlt3").addEventListener("click", ()=>{
+  const available = getAvailableMonths(state.rows.filter(r=>r._dt));
+  mmSelectedMonths = available.slice(-3);
   renderMM();
 });
-el("mmBtnUlt3")?.addEventListener("click", ()=>{
-  const d1 = parseDateOnlyInput(el("dateStart").value);
-  const d2 = parseDateOnlyInput(el("dateEnd").value);
-  let scope = state.rows.slice();
-  if(d1||d2){
-    const s=d1?d1.getTime():-Infinity;
-    const e=d2?new Date(d2.getFullYear(),d2.getMonth(),d2.getDate(),23,59,59,999).getTime():Infinity;
-    scope = scope.filter(r=>r._dt&&r._dt.getTime()>=s&&r._dt.getTime()<=e);
-  }
-  mmSelectedMonths = getAvailableMonths(scope).slice(-3);
+el("mmBtnUlt6").addEventListener("click", ()=>{
+  const available = getAvailableMonths(state.rows.filter(r=>r._dt));
+  mmSelectedMonths = available.slice(-6);
   renderMM();
 });
-el("mmBtnUlt6")?.addEventListener("click", ()=>{
-  const d1 = parseDateOnlyInput(el("dateStart").value);
-  const d2 = parseDateOnlyInput(el("dateEnd").value);
-  let scope = state.rows.slice();
-  if(d1||d2){
-    const s=d1?d1.getTime():-Infinity;
-    const e=d2?new Date(d2.getFullYear(),d2.getMonth(),d2.getDate(),23,59,59,999).getTime():Infinity;
-    scope = scope.filter(r=>r._dt&&r._dt.getTime()>=s&&r._dt.getTime()<=e);
-  }
-  mmSelectedMonths = getAvailableMonths(scope).slice(-6);
+el("mmBtnTodos").addEventListener("click", ()=>{
+  mmSelectedMonths = getAvailableMonths(state.rows.filter(r=>r._dt));
   renderMM();
 });
-el("mmBtnLimpar")?.addEventListener("click", ()=>{
+el("mmBtnLimpar").addEventListener("click", ()=>{
   mmSelectedMonths = [];
   renderMM();
 });
 
-/* Desafios listeners */
-el("chTeamsCount")?.addEventListener("change", renderChTeamsEditor);
-el("chProfTipo")?.addEventListener("change", renderChTeamsEditor);
-el("btnChSave")?.addEventListener("click", saveChallenge);
-el("btnChNew")?.addEventListener("click", ()=>{
-  challengeEditId = null;
-  el("challengeFormTitle").textContent = "Criar desafio";
-  el("chName").value = "";
-  el("chStart").value = "";
-  el("chEnd").value = "";
-  renderChTeamsEditor();
-});
-el("btnChClearAll")?.addEventListener("click", ()=>{
-  if(confirm("Apagar todos os desafios?")){
-    saveChallenges([]);
-    renderChallenges();
-  }
-});
-
-/* Profissionais individual listeners */
-el("profTipoSingle")?.addEventListener("change", ()=>{ populateProfSingleNames(); renderProfissionaisSingle(); });
-el("profNomeSingle")?.addEventListener("change", renderProfissionaisSingle);
-
 /* ═══════════════════════════════════════════════
-   CARREGAMENTO DO CSV / INICIALIZAÇÃO
+   CARREGAR CSV
 ═══════════════════════════════════════════════ */
-function initApp(){
-  populateFilters();
-  populateMMNames();
-  populateProfSingleNames();
-  el("chProfTipo") && renderChTeamsEditor();
-  applyFiltersGlobal();
-  switchTab("resumo");
-  el("loading").style.display = "none";
+async function loadCSV(){
+  try{
+    const resp = await fetch("./dados.csv");
+    if(!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const text = await resp.text();
+    const raw = parseDelimited(text, ";");
+    if(!raw.length) throw new Error("CSV está vazio.");
+    state.rows = buildObjects(raw);
+    el("loading").style.display = "none";
+    populateFilters();
+    switchTab("resumo");
+  }catch(e){
+    el("loading").style.display = "none";
+    const errEl = el("error");
+    errEl.style.display = "block";
+    errEl.textContent = `❌ Erro ao carregar: ${e.message}. Certifique-se de que o arquivo "dados.csv" está na mesma pasta.`;
+  }
 }
 
-fetch("dados.csv")
-  .then(res => {
-    if(!res.ok) throw new Error("Não foi possível carregar dados.csv (HTTP " + res.status + ")");
-    return res.text();
-  })
-  .then(text => {
-    const rawRows = parseDelimited(text, ";");
-    if(!rawRows.length){
-      // tenta vírgula como separador se ponto-e-vírgula não funcionar
-      const rawRows2 = parseDelimited(text, ",");
-      state.rows = buildObjects(rawRows2);
-    } else {
-      state.rows = buildObjects(rawRows);
-    }
-    state.filtered = state.rows.slice();
-    initApp();
-  })
-  .catch(err => {
-    el("loading").style.display = "none";
-    el("error").style.display = "block";
-    el("error").textContent = "❌ Erro ao carregar dados.csv: " + err.message;
-    console.error(err);
-  });
+loadCSV();
 </script>
 </body>
 </html>
