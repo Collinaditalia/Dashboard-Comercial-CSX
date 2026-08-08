@@ -1246,13 +1246,11 @@ const sortState = {
 function parseBRDateTime(s){
   if(!s) return null;
   s = s.toString().trim();
-  // "dd/mm/yyyy hh:mm" ou "dd/mm/yyyy"
   let m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
   if(m){
     let y = +m[3]; if(y<100) y += 2000;
     return new Date(y, +m[2]-1, +m[1], +m[4]||0, +m[5]||0, +m[6]||0);
   }
-  // ISO fallback
   const d = new Date(s);
   return isNaN(d.getTime()) ? null : d;
 }
@@ -1267,10 +1265,8 @@ function parseMoneyBR(v){
   if(!s) return 0;
   s = s.replace(/\s+/g,"").replace(/R\$/gi,"").replace(/[^\d,.-]/g,"");
   if(!s) return 0;
-  // Se tem vírgula como decimal e ponto como milhar
   if(s.includes(",") && !s.includes(".")){ s = s.replace(",","."); }
   else if(s.includes(",") && s.includes(".")){
-    // "1.234,56" → "1234.56"
     s = s.replace(/\./g,"").replace(",",".");
   }
   const n = parseFloat(s);
@@ -1310,13 +1306,9 @@ function contractBucket(v){
   if(s.includes("cancelad")) return "cancelado";
   return "outro";
 }
-function splitTokens(v){
-  if(!v) return [];
-  return v.toString().split(",").map(s=>s.trim()).filter(Boolean);
-}
 
 /* ═══════════════════════════════════════════════
-   CSV PARSER (com suporte a aspas e quebras)
+   CSV PARSER — CORRIGIDO
 ═══════════════════════════════════════════════ */
 function parseCSV(text){
   const rows = [];
@@ -1340,9 +1332,13 @@ function parseCSV(text){
   if(cur.length>0 || row.length>0){ row.push(cur); rows.push(row); }
   if(!rows.length) return { headers:[], rows:[] };
   const headers = rows.shift().map(h=>h.trim());
-  const out = rows.filter(r=>r.some(v=>v!=="" && v!=null)).map(r=>{
-    const o={}; headers.forEach((h,idx)=>o[h]=r[idx]??"";); return o;
-  });
+  const out = rows
+    .filter(r=>r.some(v=>v!=="" && v!=null))
+    .map(r=>{
+      const o={};
+      headers.forEach((h,idx)=>{ o[h]=r[idx]??""); });
+      return o;
+    });
   return { headers, rows:out };
 }
 
@@ -1353,26 +1349,23 @@ function detectColumns(headers, allRows){
   const keys = headers.map(norm);
   const meta = { vgvColKey:null, firstColKey:null, clientNameKey:null, brindeColKey:null };
 
-  // VGV: coluna G (índice 6) se existir
   if(headers.length > 6){
     meta.vgvColKey = headers[6];
     console.log("💰 VGV detectado (coluna G):", meta.vgvColKey);
   }
   meta.firstColKey = headers[0];
 
-  // Nome do cliente
   meta.clientNameKey = detectClientNameColumn(keys);
-  if(meta.clientNameKey) console.log("👤 Nome do cliente:", meta.clientNameKey);
+  if(meta.clientNameKey) console.log(" Nome do cliente:", meta.clientNameKey);
 
-  // ⭐ Coluna de brinde
   meta.brindeColKey = detectBrindeColumn(headers, allRows);
-  if(meta.brindeColKey) console.log("🎁 Coluna de brinde:", meta.brindeColKey);
+  if(meta.brindeColKey) console.log("🎁 Coluna de brinde:", meta.meta.brindeColKey);
 
   return meta;
 }
 
 /* ═══════════════════════════════════════════════
-   BUILD OBJECTS (com brindes)
+   BUILD OBJECTS
 ═══════════════════════════════════════════════ */
 function buildObjects(rows){
   if(!rows.length) throw new Error("CSV vazio.");
@@ -1388,7 +1381,6 @@ function buildObjects(rows){
     o._bucket     = contractBucket(o[KEY.statusContrato]);
     o._clientName = cnk ? (o[cnk]??"").toString().trim() : "";
     o._statusAt   = norm(o[KEY.statusAtendimento] ?? "");
-    //  Carrega brindes
     o._brindes = brk ? parseBrindeCell(o[brk]) : [];
     return o;
   });
@@ -1416,7 +1408,7 @@ function applyFilters(rows){
   return f;
 }
 
-/* ═══════════════════════════════════════════════
+/* ══════════════════════════════════════════════
    ORDENAÇÃO DE TABELAS
 ═══════════════════════════════════════════════ */
 function setSort(tid, key){
@@ -1443,7 +1435,7 @@ function sortedList(list, tid, key){
   });
 }
 
-/* ═══════════════════════════════════════════════
+/* ══════════════════════════════════════════════
    RENDER: RESUMO
 ═══════════════════════════════════════════════ */
 function renderResumo(rows){
@@ -1452,8 +1444,6 @@ function renderResumo(rows){
   const casais = Math.max(0, total - noTour);
   const ativos = rows.filter(r=>r._bucket==="ativo");
   const cancelados = rows.filter(r=>r._bucket==="cancelado");
-  const cotasAtivas = ativos.reduce((s,r)=>s+r._quotas,0);
-  const cotasCancel = cancelados.reduce((s,r)=>s+r._quotas,0);
   const cotasTotal = rows.reduce((s,r)=>s+r._quotas,0);
   const vgvTotal = rows.reduce((s,r)=>s+r._valorVgv,0);
   const vgvAtivo = ativos.reduce((s,r)=>s+r._valorVgv,0);
@@ -1489,7 +1479,7 @@ function renderResumo(rows){
   `;
 }
 
-/* ══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════
    RENDER: COMPARATIVO
 ═══════════════════════════════════════════════ */
 function cmpStats(rows){
@@ -1499,14 +1489,12 @@ function cmpStats(rows){
   const ativos = rows.filter(r=>r._bucket==="ativo");
   const cancelados = rows.filter(r=>r._bucket==="cancelado");
   const cotasTotal = rows.reduce((s,r)=>s+r._quotas,0);
-  const cotasAtivas = ativos.reduce((s,r)=>s+r._quotas,0);
-  const cotasCancel = cancelados.reduce((s,r)=>s+r._quotas,0);
   const vgvTotal = rows.reduce((s,r)=>s+r._valorVgv,0);
   const vgvAtivo = ativos.reduce((s,r)=>s+r._valorVgv,0);
   const vgvCancel = cancelados.reduce((s,r)=>s+r._valorVgv,0);
   const eff = casais>0 ? cotasTotal/casais*100 : 0;
   const apr = total>0 ? ativos.length/total*100 : 0;
-  return {casais,cotasTotal,cotasAtivas,cotasCancel,vgvTotal,vgvAtivo,vgvCancel,eff,apr,ativos:ativos.length};
+  return {casais,cotasTotal,vgvTotal,vgvAtivo,vgvCancel,eff,apr,ativos:ativos.length};
 }
 function renderCmpStats(id, s){
   el(id).innerHTML = `
@@ -1623,7 +1611,6 @@ function renderCurva(rows){
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:"#EAF0FF"}}},scales:{x:{ticks:{color:"#EAF0FF",maxTicksLimit:20}},y:{ticks:{color:"#EAF0FF"}}}}
   });
 
-  // Por dia da semana
   const diasSemana = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
   const byDow = Array.from({length:7},()=>({casais:0,vendas:0,vgv:0,count:0}));
   rows.forEach(r=>{
@@ -1634,8 +1621,6 @@ function renderCurva(rows){
     byDow[dow].vgv += r._valorVgv;
     byDow[dow].count++;
   });
-  const effDow = byDow.map(d=>d.count>0?(d.vendas/d.casais*100):0);
-  const mediaDow = byDow.map(d=>d.count>0?(d.casais/d.count):0);
 
   if(charts.semana) charts.semana.destroy();
   charts.semana = new Chart(el("chartSemana"),{
@@ -1652,9 +1637,9 @@ function renderCurva(rows){
   });
 }
 
-/* ══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════
    RENDER: CANCELAMENTO
-══════════════════════════════════════════════════ */
+═══════════════════════════════════════════════ */
 function renderCancelamento(rows){
   const byQtd = new Map();
   rows.forEach(r=>{
@@ -1716,7 +1701,7 @@ function renderCancelamento(rows){
 }
 
 /* ═══════════════════════════════════════════════
-   RENDER: RANKINGS (Promotor / Liner / Closer)
+   RENDER: RANKINGS
 ═══════════════════════════════════════════════ */
 function renderRanking(tid, profKey){
   const byName = new Map();
@@ -1747,7 +1732,7 @@ function renderRanking(tid, profKey){
     </tr></thead>
     <tbody>
       ${list.map((b,i)=>{
-        const isExp = state.expandedRanking.cid === b.nome && state.expandedRanking.name === b.nome;
+        const isExp = state.expandedRanking && state.expandedRanking.name === b.nome;
         return `<tr>
           <td class="rank-col">${i+1}</td>
           <td class="name clickable" data-name="${b.nome}" data-prof="${profKey}">${b.nome}</td>
@@ -1768,7 +1753,7 @@ function renderRanking(tid, profKey){
     td.addEventListener("click",()=>{
       const name = td.dataset.name;
       const prof = td.dataset.prof;
-      if(state.expandedRanking.cid===name && state.expandedRanking.name===name){
+      if(state.expandedRanking && state.expandedRanking.name===name){
         state.expandedRanking = {cid:null,name:null};
       } else {
         state.expandedRanking = {cid:name,name};
@@ -1827,9 +1812,9 @@ function renderPerfilRenda(rows){
     f.vgv += r._valorVgv;
     f.cotas += r._quotas;
   });
-  const cur = sortState["perfil-renda"] || {key:"vgvTotal",dir:"desc"};
+  const cur = sortState["perfil-renda"] || {key:"vgv",dir:"desc"};
   const sorted = [...byFaixa].sort((a,b)=>{
-    let va=a[cur.key==="vgvTotal"?"vgv":cur.key], vb=b[cur.key==="vgvTotal"?"vgv":cur.key];
+    let va=a[cur.key==="vgv"?"vgv":cur.key], vb=b[cur.key==="vgv"?"vgv":cur.key];
     if(cur.dir==="desc") [va,vb]=[vb,va];
     return va-vb;
   });
@@ -1838,8 +1823,8 @@ function renderPerfilRenda(rows){
       <th class="sortable" data-sort="label" data-tid="perfil-renda">Faixa de renda ${sortInd("perfil-renda","label")}</th>
       <th class="num sortable" data-sort="total" data-tid="perfil-renda">Total ${sortInd("perfil-renda","total")}</th>
       <th class="num sortable" data-sort="ativo" data-tid="perfil-renda">Ativo ${sortInd("perfil-renda","ativo")}</th>
-      <th class="num sortable" data-sort="vgvTotal" data-tid="perfil-renda">VGV ${sortInd("perfil-renda","vgvTotal")}</th>
-      <th class="num sortable" data-sort="cotasTotal" data-tid="perfil-renda">Cotas ${sortInd("perfil-renda","cotasTotal")}</th>
+      <th class="num sortable" data-sort="vgv" data-tid="perfil-renda">VGV ${sortInd("perfil-renda","vgv")}</th>
+      <th class="num sortable" data-sort="cotas" data-tid="perfil-renda">Cotas ${sortInd("perfil-renda","cotas")}</th>
       <th class="num">% Aproveit.</th>
     </tr></thead>
     <tbody>
@@ -1861,21 +1846,19 @@ function renderPerfilRenda(rows){
 }
 
 /* ═══════════════════════════════════════════════
-   ⭐ RENDER: CUSTO DE BRINDE (CORRIGIDO)
+   RENDER: CUSTO DE BRINDE
 ═══════════════════════════════════════════════ */
 function renderCustoBrinde(rows){
-  // ⭐ Filtra linhas que possuem brindes (array não vazio)
   const rowsBrinde = rows.filter(r => Array.isArray(r._brindes) && r._brindes.length > 0);
 
   if(!rowsBrinde.length){
-    el("brinde-summary").innerHTML = `<div class="note warn" style="grid-column:1/-1">Nenhum brinde encontrado no período filtrado. Verifique se a coluna de brinde foi detectada corretamente.</div>`;
-    el("brinde-por-dia").innerHTML = `<div class="note">Nenhum registro com brinde encontrado no período filtrado.</div>`;
-    el("brinde-por-parceiro").innerHTML = `<div class="note">Nenhum registro com brinde encontrado no período filtrado.</div>`;
-    el("brinde-por-profissional").innerHTML = `<div class="note">Nenhum registro com brinde encontrado no período filtrado.</div>`;
+    el("brinde-summary").innerHTML = `<div class="note warn" style="grid-column:1/-1">Nenhum brinde encontrado no período filtrado.</div>`;
+    el("brinde-por-dia").innerHTML = `<div class="note">Nenhum registro com brinde encontrado.</div>`;
+    el("brinde-por-parceiro").innerHTML = `<div class="note">Nenhum registro com brinde encontrado.</div>`;
+    el("brinde-por-profissional").innerHTML = `<div class="note">Nenhum registro com brinde encontrado.</div>`;
     return;
   }
 
-  // ⭐ Expande todos os brindes em registros individuais
   const registros = [];
   rowsBrinde.forEach(r => {
     r._brindes.forEach(b => {
@@ -1892,7 +1875,6 @@ function renderCustoBrinde(rows){
   console.log(`🎁 Total de registros de brindes: ${registros.length}`);
   console.log(`🎁 Valor total geral: ${registros.reduce((s,r)=>s+r.valorTotal,0)}`);
 
-  // ⭐ Cálculo geral
   const valorTotalGeral = registros.reduce((s, r) => s + r.valorTotal, 0);
   const qtdBrindesTotal = registros.reduce((s, r) => s + r.quantidade, 0);
   const parceirosUnicos = new Set(registros.map(r => r.descricao)).size;
@@ -1919,7 +1901,7 @@ function renderCustoBrinde(rows){
     </div>
   `;
 
-  // ⭐ POR DIA
+  // POR DIA
   const porDia = new Map();
   registros.forEach(r => {
     if(!r.row._dt) return;
@@ -1948,7 +1930,7 @@ function renderCustoBrinde(rows){
       </tr>`).join("")}
     </tbody></table></div>`;
 
-  // ⭐ POR PARCEIRO
+  // POR PARCEIRO
   const porParceiro = new Map();
   registros.forEach(r => {
     const key = r.descricao || "—";
@@ -1976,10 +1958,10 @@ function renderCustoBrinde(rows){
       </tr>`).join("")}
     </tbody></table></div>`;
 
-  // ⭐ POR PROFISSIONAL (NOVO)
+  // POR PROFISSIONAL
   renderBrindePorProfissional(registros);
 
-  // ⭐ Botões de ordenação
+  // Botões de ordenação
   ["brinde-dia","brinde-parceiro","brinde-prof"].forEach(tid => {
     const container = tid==="brinde-dia" ? el("brinde-por-dia") :
                       tid==="brinde-parceiro" ? el("brinde-por-parceiro") :
@@ -1994,14 +1976,11 @@ function renderCustoBrinde(rows){
   });
 }
 
-/* ═══════════════════════════════════════════════
-    RENDER: CUSTO DE BRINDE POR PROFISSIONAL
+/* ══════════════════════════════════════════════
+   RENDER: CUSTO DE BRINDE POR PROFISSIONAL
 ═══════════════════════════════════════════════ */
 function renderBrindePorProfissional(registros){
   const profTipo = norm(el("brindeProfTipo").value);
-  const profKey = KEY[profTipo.replace(/\s+/g,"")] || profTipo;
-
-  // Mapeia nome da coluna baseado no tipo
   const colMap = {
     "promotor de marketing": KEY.promotor,
     "liner": KEY.liner,
@@ -2024,7 +2003,7 @@ function renderBrindePorProfissional(registros){
   listaProf = sortedList(listaProf, "brinde-prof", sortState["brinde-prof"]?.key || "valorTotal");
 
   if(!listaProf.length){
-    el("brinde-por-profissional").innerHTML = `<div class="note">Nenhum registro de brinde para o tipo "${profTipo}" no período filtrado.</div>`;
+    el("brinde-por-profissional").innerHTML = `<div class="note">Nenhum registro de brinde para "${profTipo}" no período filtrado.</div>`;
     return;
   }
 
@@ -2035,7 +2014,7 @@ function renderBrindePorProfissional(registros){
     <div class="brinde-summary" style="margin-bottom:12px">
       <div class="brinde-card promotor">
         <div class="br-value">${fmtMoney(valorTotalProf)}</div>
-        <div class="br-label"> Custo total (${profTipo})</div>
+        <div class="br-label">Custo total (${profTipo})</div>
       </div>
       <div class="brinde-card promotor">
         <div class="br-value">${qtdTotalProf.toLocaleString("pt-BR")}</div>
@@ -2172,7 +2151,6 @@ function populateProfSelects(){
   profNomeEl.value = names.has(prevProf) ? prevProf : "todos";
   ufEl.value = ufs.has(prevUf) ? prevUf : "todos";
 
-  // Single
   const profTipoSingle = norm(el("profTipoSingle").value);
   const profNomeSingle = el("profNomeSingle").value;
   const namesSingle = new Set();
@@ -2207,7 +2185,6 @@ function render(){
    EVENT LISTENERS
 ═══════════════════════════════════════════════ */
 function setupListeners(){
-  // Tabs
   document.querySelectorAll(".tab").forEach(tab=>{
     tab.addEventListener("click",()=>{
       document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
@@ -2217,12 +2194,10 @@ function setupListeners(){
     });
   });
 
-  // Filtros globais
   ["statusSelect","profTipo","profNome","ufSelect","dateStart","dateEnd"].forEach(id=>{
     el(id).addEventListener("change",()=>{populateProfSelects();render();});
   });
 
-  // Botões de período
   const today = new Date();
   const toISOInput = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
   el("btnHoje").addEventListener("click",()=>{el("dateStart").value=toISOInput(today);el("dateEnd").value=toISOInput(today);render();});
@@ -2232,18 +2207,15 @@ function setupListeners(){
   });
   el("btnLimparPeriodo").addEventListener("click",()=>{el("dateStart").value="";el("dateEnd").value="";render();});
 
-  // Comparativo
   el("btnCmpXHoje").addEventListener("click",()=>{el("cmpXStart").value=toISOInput(today);el("cmpXEnd").value=toISOInput(today);renderComparativo();});
   el("btnCmpX30").addEventListener("click",()=>{const d=new Date(today);d.setDate(d.getDate()-29);el("cmpXStart").value=toISOInput(d);el("cmpXEnd").value=toISOInput(today);renderComparativo();});
   el("btnCmpYHoje").addEventListener("click",()=>{el("cmpYStart").value=toISOInput(today);el("cmpYEnd").value=toISOInput(today);renderComparativo();});
   el("btnCmpY30").addEventListener("click",()=>{const d=new Date(today);d.setDate(d.getDate()-29);el("cmpYStart").value=toISOInput(d);el("cmpYEnd").value=toISOInput(today);renderComparativo();});
   ["cmpXStart","cmpXEnd","cmpYStart","cmpYEnd"].forEach(id=>el(id).addEventListener("change",renderComparativo));
 
-  // Profissionais single
   el("profTipoSingle").addEventListener("change",()=>{populateProfSelects();renderProfissionais();});
   el("profNomeSingle").addEventListener("change",renderProfissionais);
 
-  // ⭐ Brinde - tipo de profissional
   el("brindeProfTipo").addEventListener("change",()=>renderCustoBrinde(state.filtered));
 }
 
@@ -2267,7 +2239,7 @@ async function loadCSV(){
     render();
 
     console.log("✅ Painel carregado:", state.rows.length, "linhas");
-    console.log("🎁 Coluna de brinde:", state.meta.brindeColKey || "não detectada");
+    console.log(" Coluna de brinde:", state.meta.brindeColKey || "não detectada");
   } catch(err){
     el("loading").style.display = "none";
     el("error").style.display = "block";
