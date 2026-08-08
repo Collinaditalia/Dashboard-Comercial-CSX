@@ -12,7 +12,7 @@
       --bg0:#070A12; --bg1:#0B1222; --card: rgba(255,255,255,.06);
       --stroke: rgba(255,255,255,.12); --text:#EAF0FF; --muted: rgba(234,240,255,.72);
       --good:#5CFFB0; --med:#FFB020; --bad:#FF2D55;
-      --accent:#7C5CFF; --accent2:#22D3EE;
+      --accent:#7C5CFF; --accent2:#22D3EE; --accent3:#F472B6;
       --shadow: 0 20px 60px rgba(0,0,0,.55); --radius: 18px; --radius2: 12px;
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
       --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
@@ -25,6 +25,7 @@
         radial-gradient(1200px 700px at 10% 10%, rgba(124,92,255,.25), transparent 55%),
         radial-gradient(900px 600px at 90% 20%, rgba(34,211,238,.18), transparent 55%),
         radial-gradient(800px 600px at 40% 90%, rgba(92,255,176,.12), transparent 55%),
+        radial-gradient(800px 600px at 70% 70%, rgba(244,114,182,.10), transparent 55%),
         linear-gradient(180deg, var(--bg0), var(--bg1));
       font-family:var(--sans); color:var(--text);
       overflow-x:hidden;
@@ -71,7 +72,7 @@
       backdrop-filter:blur(10px);
       padding:10px;
     }
-    .tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;}
+    .tabs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;}
     .tab{
       display:flex;align-items:center;justify-content:center;gap:10px;
       padding:12px 12px;text-align:center;cursor:pointer;
@@ -100,7 +101,9 @@
     }
     .stat-card:hover{transform:translateY(-2px);border-color:rgba(255,255,255,0.18);box-shadow:var(--shadow);}
     .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));}
+    .stat-card.accent-brinde::before{background:linear-gradient(90deg,var(--accent3),#FBBF24);}
     .stat-value{font-size:2.15rem;font-weight:900;margin:0 0 8px;font-family:var(--mono);color:var(--accent2);}
+    .stat-card.accent-brinde .stat-value{color:var(--accent3);}
     .stat-label{font-size:.95rem;color:var(--muted);font-weight:700;letter-spacing:0.2px;}
 
     .note{
@@ -154,7 +157,7 @@
     }
     .p-bad{background:rgba(255,45,85,.12);color:var(--bad);border-color:rgba(255,45,85,.28);}
     .p-med{background:rgba(255,176,32,.12);color:var(--med);border-color:rgba(255,176,32,.28);}
-    .p-good{background:rgba(92,255,176,.12);color:var(--good);border-color:rgba(92,255,176,.28);}
+    .p-good{background:rgba(255,92,255,.12);color:var(--good);border-color:rgba(92,255,176,.28);}
 
     .name.clickable{cursor:pointer;transition:all 0.15s ease;}
     .name.clickable:hover{color:var(--accent2);text-decoration:underline;}
@@ -589,22 +592,32 @@
       <label>UF</label>
       <select id="ufSelect"><option value="todos">Todas</option></select>
     </div>
+    <!-- 🎁 NOVOS FILTROS DE BRINDES -->
+    <div class="control-group">
+      <label>Parceiro (Brinde)</label>
+      <select id="brindeParceiroSelect"><option value="todos">Todos</option></select>
+    </div>
+    <div class="control-group">
+      <label>Captador (Brinde)</label>
+      <select id="brindeCaptadorSelect"><option value="todos">Todos</option></select>
+    </div>
   </div>
 
   <!-- ABAS -->
   <div class="tabs-wrap">
     <div class="tabs">
       <div class="tab active" data-tab="resumo">📊 Resumo</div>
-      <div class="tab" data-tab="comparativo">🆚 Comparativo de períodos</div>
-      <div class="tab" data-tab="curva">📈 Curva de casais e vendas</div>
-      <div class="tab" data-tab="cancelamento">❌ Análise de cancelamento</div>
-      <div class="tab" data-tab="equipes">🧲 Equipes de captação</div>
-      <div class="tab" data-tab="equipes-supervisores">🧑‍✈️ Promotores (2 supervisores)</div>
-      <div class="tab" data-tab="individual-mes-mes">🗓️ Individual mês/mês</div>
-      <div class="tab" data-tab="ranking-promotor">🎯 Ranking Promotor</div>
-      <div class="tab" data-tab="ranking-liner">💬 Ranking Liner</div>
-      <div class="tab" data-tab="ranking-closer">🤝 Ranking Closer</div>
-      <div class="tab" data-tab="perfil-renda">💸 Perfil de renda</div>
+      <div class="tab" data-tab="brindes">🎁 Brindes</div>
+      <div class="tab" data-tab="comparativo">🆚 Comparativo</div>
+      <div class="tab" data-tab="curva">📈 Curva de casais</div>
+      <div class="tab" data-tab="cancelamento">❌ Cancelamento</div>
+      <div class="tab" data-tab="equipes">🧲 Equipes</div>
+      <div class="tab" data-tab="equipes-supervisores">🧑‍✈️ Supervisores</div>
+      <div class="tab" data-tab="individual-mes-mes">🗓️ Mês/mês</div>
+      <div class="tab" data-tab="ranking-promotor">🎯 Promotor</div>
+      <div class="tab" data-tab="ranking-liner">💬 Liner</div>
+      <div class="tab" data-tab="ranking-closer">🤝 Closer</div>
+      <div class="tab" data-tab="perfil-renda">💸 Renda</div>
     </div>
   </div>
 
@@ -616,6 +629,8 @@
     <!-- RESUMO -->
     <div id="tab-resumo" class="tab-content active">
       <div class="stats" id="stats"></div>
+      <!-- 🎁 CARD DE BRINDES NO RESUMO -->
+      <div class="stats" id="stats-brindes-resumo" style="margin-top:6px"></div>
       <div class="note">
         <strong>Critérios</strong><br>
         • Casais = linhas (com ajuste: Total − NoTour).<br>
@@ -625,9 +640,29 @@
         • <strong>VGV líquido = VGV ativo</strong> (vendas realizadas − cancelamentos, rateio proporcional).<br>
         • VGV ativo/cancelado: rateio proporcional pelos tokens ATIVO/CANCELADO da linha.<br>
         • <strong>Eficiência = (Cotas ÷ Casais) × 100</strong>.<br>
-        • <strong>Aproveitamento = (Clientes que compraram ÷ Total de clientes) × 100</strong> (independente da qtd. de cotas).<br>
-        • <strong>Média de Casais/dia</strong> = total ÷ dias do período (inclusivo).
+        • <strong>Aproveitamento = (Clientes que compraram ÷ Total de clientes) × 100</strong>.<br>
+        • <strong>Média de Casais/dia</strong> = total ÷ dias do período (inclusivo).<br>
+        • 🎁 <strong>Custo brindes</strong> = soma de todos os VALOR dos brindes. <strong>Média por cliente</strong> = custo ÷ clientes que receberam ao menos 1 brinde.
       </div>
+    </div>
+
+    <!-- 🎁 NOVA ABA: BRINDES -->
+    <div id="tab-brindes" class="tab-content">
+      <div class="stats" id="stats-brindes"></div>
+      <div class="note">
+        <strong>Análise de Brindes</strong><br>
+        • <strong>Custo total</strong> = soma do campo VALOR de todos os brindes entregues.<br>
+        • <strong>Média por cliente</strong> = custo total ÷ número de clientes que receberam ao menos 1 brinde.<br>
+        • Use os filtros <strong>Parceiro</strong> e <strong>Captador</strong> acima para refinar a análise.
+      </div>
+      <div class="section-title" style="margin-top:18px">
+        Custo por empresa parceira <span class="pill-tag">brindes</span>
+      </div>
+      <div id="brindes-parceiro-table"></div>
+      <div class="section-title" style="margin-top:18px">
+        Custo por captador (Promotor de marketing) <span class="pill-tag">brindes</span>
+      </div>
+      <div id="brindes-captador-table"></div>
     </div>
 
     <!-- COMPARATIVO -->
@@ -884,11 +919,8 @@ const norm = s  => (s ?? "").toString().toLowerCase().trim().replace(/\s+/g," ")
 
 /* ═══════════════════════════════════════════════
    DETECÇÃO INTELIGENTE DO NOME DO CLIENTE
-   Procura em TODAS as colunas do CSV para encontrar
-   o nome do cliente/cessionário (agora mais abrangente).
 ═══════════════════════════════════════════════ */
 function detectClientNameColumn(headerKeys) {
-  // Lista expandida com variações de "cliente", "cessionário", "nome", etc.
   const CLIENT_NAME_HEADERS = [
     "nome do cliente", "cliente", "nome", "casal",
     "nome completo", "nome do casal",
@@ -899,38 +931,27 @@ function detectClientNameColumn(headerKeys) {
     "comprador", "nome comprador", "titular",
     "nome titular", "contratante", "nome contratante",
   ];
-
-  // Primeira tentativa: match exato com a lista
   for (const candidate of CLIENT_NAME_HEADERS) {
-    if (headerKeys.includes(norm(candidate))) {
-      return norm(candidate);
-    }
+    if (headerKeys.includes(norm(candidate))) return norm(candidate);
   }
-
-  // Segunda tentativa: busca por palavras-chave isoladas
   const keywords = ["cliente", "cessionário", "cessionario", "nome", "casal", "comprador", "titular", "contratante"];
   for (const key of headerKeys) {
     const nk = norm(key);
     if (!nk) continue;
     for (const kw of keywords) {
-      if (nk.includes(kw)) {
-        return key; // retorna a key original (não normalizada)
-      }
+      if (nk.includes(kw)) return key;
     }
   }
-
-  // Terceira tentativa: procura por colunas que NÃO sejam as colunas de sistema conhecidas
   const KNOWN_KEYS = new Set([
     norm("data de atendimento"), norm("status do contrato"), norm("status atendimento"),
     norm("renda"), norm("uf"),
     norm("promotor de marketing"), norm("liner"), norm("closer"),
   ]);
   for (const key of headerKeys) {
-    if (!KNOWN_KEYS.has(norm(key)) && !norm(key).includes("vgv") && !norm(key).includes("valor")) {
+    if (!KNOWN_KEYS.has(norm(key)) && !norm(key).includes("vgv") && !norm(key).includes("valor") && !norm(key).includes("brinde")) {
       return key;
     }
   }
-
   return null;
 }
 
@@ -943,9 +964,10 @@ const KEY = {
   promotor: norm("promotor de marketing"),
   liner   : norm("liner"),
   closer  : norm("closer"),
+  brindes : norm("brindes efetivos"),
 };
 
-const state   = { rows:[], filtered:[], meta:{ vgvColKey:null, firstColKey:null, clientNameKey:null }, expandedRanking:{cid:null,name:null} };
+const state   = { rows:[], filtered:[], meta:{ vgvColKey:null, firstColKey:null, clientNameKey:null, brindesColKey:null }, expandedRanking:{cid:null,name:null} };
 const charts  = { curva:null, semana:null, cancelamento:null };
 const sortState = {
   "ranking-promotor"   :{ key:"vendas",    dir:"desc" },
@@ -953,10 +975,43 @@ const sortState = {
   "ranking-closer"     :{ key:"vendas",    dir:"desc" },
   "perfil-renda"       :{ key:"vgvTotal",  dir:"desc" },
   "cancelamento-table" :{ key:"cotasTotal",dir:"desc" },
+  "brindes-parceiro"   :{ key:"custoTotal",dir:"desc" },
+  "brindes-captador"   :{ key:"custoTotal",dir:"desc" },
 };
 
 /* ═══════════════════════════════════════════════
-   localStorage — EQUIPES v2 (com inatividade)
+   PARSE DE BRINDES 🎁
+═══════════════════════════════════════════════ */
+function parseBrindes(str){
+  if(!str || typeof str!=="string") return [];
+  const results = [];
+  const cleaned = str.replace(/^"|"$/g,"");
+  const regex = /\(TOTAL:\s*(\d+)\s*\[DESCRI[ÇC][ÃA]O:\s*([^-]+?)\s*-\s*R\$\s*([\d.,]+)\s*-\s*QTD\.:\s*(\d+)\s*-\s*VALOR:\s*([\d.,]+)\s*\]\)/gi;
+  let match;
+  while((match = regex.exec(cleaned)) !== null){
+    results.push({
+      total: parseInt(match[1]) || 0,
+      parceiro: match[2].trim(),
+      valorIndividual: parseMoneyBR(match[3]),
+      qtd: parseInt(match[4]) || 0,
+      valorTotal: parseMoneyBR(match[5])
+    });
+  }
+  return results;
+}
+
+function brindeCustoTotal(row){
+  const brindes = row._brindes || [];
+  return brindes.reduce((s,b)=>s+(b.valorTotal||0),0);
+}
+
+function brindeQtdTotal(row){
+  const brindes = row._brindes || [];
+  return brindes.reduce((s,b)=>s+(b.qtd||0),0);
+}
+
+/* ═══════════════════════════════════════════════
+   localStorage — EQUIPES v2
 ═══════════════════════════════════════════════ */
 const TEAM_KEY_V2 = "painel_equipes_promotores_v2";
 
@@ -976,11 +1031,7 @@ function loadTeamMapV2(){
           if(typeof v === "string"){
             newMap[k] = { equipe: v, inativoInicio: null, inativoFim: null };
           } else if(v && typeof v === "object"){
-            newMap[k] = {
-              equipe: v.equipe || null,
-              inativoInicio: v.inativoInicio || null,
-              inativoFim: v.inativoFim || null
-            };
+            newMap[k] = { equipe: v.equipe || null, inativoInicio: v.inativoInicio || null, inativoFim: v.inativoFim || null };
           }
         }
         saveTeamMapV2(newMap);
@@ -991,52 +1042,30 @@ function loadTeamMapV2(){
   } catch(e){ return {}; }
 }
 
-function saveTeamMapV2(m){
-  localStorage.setItem(TEAM_KEY_V2, JSON.stringify(m || {}));
-}
+function saveTeamMapV2(m){ localStorage.setItem(TEAM_KEY_V2, JSON.stringify(m || {})); }
 
 function getTeamConfig(promotorNome){
   const map = loadTeamMapV2();
   const raw = map[promotorNome];
   if(!raw) return null;
-  if(typeof raw === "string"){
-    return { equipe: raw, inativoInicio: null, inativoFim: null };
-  }
-  return {
-    equipe: raw.equipe || null,
-    inativoInicio: raw.inativoInicio || null,
-    inativoFim: raw.inativoFim || null,
-  };
+  if(typeof raw === "string") return { equipe: raw, inativoInicio: null, inativoFim: null };
+  return { equipe: raw.equipe || null, inativoInicio: raw.inativoInicio || null, inativoFim: raw.inativoFim || null };
 }
 
-function setTeamConfig(promotorNome, config){
-  const map = loadTeamMapV2();
-  map[promotorNome] = config;
-  saveTeamMapV2(map);
-}
-
-function removeTeamConfig(promotorNome){
-  const map = loadTeamMapV2();
-  delete map[promotorNome];
-  saveTeamMapV2(map);
-}
+function setTeamConfig(promotorNome, config){ const map = loadTeamMapV2(); map[promotorNome] = config; saveTeamMapV2(map); }
+function removeTeamConfig(promotorNome){ const map = loadTeamMapV2(); delete map[promotorNome]; saveTeamMapV2(map); }
 
 function getEquipeEfetiva(promotorNome, dt){
   const cfg = getTeamConfig(promotorNome);
   if(!cfg || !cfg.equipe) return null;
-
   const ini = cfg.inativoInicio ? parseDateOnlyInput(cfg.inativoInicio) : null;
   const fim = cfg.inativoFim   ? parseDateOnlyInput(cfg.inativoFim)   : null;
-
   if(ini && fim && dt){
     const d = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
     const i = new Date(ini.getFullYear(), ini.getMonth(), ini.getDate());
     const f = new Date(fim.getFullYear(), fim.getMonth(), fim.getDate());
-    if(d >= i && d <= f){
-      return "Inativo";
-    }
+    if(d >= i && d <= f) return "Inativo";
   }
-
   return cfg.equipe;
 }
 
@@ -1067,12 +1096,13 @@ function parseDelimited(text, delimiter=";"){
   const keys=Object.keys(data[0]||{});
   state.meta.firstColKey=keys[0]||null;
   state.meta.vgvColKey  =keys[6]||null;
-  if(!state.meta.vgvColKey) throw new Error("CSV precisa ter pelo menos 7 colunas (VGV na coluna G).");
-
-  // Detectar a coluna de nome do cliente
   state.meta.clientNameKey = detectClientNameColumn(keys);
-  console.log("🔍 Coluna de nome do cliente detectada:", state.meta.clientNameKey || "NENHUMA (usará fallback)");
-
+  // Detecta coluna de brindes
+  const brindeCandidates = keys.filter(k=>norm(k).includes("brinde"));
+  state.meta.brindesColKey = brindeCandidates.length>0 ? brindeCandidates[0] : keys[16] || null;
+  console.log("🔍 Coluna de nome do cliente:", state.meta.clientNameKey || "NENHUMA");
+  console.log("🎁 Coluna de brindes:", state.meta.brindesColKey || "NENHUMA");
+  if(!state.meta.vgvColKey) throw new Error("CSV precisa ter pelo menos 7 colunas (VGV na coluna G).");
   return data;
 }
 
@@ -1136,9 +1166,8 @@ function contractBucket(s){
 ═══════════════════════════════════════════════ */
 function buildObjects(rows){
   if(!rows.length) throw new Error("CSV vazio.");
-
-  // Obtém o nome do cliente de forma inteligente
   const cnk = state.meta.clientNameKey;
+  const bnk = state.meta.brindesColKey || KEY.brindes;
 
   return rows.map(r=>{
     const o={...r};
@@ -1149,6 +1178,9 @@ function buildObjects(rows){
     o._bucket    =contractBucket(o[KEY.statusContrato]);
     o._clientName=cnk?(o[cnk]??"").toString().trim():"";
     o._statusAt  =norm(o[KEY.statusAtendimento]??"");
+    o._brindes   =parseBrindes(o[bnk]??"");
+    o._brindeCusto = brindeCustoTotal(o);
+    o._brindeQtd   = brindeQtdTotal(o);
     return o;
   });
 }
@@ -1161,6 +1193,8 @@ function applyFilters(rows){
   const profTipo=norm(el("profTipo").value);
   const profNome=el("profNome").value;
   const ufSel   =el("ufSelect").value;
+  const brindeParceiro = el("brindeParceiroSelect").value;
+  const brindeCaptador = el("brindeCaptadorSelect").value;
   const d1=parseDateOnlyInput(el("dateStart").value);
   const d2=parseDateOnlyInput(el("dateEnd").value);
   let f=rows.slice();
@@ -1172,6 +1206,13 @@ function applyFilters(rows){
   if(status!=="todos")   f=f.filter(r=>r._bucket===status);
   if(ufSel !=="todos")   f=f.filter(r=>(r[KEY.uf]??"").toString().trim()===ufSel);
   if(profNome!=="todos") f=f.filter(r=>norm(r[profTipo]??"")=== norm(profNome));
+  // 🎁 Filtros de brindes
+  if(brindeParceiro!=="todos"){
+    f=f.filter(r=> (r._brindes||[]).some(b=>b.parceiro===brindeParceiro) );
+  }
+  if(brindeCaptador!=="todos"){
+    f=f.filter(r=> norm(r[KEY.promotor]??"") === norm(brindeCaptador) );
+  }
   return f;
 }
 
@@ -1203,6 +1244,11 @@ function statsFor(rows){
   const eff=casais?(q.total/casais):0;
   const clientesCompraram = rows.filter(r => (r._quotas?.total ?? 0) > 0).length;
   const aproveitamento = rows.length ? (clientesCompraram / rows.length) : 0;
+  // 🎁 Estatísticas de brindes
+  const brindeCustoTotal = rows.reduce((s,r)=>s+(r._brindeCusto||0),0);
+  const clientesComBrinde = rows.filter(r=>(r._brindes||[]).length>0).length;
+  const brindeMedioPorCliente = clientesComBrinde>0 ? (brindeCustoTotal/clientesComBrinde) : 0;
+
   return{
     totalLinhas:rows.length,noTour,casais,
     vendas:q.total,cotasCanceladas:q.cancelado,
@@ -1212,6 +1258,7 @@ function statsFor(rows){
     rendaMed:avgRenda(rows),mediaCasaisPeriodo:avgCasais(rows),
     pctCancelamentosVendas: q.total ? (q.cancelado / q.total) : 0,
     aproveitamento, clientesCompraram,
+    brindeCustoTotal, clientesComBrinde, brindeMedioPorCliente,
   };
 }
 
@@ -1225,7 +1272,7 @@ function renderCards(cid,rows){
     <div class="stat-card"><div class="stat-value">${fmtNumBR(s.mediaCasaisPeriodo,1,1)}</div><div class="stat-label">Média de Casais/dia</div></div>
     <div class="stat-card"><div class="stat-value">${s.vendas}</div><div class="stat-label">Cotas (vendas totais)</div></div>
     <div class="stat-card"><div class="stat-value">${s.cotasCanceladas}</div><div class="stat-label">Cotas canceladas</div></div>
-    <div class="stat-card"><div class="stat-value">${fmtPctBR(s.pctCancelamentosVendas)}</div><div class="stat-label">% Cancelamentos (Canceladas ÷ Vendas)</div></div>
+    <div class="stat-card"><div class="stat-value">${fmtPctBR(s.pctCancelamentosVendas)}</div><div class="stat-label">% Cancelamentos</div></div>
     <div class="stat-card"><div class="stat-value">${fmtMoney(s.vgvTotal)}</div><div class="stat-label">VGV total (Σ col G)</div></div>
     <div class="stat-card"><div class="stat-value">${fmtMoney(s.vgvAtivo)}</div><div class="stat-label">VGV líquido (ativo)</div></div>
     <div class="stat-card"><div class="stat-value">${fmtPctBR(s.eficiencia)}</div><div class="stat-label">Eficiência</div></div>
@@ -1235,6 +1282,22 @@ function renderCards(cid,rows){
     <div class="stat-card"><div class="stat-value">${s.noTour}</div><div class="stat-label">NoTour</div></div>`;
 }
 
+/* 🎁 RENDER BRINDE CARDS */
+function renderBrindeCardsResumo(rows){
+  const s = statsFor(rows);
+  el("stats-brindes-resumo").innerHTML = `
+    <div class="stat-card accent-brinde"><div class="stat-value">${fmtMoney(s.brindeCustoTotal)}</div><div class="stat-label">🎁 Custo total de brindes</div></div>
+    <div class="stat-card accent-brinde"><div class="stat-value">${fmtMoney(s.brindeMedioPorCliente)}</div><div class="stat-label">🎁 Média de custo por cliente</div></div>
+    <div class="stat-card accent-brinde"><div class="stat-value">${s.clientesComBrinde}</div><div class="stat-label">🎁 Clientes com brinde</div></div>`;
+}
+
+function renderBrindeCardsFull(rows){
+  const s = statsFor(rows);
+  el("stats-brindes").innerHTML = `
+    <div class="stat-card accent-brinde"><div class="stat-value">${fmtMoney(s.brindeCustoTotal)}</div><div class="stat-label">🎁 Custo total de brindes</div></div>
+    <div class="stat-card accent-brinde"><div class="stat-value">${fmtMoney(s.brindeMedioPorCliente)}</div><div class="stat-label">🎁 Média de custo por cliente</div></div>
+    <div class="stat-card accent-brinde"><div class="stat-value">${s.clientesComBrinde}</div><div class="stat-label">🎁 Clientes com brinde</div></div>`;
+}
 /* ═══════════════════════════════════════════════
    RANKING
 ═══════════════════════════════════════════════ */
@@ -1243,7 +1306,7 @@ function groupRanking(rows,fieldKey){
   rows.forEach(r=>{ const n=(r[fieldKey]??"").toString().trim(); if(!n) return; if(!map.has(n)) map.set(n,[]); map.get(n).push(r); });
   return Array.from(map.entries()).map(([name,list])=>{
     const s=statsFor(list);
-    return{name,casais:s.casais,vendas:s.vendas,cotasCanceladas:s.cotasCanceladas,vgvTotal:s.vgvTotal,vgvAtivo:s.vgvAtivo,eficiencia:s.eficiencia,pctCancel:s.pctCancel,ticketMedio:s.ticketMedio,rendaMed:s.rendaMed,aproveitamento:s.aproveitamento,clientesCompraram:s.clientesCompraram};
+    return{name,casais:s.casais,vendas:s.vendas,cotasCanceladas:s.cotasCanceladas,vgvTotal:s.vgvTotal,vgvAtivo:s.vgvAtivo,eficiencia:s.eficiencia,pctCancel:s.pctCancel,ticketMedio:s.ticketMedio,rendaMed:s.rendaMed,aproveitamento:s.aproveitamento,clientesCompraram:s.clientesCompraram,brindeCustoTotal:s.brindeCustoTotal,clientesComBrinde:s.clientesComBrinde,brindeMedioPorCliente:s.brindeMedioPorCliente};
   }).sort((a,b)=>(b.vendas-a.vendas)||(b.vgvTotal-a.vgvTotal)||a.name.localeCompare(b.name));
 }
 
@@ -1417,7 +1480,103 @@ function renderRanking(cid, rows, fieldKey){
 }
 
 /* ═══════════════════════════════════════════════
-   PERFIL DE RENDA (novas faixas)
+   🎁 BRINDES — TABELAS POR PARCEIRO E CAPTADOR
+═══════════════════════════════════════════════ */
+function renderBrindesTab(rows){
+  renderBrindeCardsFull(rows);
+
+  // Agrupar por parceiro
+  const mapParceiro = new Map();
+  rows.forEach(r=>{
+    (r._brindes||[]).forEach(b=>{
+      if(!b.parceiro) return;
+      if(!mapParceiro.has(b.parceiro)) mapParceiro.set(b.parceiro, {custoTotal:0, qtdTotal:0, clientes:new Set()});
+      const d = mapParceiro.get(b.parceiro);
+      d.custoTotal += b.valorTotal || 0;
+      d.qtdTotal   += b.qtd || 0;
+      d.clientes.add(r._clientName || `row-${rows.indexOf(r)}`);
+    });
+  });
+  const listParceiro = Array.from(mapParceiro.entries()).map(([parceiro, d])=>({
+    parceiro,
+    custoTotal: d.custoTotal,
+    qtdTotal: d.qtdTotal,
+    clientes: d.clientes.size,
+    custoMedio: d.clientes.size>0 ? d.custoTotal/d.clientes.size : 0,
+  }));
+  const sortedParceiro = sortedList(listParceiro, "brindes-parceiro", "custoTotal");
+
+  el("brindes-parceiro-table").innerHTML = `<div class="table-wrap"><table>
+    <thead><tr>
+      <th>Parceiro</th>
+      <th class="num sortable" data-sort="custoTotal" data-tid="brindes-parceiro">Custo total ${sortInd("brindes-parceiro","custoTotal")}</th>
+      <th class="num sortable" data-sort="qtdTotal" data-tid="brindes-parceiro">Qtd. brindes ${sortInd("brindes-parceiro","qtdTotal")}</th>
+      <th class="num sortable" data-sort="clientes" data-tid="brindes-parceiro">Clientes ${sortInd("brindes-parceiro","clientes")}</th>
+      <th class="num sortable" data-sort="custoMedio" data-tid="brindes-parceiro">Custo médio/cliente ${sortInd("brindes-parceiro","custoMedio")}</th>
+    </tr></thead>
+    <tbody>${sortedParceiro.map(l=>`<tr>
+      <td class="name"><strong>${l.parceiro}</strong></td>
+      <td class="num">${fmtMoney(l.custoTotal)}</td>
+      <td class="num">${l.qtdTotal}</td>
+      <td class="num">${l.clientes}</td>
+      <td class="num">${fmtMoney(l.custoMedio)}</td>
+    </tr>`).join("")}</tbody></table></div>`;
+
+  el("brindes-parceiro-table").querySelectorAll("[data-sort]").forEach(th=>{
+    th.addEventListener("click", ()=>{
+      setSort("brindes-parceiro", th.dataset.sort);
+      renderBrindesTab(state.filtered);
+    });
+  });
+
+  // Agrupar por captador (Promotor de marketing)
+  const mapCaptador = new Map();
+  rows.forEach(r=>{
+    const nome = (r[KEY.promotor]?? "").toString().trim();
+    if(!nome) return;
+    if(!mapCaptador.has(nome)) mapCaptador.set(nome, {custoTotal:0, qtdTotal:0, clientes:new Set()});
+    const d = mapCaptador.get(nome);
+    (r._brindes||[]).forEach(b=>{
+      d.custoTotal += b.valorTotal || 0;
+      d.qtdTotal   += b.qtd || 0;
+    });
+    d.clientes.add(r._clientName || `row-${rows.indexOf(r)}`);
+  });
+  const listCaptador = Array.from(mapCaptador.entries()).map(([captador, d])=>({
+    captador,
+    custoTotal: d.custoTotal,
+    qtdTotal: d.qtdTotal,
+    clientes: d.clientes.size,
+    custoMedio: d.clientes.size>0 ? d.custoTotal/d.clientes.size : 0,
+  }));
+  const sortedCaptador = sortedList(listCaptador, "brindes-captador", "custoTotal");
+
+  el("brindes-captador-table").innerHTML = `<div class="table-wrap"><table>
+    <thead><tr>
+      <th>Captador</th>
+      <th class="num sortable" data-sort="custoTotal" data-tid="brindes-captador">Custo total ${sortInd("brindes-captador","custoTotal")}</th>
+      <th class="num sortable" data-sort="qtdTotal" data-tid="brindes-captador">Qtd. brindes ${sortInd("brindes-captador","qtdTotal")}</th>
+      <th class="num sortable" data-sort="clientes" data-tid="brindes-captador">Clientes ${sortInd("brindes-captador","clientes")}</th>
+      <th class="num sortable" data-sort="custoMedio" data-tid="brindes-captador">Custo médio/cliente ${sortInd("brindes-captador","custoMedio")}</th>
+    </tr></thead>
+    <tbody>${sortedCaptador.map(l=>`<tr>
+      <td class="name"><strong>${l.captador}</strong></td>
+      <td class="num">${fmtMoney(l.custoTotal)}</td>
+      <td class="num">${l.qtdTotal}</td>
+      <td class="num">${l.clientes}</td>
+      <td class="num">${fmtMoney(l.custoMedio)}</td>
+    </tr>`).join("")}</tbody></table></div>`;
+
+  el("brindes-captador-table").querySelectorAll("[data-sort]").forEach(th=>{
+    th.addEventListener("click", ()=>{
+      setSort("brindes-captador", th.dataset.sort);
+      renderBrindesTab(state.filtered);
+    });
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   PERFIL DE RENDA
 ═══════════════════════════════════════════════ */
 function getRendaFaixa(renda){
   if(renda < 11900) return "Abaixo de R$ 11,9 mil";
@@ -1853,6 +2012,7 @@ function renderSupervisores(){
     {label:"VGV total", p:sp.vgvTotal, e:se.vgvTotal, g:sg.vgvTotal, fmt:v=>fmtMoney(v)},
     {label:"VGV líquido", p:sp.vgvAtivo, e:se.vgvAtivo, g:sg.vgvAtivo, fmt:v=>fmtMoney(v)},
     {label:"VGV cancelado", p:sp.vgvCancelado, e:se.vgvCancelado, g:sg.vgvCancelado, fmt:v=>fmtMoney(v)},
+    {label:"Custo brindes", p:sp.brindeCustoTotal, e:se.brindeCustoTotal, g:sg.brindeCustoTotal, fmt:v=>fmtMoney(v)},
     {label:"Eficiência", p:sp.eficiencia, e:se.eficiencia, g:sg.eficiencia, fmt:v=>fmtPctBR(v)},
     {label:"Aproveitamento", p:sp.aproveitamento, e:se.aproveitamento, g:sg.aproveitamento, fmt:v=>fmtPctBR(v)},
     {label:"% Cancelamento", p:sp.pctCancel, e:se.pctCancel, g:sg.pctCancel, fmt:v=>fmtPctBR(v)},
@@ -2076,6 +2236,7 @@ function renderMM(){
         <div class="mm-kpi"><span class="lab">Vendas</span><span class="val">${fmtNumBR(s.vendas,1,1)}</span></div>
         <div class="mm-kpi"><span class="lab">VGV Total</span><span class="val">${fmtMoney(s.vgvTotal)}</span></div>
         <div class="mm-kpi"><span class="lab">VGV Líquido</span><span class="val">${fmtMoney(s.vgvAtivo)}</span></div>
+        <div class="mm-kpi"><span class="lab">Custo brindes</span><span class="val">${fmtMoney(s.brindeCustoTotal)}</span></div>
         <div class="mm-kpi"><span class="lab">Eficiência</span><span class="val"><span class="pill ${effPill(s.eficiencia)}">${fmtPctBR(s.eficiencia)}</span></span></div>
         <div class="mm-kpi"><span class="lab">Aproveitamento</span><span class="val"><span class="pill ${aprPill(s.aproveitamento)}">${fmtPctBR(s.aproveitamento)}</span></span></div>
         <div class="mm-kpi"><span class="lab">% Cancel.</span><span class="val"><span class="pill ${canPill(s.pctCancel)}">${fmtPctBR(s.pctCancel)}</span></span></div>
@@ -2134,6 +2295,7 @@ function renderComparativo(){
     {label:"Vendas", vx:sx.vendas, vy:sy.vendas, fmt:v=>fmtNumBR(v,1,1)},
     {label:"VGV Total", vx:sx.vgvTotal, vy:sy.vgvTotal, fmt:v=>fmtMoney(v)},
     {label:"VGV Líquido", vx:sx.vgvAtivo, vy:sy.vgvAtivo, fmt:v=>fmtMoney(v)},
+    {label:"Custo brindes", vx:sx.brindeCustoTotal, vy:sy.brindeCustoTotal, fmt:v=>fmtMoney(v)},
     {label:"Eficiência", vx:sx.eficiencia*100, vy:sy.eficiencia*100, fmt:v=>fmtPctBR(v/100)},
     {label:"Aproveitamento", vx:sx.aproveitamento*100, vy:sy.aproveitamento*100, fmt:v=>fmtPctBR(v/100)},
     {label:"% Cancel.", vx:sx.pctCancel*100, vy:sy.pctCancel*100, fmt:v=>fmtPctBR(v/100)},
@@ -2164,14 +2326,32 @@ function renderComparativo(){
 function populateFilters(){
   const ufs = new Set();
   const nomesPorTipo = {};
+  const parceirosBrinde = new Set();
+  const captadoresBrinde = new Set();
+
   state.rows.forEach(r=>{
     const uf = (r[KEY.uf]??"").toString().trim(); if(uf) ufs.add(uf);
     ["promotor de marketing","liner","closer"].forEach(t=>{
       const n=(r[norm(t)]??"").toString().trim(); if(n){ if(!nomesPorTipo[t]) nomesPorTipo[t]=new Set(); nomesPorTipo[t].add(n); }
     });
+    // 🎁 Popula parceiros e captadores de brindes
+    (r._brindes||[]).forEach(b=>{
+      if(b.parceiro) parceirosBrinde.add(b.parceiro);
+    });
+    const prom = (r[KEY.promotor]??"").toString().trim();
+    if(prom && (r._brindes||[]).length>0) captadoresBrinde.add(prom);
   });
+
   const selUF = el("ufSelect");
   selUF.innerHTML = '<option value="todos">Todas</option>' + [...ufs].sort().map(u=>`<option value="${u.replace(/"/g,"&quot;")}">${u}</option>`).join("");
+
+  // 🎁 Populate parceiro
+  const selParceiro = el("brindeParceiroSelect");
+  selParceiro.innerHTML = '<option value="todos">Todos</option>' + [...parceirosBrinde].sort().map(p=>`<option value="${p.replace(/"/g,"&quot;")}">${p}</option>`).join("");
+
+  // 🎁 Populate captador
+  const selCaptador = el("brindeCaptadorSelect");
+  selCaptador.innerHTML = '<option value="todos">Todos</option>' + [...captadoresBrinde].sort().map(c=>`<option value="${c.replace(/"/g,"&quot;")}">${c}</option>`).join("");
 
   populateProfNames();
 }
@@ -2197,7 +2377,13 @@ function getActiveTab(){
 function refreshTab(tab){
   state.filtered = applyFilters(state.rows);
   switch(tab){
-    case "resumo": renderCards("stats", state.filtered); break;
+    case "resumo":
+      renderCards("stats", state.filtered);
+      renderBrindeCardsResumo(state.filtered);
+      break;
+    case "brindes":
+      renderBrindesTab(state.filtered);
+      break;
     case "comparativo": break;
     case "curva": renderCurva(state.filtered); renderSemana(state.filtered); break;
     case "cancelamento": renderCancelamento(state.filtered); break;
@@ -2228,7 +2414,7 @@ document.querySelectorAll(".tab").forEach(t=>{
   t.addEventListener("click", ()=>switchTab(t.dataset.tab));
 });
 
-["statusSelect","profNome","ufSelect"].forEach(id=>{
+["statusSelect","profNome","ufSelect","brindeParceiroSelect","brindeCaptadorSelect"].forEach(id=>{
   el(id).addEventListener("change", ()=>refreshTab(getActiveTab()));
 });
 
